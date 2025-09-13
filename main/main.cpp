@@ -5,9 +5,12 @@
 
 #include <iostream>
 #include <iomanip>
+#include "tvector.h"
 
 int main() {
-  return 0;
+    TVector<int> tv();
+
+    return 0;
 }
 
 #endif  // EASY_EXAMPLE
