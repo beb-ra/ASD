@@ -11,7 +11,7 @@ TEST(TestEasyExampleLib, can_div) {
   int y = 2;
 
   // Act & Assert
-  ASSERT_NO_THROW(division(x, y));
+  ASSERT_NO_THROW(division(x, y));  //ф-ция не вызывает исключение
 }
 
 TEST(TestEasyExampleLib, can_div_correctly) {
@@ -24,7 +24,7 @@ TEST(TestEasyExampleLib, can_div_correctly) {
 
     // Assert
     int expected_result = 3;
-    EXPECT_EQ(expected_result, actual_result);
+    EXPECT_EQ(expected_result, actual_result);  //сравниваем равенство EXPECT_NE сравнивает неравенство
 }
 
 TEST(TestEasyExampleLib, can_div_correctly_with_remainder) {
@@ -37,7 +37,7 @@ TEST(TestEasyExampleLib, can_div_correctly_with_remainder) {
 
     // Assert
     float expected_result = 1.25;
-    EXPECT_NEAR(expected_result, actual_result, EPSILON);
+    EXPECT_NEAR(expected_result, actual_result, EPSILON);  // равны примерно с погрешностью
 }
 
 TEST(TestEasyExampleLib, throw_when_try_div_by_zero) {
@@ -46,5 +46,5 @@ TEST(TestEasyExampleLib, throw_when_try_div_by_zero) {
   int y = 0;
 
   // Act & Assert
-  ASSERT_ANY_THROW(division(x, y));
+  ASSERT_ANY_THROW(division(x, y));  // возникнет исключение
 }
