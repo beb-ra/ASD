@@ -1,5 +1,6 @@
 #pragma once
-#include <cmath>
+
+enum LocationTypes { intersect, touch, inside, not_intersect };
 
 class Point {
 	double _x;
@@ -17,14 +18,28 @@ public:
 	}
 };
 
-class Point3D : public Point {
-	double _z;
+template <class T>
+LocationTypes figures_comparison(T first, T second) {
+	double distance = calculate_total_diameter(first, second);
+	double radius_sum = first._radius + second._radius;
+	double radius_diff = std::abs(static_cast<double>(first._radius) - static_cast<double>(second._radius));
 
-public:
-	Point3D() : Point(), _z(0) {}
-	Point3D(double x, double y, double z) : Point(x, y), _z(z) {}
-
-	double get_z() {
-		return _z;
+	if (distance > radius_sum) {
+		return LocationTypes::not_intersect;
 	}
-};
+	else if (std::abs(distance - radius_sum) < 1e-10 ||
+		std::abs(distance - radius_diff) < 1e-10) {
+		return LocationTypes::touch;
+	}
+	else if (distance <= radius_diff) {
+		return LocationTypes::inside;
+	}
+	else {
+		return LocationTypes::intersect;
+	}
+}
+
+template <class T>
+double calculate_total_diameter(T& first, T& second) {
+	return first.calculate_distance(second.get_center());
+}

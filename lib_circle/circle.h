@@ -2,8 +2,6 @@
 #include <cmath>
 #include "..\lib_point\point.h"
 
-enum LocationTypes { intersect, touch, inside, not_intersect };
-
 class Circle {
 	Point _center;
 	double _radius;
