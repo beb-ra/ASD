@@ -5,10 +5,15 @@
 
 #include <iostream>
 #include <iomanip>
-#include <clocale>
 #include <cstdlib>
 
 #define DEBUG
+
+#define ADD 0
+#define SUB 1
+#define MULT 2
+#define MULT_SCALAR 3
+#define EXIT 4
 
 #define COMMON 0
 #define TRIANGLE 1
@@ -16,14 +21,6 @@
 #define MATRIX_B 2
 #define MATRIX_C 3
 #define RESULT_MATRIX 4
-
-// какого вида матрицы
-// выбор размера матриц
-// введите матрицы А, В
-// вывод матриц 
-// выберите операцию
-// вывести итоговую матрицу. сохранить вместо A, B, C? или отмена
-// зациклить выбор операции
 
 #ifdef DEBUG
 class TriangleMatrix {
@@ -81,7 +78,6 @@ TriangleMatrix do_operation_on_matrices(int, const TriangleMatrix&, const Triang
 int select_scalar();
 
 int main() {
-    setlocale(LC_ALL, "Russian");
     int type = enter_matrix_type();
     system("cls");
     switch (type) {
@@ -101,13 +97,13 @@ void handle_matrices() {
     int size_n = mass1[0], size_m = mass1[1];
     delete mass1;
     Matrix matrixA(size_n, size_m);
-    enter_matrix(matrixA, 1);
+    enter_matrix(matrixA, MATRIX_A);
 
     int* mass2 = enter_matrix_size(MATRIX_B);
     size_n = mass2[0], size_m = mass2[1];
     delete mass2;
     Matrix matrixB(size_n, size_m);
-    enter_matrix(matrixB, 2);
+    enter_matrix(matrixB, MATRIX_B);
     system("cls");
 
     print_matrix(matrixA, MATRIX_A);
@@ -120,12 +116,12 @@ void handle_matrices() {
 void handle_triangle_matrices() {
     int size_n = enter_tmatrix_size(MATRIX_A);
     TriangleMatrix matrixA(size_n);
-    enter_matrix(matrixA, 1);
+    enter_matrix(matrixA, MATRIX_A);
     system("cls");
 
     size_n = enter_tmatrix_size(MATRIX_B);
     TriangleMatrix matrixB(size_n);
-    enter_matrix(matrixB, 2);
+    enter_matrix(matrixB, MATRIX_B);
     system("cls");
 
     print_matrix(matrixA, MATRIX_A);
@@ -136,10 +132,10 @@ void handle_triangle_matrices() {
 }
 
 void print_matrix(const Matrix& matr, int num) {
-    if (num == MATRIX_A) std::cout << "\tМАТРИЦА A\n";
-    else if (num == MATRIX_B) std::cout << "\tМАТРИЦА B\n";
-    else if (num == MATRIX_C) std::cout << "\tМАТРИЦА C\n";
-    else std::cout << "\tПОЛУЧЕННАЯ МАТРИЦА\n";
+    if (num == MATRIX_A) std::cout << "\tMATRIX A\n";
+    else if (num == MATRIX_B) std::cout << "\tMATRIX B\n";
+    else if (num == MATRIX_C) std::cout << "\tMATRIX C\n";
+    else std::cout << "\tRESULT MATRIX\n";
 
     for (size_t i = 0; i < matr.get_n(); i++) {
         for (size_t j = 0; j < matr.get_m(); j++) {
@@ -154,10 +150,10 @@ void print_matrix(const Matrix& matr, int num) {
 }
 
 void print_matrix(const TriangleMatrix& matr, int num) {
-    if (num == MATRIX_A) std::cout << "\tМАТРИЦА A\n";
-    else if (num == MATRIX_B) std::cout << "\tМАТРИЦА B\n";
-    else if (num == MATRIX_C) std::cout << "\tМАТРИЦА C\n";
-    else std::cout << "\tПОЛУЧЕННАЯ МАТРИЦА\n";
+    if (num == MATRIX_A) std::cout << "\tMATRIX A\n";
+    else if (num == MATRIX_B) std::cout << "\tMATRIX B\n";
+    else if (num == MATRIX_C) std::cout << "\tMATRIX C\n";
+    else std::cout << "\tRESULT MATRIX\n";
 
     for (size_t i = 0; i < matr.get_n(); i++) {
         for (size_t j = 0; j < matr.get_n(); j++) {
@@ -230,36 +226,36 @@ void save_result(char matrix_char, TriangleMatrix& matrixA, TriangleMatrix& matr
 void do_matrix_operations(Matrix& matrixA, Matrix& matrixB, Matrix& matrixC) {
     int operation = select_matrix_operations();
 
-    if (operation >= 0 && operation <= 2) {
+    if (operation >= ADD && operation <= MULT) {
         matrixC = do_operation_on_matrices(operation, matrixA, matrixB);
     }
-    else if (operation == 3) {
+    else if (operation == MULT_SCALAR) {
         int scalar = select_scalar();
         char matrix_char = select_matrix(false);
 
         matrixC = do_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
     }
-    else if (operation == 4) return;
+    else if (operation == EXIT) return;
     print_result(matrixA, matrixB, matrixC, matrixC);
 
     Matrix matrix;
     while (1) {
         int operation = select_matrix_operations();
 
-        if (operation >= 0 && operation <= 2) {
+        if (operation >= ADD && operation <= MULT) {
             char* mass3 = select_matrices();
             matrix = do_binary_operation(operation, mass3[0], mass3[1], matrixA, matrixB, matrixC);
             delete mass3;
         }
-        else if (operation == 3) {
+        else if (operation == MULT_SCALAR) {
             int scalar = select_scalar();
             char matrix_char = select_matrix(true);
 
             matrix = do_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
         }
-        else if (operation == 4) return;
+        else if (operation == EXIT) return;
         print_result(matrixA, matrixB, matrixC, matrix);
-        std::cout << "Выберите, в какую матрицу сохранить результат\n";
+        std::cout << "Select which matrix to save the result\n";
         char matrix_char = select_matrix(true);
         save_result(matrix_char, matrixA, matrixB, matrixC, matrix);
     }
@@ -268,36 +264,36 @@ void do_matrix_operations(Matrix& matrixA, Matrix& matrixB, Matrix& matrixC) {
 void do_matrix_operations(TriangleMatrix& matrixA, TriangleMatrix& matrixB, TriangleMatrix& matrixC) {
     int operation = select_matrix_operations();
 
-    if (operation >= 0 && operation <= 2) {
+    if (operation >= ADD && operation <= MULT) {
         matrixC = do_operation_on_matrices(operation, matrixA, matrixB);
     }
-    else if (operation == 3) {
+    else if (operation == MULT_SCALAR) {
         int scalar = select_scalar();
         char matrix_char = select_matrix(false);
 
         matrixC = do_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
     }
-    else if (operation == 4) return;
+    else if (operation == EXIT) return;
     print_result(matrixA, matrixB, matrixC, matrixC);
 
     TriangleMatrix matrix;
     while (1) {
         int operation = select_matrix_operations();
 
-        if (operation >= 0 && operation <= 2) {
+        if (operation >= ADD && operation <= MULT) {
             char* mass3 = select_matrices();
             matrix = do_binary_operation(operation, mass3[0], mass3[1], matrixA, matrixB, matrixC);
             delete mass3;
         }
-        else if (operation == 3) {
+        else if (operation == MULT_SCALAR) {
             int scalar = select_scalar();
             char matrix_char = select_matrix(true);
 
             matrix = do_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
         }
-        else if (operation == 4) return;
+        else if (operation == EXIT) return;
         print_result(matrixA, matrixB, matrixC, matrix);
-        std::cout << "Выберите, в какую матрицу сохранить результат\n";
+        std::cout << "Select which matrix to save the result\n";
         char matrix_char = select_matrix(true);
         save_result(matrix_char, matrixA, matrixB, matrixC, matrix);
     }
@@ -332,26 +328,27 @@ Matrix do_scalar_operation(int scalar, char matrix_char, const Matrix& matrixA, 
 
 int enter_matrix_type() {
     int type;
-    std::cout << "ТИП МАТРИЦЫ\n0 - обычная\n1 - треугольная\nВаш выбор: ";
+    std::cout << "MATRIX TYPE\n0 - common\n1 - triangular\nYour choice: ";
     while (1) {
         std::cin >> type;
         if (type == COMMON || type == TRIANGLE) break;
-        std::cout << "\nНекорректный ввод, попробуйте еще: ";
+        std::cout << "Incorrect input, please try again: ";
     }
     return type;
 }
 
 int* enter_matrix_size(int num) {
     int size_n, size_m;
-    if (num == MATRIX_A) std::cout << "РАЗМЕР МАТРИЦЫ\nВведите размер матрицы А (два числа через пробел): ";
-    else if (num == MATRIX_B) std::cout << "РАЗМЕР МАТРИЦЫ\nВведите размер матрицы B (два числа через пробел): ";
-    else std::cout << "РАЗМЕР МАТРИЦЫ\nВведите размер матрицы C (два числа через пробел): ";
+    if (num == MATRIX_A) std::cout << "MATRIX SIZE\nEnter the size of matrix A (two numbers separated by a space): ";
+    else if (num == MATRIX_B) std::cout << "MATRIX SIZE\nEnter the size of matrix B (two numbers separated by a space): ";
+    else if (num == MATRIX_C) std::cout << "MATRIX SIZE\nEnter the size of matrix C (two numbers separated by a space): ";
+    else std::cout << "MATRIX SIZE\nEnter the size of matrix (two numbers separated by a space): ";
 
     while (1) {
         std::cin >> size_n;
         std::cin >> size_m;
         if (size_n > 0 && size_m > 0) break;
-        std::cout << "\nНекорректный ввод, попробуйте еще: ";
+        std::cout << "Incorrect input, please try again: ";
     }
     
     int* mass = new int[2];
@@ -363,14 +360,15 @@ int* enter_matrix_size(int num) {
 
 int enter_tmatrix_size(int num) {
     int size_n;
-    if (num == MATRIX_A) std::cout << "РАЗМЕР МАТРИЦЫ\nВведите размер треугольной матрицы А (одно число): ";
-    else if (num == MATRIX_B) std::cout << "РАЗМЕР МАТРИЦЫ\nВведите размер треугольной матрицы B (одно число): ";
-    else std::cout << "РАЗМЕР МАТРИЦЫ\nВведите размер треугольной матрицы C (одно число): ";
+    if (num == MATRIX_A) std::cout << "MATRIX SIZE\nEnter the size of triangular matrix A (two numbers separated by a space): ";
+    else if (num == MATRIX_B) std::cout << "MATRIX SIZE\nEnter the size of triangular matrix B (two numbers separated by a space): ";
+    else if (num == MATRIX_C) std::cout << "MATRIX SIZE\nEnter the size of triangular matrix C (two numbers separated by a space): ";
+    else std::cout << "MATRIX SIZE\nEnter the size of triangular matrix (two numbers separated by a space): ";
 
     while (1) {
         std::cin >> size_n;
         if (size_n > 0) break;
-        std::cout << "\nНекорректный ввод, попробуйте еще: ";
+        std::cout << "Incorrect input, please try again: ";
     }
     return size_n;
 }
@@ -378,21 +376,21 @@ int enter_tmatrix_size(int num) {
 void enter_matrix(Matrix& matr, int num) {
 #ifdef DEBUG
     int p; 
-    if (num == MATRIX_A) std::cout << "Введите матрицу A\n";
-    else if (num == MATRIX_B) std::cout << "Введите матрицу B\n";
-    else std::cout << "Введите матрицу C\n";
+    if (num == MATRIX_A) std::cout << "Enter the matrix A\n";
+    else if (num == MATRIX_B) std::cout << "Enter the matrix B\n";
+    else std::cout << "Enter the matrix C\n";
 
     for (size_t i = 0; i < matr.get_n(); i++) {
-        std::cout << "Введите строку матрицы (элементы через пробел): ";
+        std::cout << "Enter the matrix row (elements separated by spaces): ";
         for (size_t j = 0; j < matr.get_m(); j++) {
             // std::cin >> matr[i][j];
             std::cin >> p;
         }
     }
 #else
-    if (num == MATRIX_A) std::cout << "Введите матрицу A\n";
-    else if (num == MATRIX_B) std::cout << "Введите матрицу B\n";
-    else std::cout << "Введите матрицу C\n";
+    if (num == MATRIX_A) std::cout << "Enter the matrix A\n";
+    else if (num == MATRIX_B) std::cout << "Enter the matrix B\n";
+    else std::cout << "Enter the matrix C\n";
 
     std::cin >> matr;
 #endif
@@ -401,21 +399,21 @@ void enter_matrix(Matrix& matr, int num) {
 void enter_matrix(TriangleMatrix& matr, int num) {
 #ifdef DEBUG
     int p;
-    if (num == MATRIX_A) std::cout << "Введите матрицу A\n";
-    else if (num == MATRIX_B) std::cout << "Введите матрицу B\n";
-    else std::cout << "Введите матрицу C\n";
+    if (num == MATRIX_A) std::cout << "Enter the matrix A\n";
+    else if (num == MATRIX_B) std::cout << "Enter the matrix B\n";
+    else std::cout << "Enter the matrix C\n";
 
     for (size_t i = 0; i < matr.get_n(); i++) {
-        std::cout << "Введите строку матрицы (элементы через пробел): ";
+        std::cout << "Enter the matrix row (elements separated by spaces): ";
         for (size_t j = 0; j < matr.get_n(); j++) {
             // std::cin >> matr[i][j];
             std::cin >> p;
         }
     }
 #else
-    if (num == MATRIX_A) std::cout << "Введите матрицу A\n";
-    else if (num == MATRIX_B) std::cout << "Введите матрицу B\n";
-    else std::cout << "Введите матрицу C\n";
+    if (num == MATRIX_A) std::cout << "Enter the matrix A\n";
+    else if (num == MATRIX_B) std::cout << "Enter the matrix B\n";
+    else std::cout << "Enter the matrix C\n";
 
     std::cin >> matr;
 #endif
@@ -423,23 +421,23 @@ void enter_matrix(TriangleMatrix& matr, int num) {
 
 char* select_matrices() {
     char letter1, letter2;
-    std::cout << "Выберите первую матрицу (A, B или C): ";
+    std::cout << "Select the first matrix (A, B or C): ";
     while (1) {
         std::cin >> letter1;
         if (letter1 == 'A' || letter1 == 'B' || letter1 == 'C') break;
         if (letter1 == 'a') { letter1 = 'A'; break; }
         if (letter1 == 'b') { letter1 = 'B'; break; }
         if (letter1 == 'c') { letter1 = 'C'; break; }
-        std::cout << "\nНекорректный ввод, попробуйте еще: ";
+        std::cout << "Incorrect input, please try again: ";
     }
-    std::cout << "Выберите вторую матрицу (A, B или C): ";
+    std::cout << "Select the second matrix (A, B or C): ";
     while (1) {
         std::cin >> letter2;
         if (letter2 == 'A' || letter2 == 'B' || letter2 == 'C') break;
         if (letter2 == 'a') { letter2 = 'A'; break; }
         if (letter2 == 'b') { letter2 = 'B'; break; }
         if (letter2 == 'c') { letter2 = 'C'; break; }
-        std::cout << "\nНекорректный ввод, попробуйте еще: ";
+        std::cout << "Incorrect input, please try again: ";
     }
 
     char* mass = new char[2];
@@ -451,7 +449,7 @@ char* select_matrices() {
 
 char select_matrix(bool isC) {
     char letter;
-    std::cout << "Выберите матрицу (A, B или C): ";
+    std::cout << "Select the matrix (A, B or C): ";
     if (isC) {
         while (1) {
             std::cin >> letter;
@@ -459,7 +457,7 @@ char select_matrix(bool isC) {
             if (letter == 'a') { letter = 'A'; break; }
             if (letter == 'b') { letter = 'B'; break; }
             if (letter == 'c') { letter = 'C'; break; }
-            std::cout << "\nНекорректный ввод, попробуйте еще: ";
+            std::cout << "Incorrect input, please try again: ";
         }
     }
     else {
@@ -468,7 +466,7 @@ char select_matrix(bool isC) {
             if (letter == 'A' || letter == 'B') break;
             if (letter == 'a') { letter = 'A'; break; }
             if (letter == 'b') { letter = 'B'; break; }
-            std::cout << "\nНекорректный ввод, попробуйте еще: ";
+            std::cout << "Incorrect input, please try again: ";
         }
     }
     return letter;
@@ -476,11 +474,11 @@ char select_matrix(bool isC) {
 
 int select_matrix_operations() {
     int operation;
-    std::cout << "Выберите операцию над матрицами\n0 - сложение\n1 - вычитание\n2 - умножение\n3 - умножение на скаляр\n4 - выход\nВаш выбор: ";
+    std::cout << "Select a matrix operation\n0 - addition\n1 - subtraction\n2 - multiplication\n3 - multiplication by a scalar\n4 - exit\nYour choice: ";
     while (1) {
         std::cin >> operation;
-        if (operation >= 0 && operation <= 4) return operation;
-        std::cout << "\nНекорректный ввод, попробуйте еще: ";
+        if (operation >= ADD && operation <= EXIT) return operation;
+        std::cout << "Incorrect input, please try again: ";
     }
 }
 
@@ -488,30 +486,30 @@ Matrix do_operation_on_matrices(int operation, const Matrix& matrix1, const Matr
     Matrix matrix;
 
     switch (operation) {
-    case 0: {
+    case ADD: {
         try {
             matrix = matrix1 + matrix2;
         }
         catch (const std::invalid_argument& e) {
-            std::cerr << "Ошибка сложения матриц: " << e.what() << std::endl;
+            std::cerr << "Matrix addition error: " << e.what() << std::endl;
         }
 
     } break;
-    case 1: {
+    case SUB: {
         try {
             matrix = matrix1 - matrix2;
         }
         catch (const std::invalid_argument& e) {
-            std::cerr << "Ошибка вычитания матриц: " << e.what() << std::endl;
+            std::cerr << "Matrix subtraction error: " << e.what() << std::endl;
         }
 
     } break;
-    case 2: {
+    case MULT: {
         try {
             matrix = matrix1 * matrix2;
         }
         catch (const std::invalid_argument& e) {
-            std::cerr << "Ошибка умножения матриц: " << e.what() << std::endl;
+            std::cerr << "Matrix multiplication error: " << e.what() << std::endl;
         }
     }
     }
@@ -522,30 +520,30 @@ TriangleMatrix do_operation_on_matrices(int operation, const TriangleMatrix& mat
     TriangleMatrix matrix;
 
     switch (operation) {
-    case 0: {
+    case ADD: {
         try {
             matrix = matrix1 + matrix2;
         }
         catch (const std::invalid_argument& e) {
-            std::cerr << "Ошибка сложения матриц: " << e.what() << std::endl;
+            std::cerr << "Matrix addition error: " << e.what() << std::endl;
         }
 
     } break;
-    case 1: {
+    case SUB: {
         try {
             matrix = matrix1 - matrix2;
         }
         catch (const std::invalid_argument& e) {
-            std::cerr << "Ошибка вычитания матриц: " << e.what() << std::endl;
+            std::cerr << "Matrix subtraction error: " << e.what() << std::endl;
         }
 
     } break;
-    case 2: {
+    case MULT: {
         try {
             matrix = matrix1 * matrix2;
         }
         catch (const std::invalid_argument& e) {
-            std::cerr << "Ошибка умножения матриц: " << e.what() << std::endl;
+            std::cerr << "Matrix multiplication error: " << e.what() << std::endl;
         }
     }
     }
@@ -591,7 +589,7 @@ TriangleMatrix do_binary_operation(int operation, char matrix1, char matrix2, co
 
 int select_scalar() {
     int scalar;
-    std::cout << "Ведите скаляр (целое число): ";
+    std::cout << "Enter a scalar (integer): ";
     std::cin >> scalar;
     return scalar;
 }
