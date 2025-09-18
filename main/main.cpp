@@ -43,7 +43,7 @@ public:
     Matrix<T> operator * (int) const { Matrix<T> m; return m; }
 };
 template <class T>
-class TriangleMatrix : public MathVector<MathVector<T>> {
+class TriangleMatrix : public Matrix<T> {
 public:
     TriangleMatrix() { }
     TriangleMatrix(int n) { }
