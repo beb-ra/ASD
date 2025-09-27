@@ -2,25 +2,25 @@
 #include <cmath>
 #include "..\lib_point\point.h"
 
+enum LocationTypes;
+
 class Circle {
 	Point _center;
 	double _radius;
 
 public:
 	Circle() : _center(), _radius(0) {}
-	Circle(double x, double y, double radius) : _center(x, y), _radius(radius) {}  // исключение при отрицательном радиусе
-	Point& get_center() {
-		return _center;
-	}
-	double get_radius() {
-		return _radius;
-	}
+	Circle(const double x, const double y, const double radius);
+	Circle(const Point& center, const double radius);
+	Circle(const Circle& other);
 
-	double calculate_distance(Point& second) {
-		int dx = this->_center.get_x() - second.get_x();
-		int dy = this->_center.get_y() - second.get_y();
-		return std::sqrt(dx * dx + dy * dy);
-	}
+	const Point& get_center() const noexcept;
+	const double get_radius() const noexcept;
+
+	void set_center(const Point&);
+	void set_radius(const double);
+
+	double calculate_distance(const Point&) const;
 
 	template <class T> friend LocationTypes figures_comparison(T, T);
 };

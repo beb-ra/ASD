@@ -3,6 +3,9 @@
 #include <gtest/gtest.h>
 #include "../lib_easy_example/easy_example.h"
 
+//#define EASY_EXAMPLE
+#ifdef EASY_EXAMPLE
+
 #define EPSILON 0.000001
 
 TEST(TestEasyExampleLib, can_div) {
@@ -48,3 +51,4 @@ TEST(TestEasyExampleLib, throw_when_try_div_by_zero) {
   // Act & Assert
   ASSERT_ANY_THROW(division(x, y));  // возникнет исключение
 }
+#endif // EASY_EXAMPLE

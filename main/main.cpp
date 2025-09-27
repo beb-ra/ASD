@@ -6,6 +6,7 @@
 #include <iostream>
 #include "../lib_point/point.h"
 #include "../lib_circle/circle.h"
+#include "../lib_algorithms/algorithms.h"
 
 void output_result(int answer) {
     switch (answer) {
