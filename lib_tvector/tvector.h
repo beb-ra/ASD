@@ -37,14 +37,14 @@ class TVector {
 
 public:
     explicit TVector(size_t size = 0);
-    TVector(size_t size, const T* data);
+    TVector(const size_t size, const T* data);
     TVector(const TVector<T>& other);
-    TVector(size_t size, std::initializer_list<T> data);
+    TVector(const size_t size, const std::initializer_list<T> data);
     ~TVector();
 
     bool operator == (const TVector<T>& other) const noexcept;
     bool operator != (const TVector<T>& other) const noexcept;
-    TVector& operator = (const TVector& other);
+    TVector<T>& operator = (const TVector<T>& other);
     T& operator[] (size_t index);
     const T& operator[](size_t index) const;
 
