@@ -36,14 +36,16 @@ TEST(TestMVectorLib, correct_create_object) {
     MVector<int> object;
 
     EXPECT_EQ(static_cast <size_t>(0), object.start_index());
+    EXPECT_EQ(static_cast <size_t>(0), object.size());
 }
 
 TEST(TestMVectorLib, correct_create_object_2) {
-    size_t start_index = 2;
+    size_t start_index = 2, size = 10;
 
-    MVector<int> object(10, start_index);
+    MVector<int> object(size, start_index);
 
     EXPECT_EQ(start_index, object.start_index());
+    EXPECT_EQ(size, object.size());
 }
 
 TEST(TestMVectorLib, correct_create_object3) {
@@ -54,8 +56,8 @@ TEST(TestMVectorLib, correct_create_object3) {
 
     MVector<int> object(size, mass, start_index);
     
-
     EXPECT_EQ(start_index, object.start_index());
+    EXPECT_EQ(size, object.size());
 }
 
 TEST(TestMVectorLib, correct_create_object_4) {
@@ -64,6 +66,7 @@ TEST(TestMVectorLib, correct_create_object_4) {
     MVector<int> object(size, { 1, 2, 3 }, start_index);
 
     EXPECT_EQ(start_index, object.start_index());
+    EXPECT_EQ(size, object.size());
 }
 
 TEST(TestMVectorLib, correct_create_object_with_copy) {
@@ -73,6 +76,7 @@ TEST(TestMVectorLib, correct_create_object_with_copy) {
     MVector<int> object2(object1);
 
     EXPECT_EQ(start_index, object2.start_index());
+    EXPECT_EQ(size, object2.size());
 }
 
 TEST(TestMVectorLib, correct_setters) {
@@ -101,6 +105,23 @@ TEST(TestMVectorLib, try_compare) {
     EXPECT_TRUE(actual_result);
 }
 
+TEST(TestMVectorLib, try_compare_2) {
+    bool actual_result = true;
+
+    MVector<int> object1(3, { 1, 2, 3 }, 0);
+    MVector<int> object2(object1);
+
+    try {
+        object1 != object2;
+    }
+    catch (const std::exception& ex) {
+        std::cerr << ex.what();
+        actual_result = false;
+    }
+
+    EXPECT_TRUE(actual_result);
+}
+
 TEST(TestMVectorLib, correct_compare) {
     MVector<int> object1(3, { 1, 2, 3 }, 0);
     MVector<int> object2(3, { 1, 2, 3 }, 0);
@@ -113,6 +134,48 @@ TEST(TestMVectorLib, correct_compare2) {
     MVector<int> object2(object1);
 
     EXPECT_TRUE(object1 == object2);
+}
+
+TEST(TestMVectorLib, correct_compare3) {
+    MVector<int> object1(3, { 1, 2, 3 }, 2);
+    MVector<int> object2(3, { 1, 2, 3 }, 0);
+
+    EXPECT_FALSE(object1 == object2);
+}
+
+TEST(TestMVectorLib, correct_compare4) {
+    MVector<int> object1(2, { 1, 2 }, 0);
+    MVector<int> object2(3, { 1, 2, 3 }, 0);
+
+    EXPECT_FALSE(object1 == object2);
+}
+
+TEST(TestMVectorLib, correct_compare5) {
+    MVector<int> object1(3, { 1, 2, 3 }, 0);
+    MVector<int> object2(3, { 1, 2, 3 }, 0);
+
+    EXPECT_FALSE(object1 != object2);
+}
+
+TEST(TestMVectorLib, correct_compare6) {
+    MVector<int> object1(3, { 1, 2, 3 }, 0);
+    MVector<int> object2(object1);
+
+    EXPECT_FALSE(object1 != object2);
+}
+
+TEST(TestMVectorLib, correct_compare7) {
+    MVector<int> object1(3, { 1, 2, 3 }, 2);
+    MVector<int> object2(3, { 1, 2, 3 }, 0);
+
+    EXPECT_TRUE(object1 != object2);
+}
+
+TEST(TestMVectorLib, correct_compare8) {
+    MVector<int> object1(2, { 1, 2 }, 0);
+    MVector<int> object2(3, { 1, 2, 3 }, 0);
+
+    EXPECT_TRUE(object1 != object2);
 }
 
 TEST(TestMVectorLib, try_assignment) {
@@ -161,26 +224,26 @@ TEST(TestMVectorLib, try_mult) {
 
 TEST(TestMVectorLib, correct_mult) {
     size_t size = 3, start_index = 0;
-    MVector<int> object(size, { 1, 2, 3 }, start_index);
+    MVector<int> object(size, { 1, -2, 3 }, start_index);
     int value = 3;
 
     MVector<int> object2;
     object2 = object * value;
 
-    MVector<int> result(size, { 3, 6, 9 }, start_index);
+    MVector<int> result(size, { 3, -6, 9 }, start_index);
 
     EXPECT_EQ(result, object2);
 }
 
 TEST(TestMVectorLib, correct_mult_2) {
     size_t size = 3, start_index = 0;
-    MVector<int> object(size, { 1, 2, 3 }, start_index);
+    MVector<int> object(size, { -1, 2, 3 }, start_index);
     int value = 3;
 
     MVector<int> object2;
     object2 = value * object;
 
-    MVector<int> result(size, { 3, 6, 9 }, start_index);
+    MVector<int> result(size, { -3, 6, 9 }, start_index);
 
     EXPECT_EQ(result, object2);
 }
@@ -312,4 +375,44 @@ TEST(TestMVectorLib, correct_mult_with_assignment) {
     object1 *= value;
 
     EXPECT_EQ(result, object1);
+}
+
+TEST(TestMVectorLib, throw_uncorrect_add_with_assignment) {
+    size_t size = 3, start_index = 0;
+    MVector<int> object1;
+    MVector<int> object2(size, { 2, 3, -3 }, start_index);
+
+    ASSERT_THROW(object1 += object2, std::invalid_argument);
+}
+
+TEST(TestMVectorLib, throw_uncorrect_add_with_assignment_2) {
+    size_t size = 3, start_index = 0;
+    MVector<int> object1(size - 1, { 2, 3 }, start_index);
+    MVector<int> object2(size, { 2, 3, -3 }, start_index);
+
+    ASSERT_THROW(object1 += object2, std::invalid_argument);
+}
+
+TEST(TestMVectorLib, throw_uncorrect_sub_with_assignment) {
+    size_t size = 3, start_index = 0;
+    MVector<int> object1;
+    MVector<int> object2(size, { 2, 3, -3 }, start_index);
+
+    ASSERT_THROW(object1 -= object2, std::invalid_argument);
+}
+
+TEST(TestMVectorLib, throw_uncorrect_sub_with_assignment_2) {
+    size_t size = 3, start_index = 0;
+    MVector<int> object1(size - 1, { 2, 3 }, start_index);
+    MVector<int> object2(size, { 2, 3, -3 }, start_index);
+
+    ASSERT_THROW(object1 -= object2, std::invalid_argument);
+}
+
+TEST(TestMVectorLib, check_index_conversion_operator) {
+    MVector<int> vec(4, { 1, 2, 3, 4 }, 0);
+    vec[2] = 6;
+    EXPECT_EQ(6, vec[2]);
+    EXPECT_EQ(2, vec[1]);
+    EXPECT_EQ(4, vec[3]);
 }

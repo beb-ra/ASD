@@ -29,7 +29,7 @@ public:
 	void set_start_index(const size_t);
 
 	const size_t size() const noexcept;
-	const size_t capacity() const noexcept;
+	//const size_t capacity() const noexcept;
 
 	bool operator == (const MVector<T>& other) const noexcept;
 	bool operator != (const MVector<T>& other) const noexcept;
@@ -68,10 +68,12 @@ template <class T>
 const size_t MVector<T>::size() const noexcept {
 	return TVector<T>::size();
 }
+/*
 template <class T>
 const size_t MVector<T>::capacity() const noexcept {
 	return TVector<T>::capacity();
 }
+*/
 
 template <class T>
 bool MVector<T>::operator == (const MVector<T>& other) const noexcept {
@@ -84,8 +86,8 @@ bool MVector<T>::operator == (const MVector<T>& other) const noexcept {
 
 template <class T>
 bool MVector<T>::operator != (const MVector<T>& other) const noexcept {
-	if (!static_cast<const TVector<T>&>(*this).operator!=(static_cast<const TVector<T>&>(other))) {
-		return false;
+	if (static_cast<const TVector<T>&>(*this).operator!=(static_cast<const TVector<T>&>(other))) {
+		return true;
 	}
 
 	return _start_index != other._start_index;
