@@ -1,17 +1,4 @@
-//#include "../lib_tvector/tvector.h"
-#include "C://Users/Lelya/cc++/CMake/ASD/lib_tvector/tvector.h"
-
-template <class T> class MVector;
-template <class T>
-MVector<T> operator+(const MVector<T>&, const MVector<T>&);
-template <class T>
-MVector<T> operator-(const MVector<T>&, const MVector<T>&);
-template <class T>
-T operator*(const MVector<T>&, const MVector<T>&);
-template <class T>
-MVector<T> operator*(const MVector<T>&, const T);
-template <class T>
-MVector<T> operator*(const T, const MVector<T>&);
+#include "../lib_tvector/tvector.h"
 
 template <class T>
 class MVector : private TVector<T> {
@@ -29,7 +16,6 @@ public:
 	void set_start_index(const size_t);
 
 	const size_t size() const noexcept;
-	//const size_t capacity() const noexcept;
 
 	bool operator == (const MVector<T>& other) const noexcept;
 	bool operator != (const MVector<T>& other) const noexcept;
@@ -42,11 +28,22 @@ public:
 	MVector<T>& operator-=(const MVector<T>& other);
 	MVector<T>& operator*=(const T);
 
+	MVector<T> operator+(const MVector<T>&) const;
+	MVector<T> operator-(const MVector<T>&) const;
+	MVector<T> operator*(const T value) const;
+	T operator* (const MVector<T>&) const;
+
+	friend MVector<T> operator* (const T value, const MVector<T>& other) {
+		return other * value;
+	}
+
+	/*
 	friend MVector<T> operator+ <T>(const MVector<T>&, const MVector<T>&);
 	friend MVector<T> operator- <T>(const MVector<T>&, const MVector<T>&);
 	friend T operator* <T>(const MVector<T>&, const MVector<T>&);
 	friend MVector<T> operator* <T>(const MVector<T>& other, const T value);
 	friend MVector<T> operator* <T>(const T, const MVector<T>&);
+	*/
 };
 
 template <class T>
@@ -68,12 +65,6 @@ template <class T>
 const size_t MVector<T>::size() const noexcept {
 	return TVector<T>::size();
 }
-/*
-template <class T>
-const size_t MVector<T>::capacity() const noexcept {
-	return TVector<T>::capacity();
-}
-*/
 
 template <class T>
 bool MVector<T>::operator == (const MVector<T>& other) const noexcept {
@@ -114,10 +105,10 @@ const T& MVector<T>::operator[](const int index) const {
 
 template <class T>
 MVector<T>& MVector<T>::operator+=(const MVector<T>& other) {
-	if (is_empty() || other.is_empty())
+	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (size() != other.size())
+	if (this->size() != other.size())
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
 	for (int i = 0; i < size(); i++) {
@@ -128,10 +119,10 @@ MVector<T>& MVector<T>::operator+=(const MVector<T>& other) {
 
 template <class T>
 MVector<T>& MVector<T>::operator-=(const MVector<T>& other) {
-	if (is_empty() || other.is_empty())
+	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (size() != other.size())
+	if (this->size() != other.size())
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
 	for (int i = 0; i < size(); i++) {
@@ -142,7 +133,7 @@ MVector<T>& MVector<T>::operator-=(const MVector<T>& other) {
 
 template <class T>
 MVector<T>& MVector<T>::operator*=(const T value) {
-	if (is_empty())
+	if (this->is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
 	for (int i = 0; i < size(); i++) {
@@ -152,63 +143,63 @@ MVector<T>& MVector<T>::operator*=(const T value) {
 }
 
 template <class T>
-MVector<T> operator*(const MVector<T>& other, const T value) {
-	if (other.is_empty())
+MVector<T> MVector<T>::operator*(const T value) const {
+	if (this->is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	MVector<T> result(other);
+	MVector<T> result(*this);
 	result *= value;
 	return result;
 }
 
+/*
 template <class T>
 MVector<T> operator*(const T value, const MVector<T>& other) {
 	if (other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	MVector<T> result(other);
-	result *= value;
-	return result;
+	return other * value;
 }
+*/
 
 template <class T>
-T operator*(const MVector<T>& first, const MVector<T>& second) {
-	if (first.is_empty() || second.is_empty())
+T MVector<T>::operator*(const MVector<T>& other) const {
+	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (first.size() != second.size())
+	if (this->size() != other.size())
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
 	T result = T();
-	for (int i = 0; i < first.size(); i++) {
-		result += first[i] * second[i];
+	for (int i = 0; i < size(); i++) {
+		result += (*this)[i] * other[i];
 	}
 	return result;
 }
 
 template <class T>
-MVector<T> operator+(const MVector<T>& first, const MVector<T>& second) {
-	if (first.is_empty() || second.is_empty())
+MVector<T> MVector<T>::operator+(const MVector<T>& other) const {
+	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (first.size() != second.size())
+	if (this->size() != other.size())
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
-	MVector<T> result(first);
-	result += second;
+	MVector<T> result(*this);
+	result += other;
 	return result;
 }
 
 template <class T>
-MVector<T> operator-(const MVector<T>& first, const MVector<T>& second) {
-	if (first.is_empty() || second.is_empty())
+MVector<T> MVector<T>::operator-(const MVector<T>& other) const {
+	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (first.size() != second.size())
+	if (this->size() != other.size())
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
-	MVector<T> result(first);
-	result -= second;
+	MVector<T> result(*this);
+	result -= other;
 	return result;
 }
 
