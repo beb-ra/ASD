@@ -23,6 +23,7 @@ TEST(TestMatrixLib, try_create_object_4) {
 
 TEST(TestMatrixLib, try_create_object_5) {
     ASSERT_NO_THROW(Matrix<int> object(3, 3, { 1, 2, 3, 4 }));
+    ASSERT_NO_THROW(Matrix<int> object(2, 2, { 1, 2, 3, 4, 5, 6, 7, 8, 9 }));
 }
 
 TEST(TestMatrixLib, try_create_object_with_copy) {
@@ -100,6 +101,17 @@ TEST(TestMatrixLib, correct_create_with_copy_2) {
     EXPECT_EQ(static_cast <size_t>(0), matrix.start_index());
     EXPECT_EQ(static_cast <size_t>(2), matrix.get_n());
     EXPECT_EQ(static_cast <size_t>(3), matrix.get_m());
+}
+
+TEST(TestMatrixLib, correct_create_with_copy_3) {
+    Matrix<int> object1(3, 3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
+    Matrix<int> object2(object1);
+
+    EXPECT_EQ(static_cast <size_t>(0), object2.start_index());
+    EXPECT_EQ(static_cast <size_t>(3), object2.get_n());
+    EXPECT_EQ(static_cast <size_t>(3), object2.get_m());
+    EXPECT_EQ(object1[0][0], object2[0][0]);
+    EXPECT_TRUE(object1 == object2);
 }
 
 TEST(TestMatrixLib, correct_compare) {

@@ -7,7 +7,7 @@ protected:
 
 public:
 	explicit MVector(size_t size = 0);
-	MVector(size_t start_index, size_t size);
+	MVector(size_t size, size_t start_index);
 	MVector(const size_t size, const T* data, const size_t start_index);
 	MVector(const size_t size, const std::initializer_list<T> data, const size_t start_index);
 	MVector(const MVector<T>& other);
@@ -36,6 +36,8 @@ public:
 	friend MVector<T> operator* (const T value, const MVector<T>& other) {
 		return other * value;
 	}
+
+	void print() const;
 
 	/*
 	friend MVector<T> operator+ <T>(const MVector<T>&, const MVector<T>&);
@@ -95,12 +97,16 @@ MVector<T>& MVector<T>::operator=(const MVector<T>& other) {
 
 template <class T>
 T& MVector<T>::operator[](const int index) {
-	return (*this).TVector<T>::operator[](index);
+	static T element = T();
+	if (index >= 0 && index < _start_index) return element;
+	return TVector<T>::operator[](index - _start_index);
 }
 
 template <class T>
 const T& MVector<T>::operator[](const int index) const {
-	return (*this).TVector<T>::operator[](index);
+	static T element = T();
+	if (index >= 0 && index < _start_index) return element;
+	return TVector<T>::operator[](index - _start_index);
 }
 
 template <class T>
@@ -211,4 +217,16 @@ const size_t MVector<T>::start_index() const noexcept {
 template <class T>
 void MVector<T>::set_start_index(const size_t index) {
 	_start_index = index;
+}
+
+
+template <class T>
+void MVector<T>::print() const {
+	std::cout << "\nsize: " << size() << std::endl;
+	for (int i = 0; i < this->size(); i++) {
+		std::cout << (*this)[i] << " ";
+	}
+	std::cout << std::endl;
+
+	std::cout << "start_index: " << _start_index << std::endl;
 }
