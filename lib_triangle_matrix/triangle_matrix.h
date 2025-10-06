@@ -10,7 +10,7 @@ public:
 	TriangleMatrix(const size_t rows, const std::initializer_list<T> data);
 	TriangleMatrix(const size_t rows, const T* data);
 
-	size_t get_n() const;
+	size_t get_n() const noexcept;
 
 	bool operator == (const TriangleMatrix<T>& other) const noexcept;
 	bool operator != (const TriangleMatrix<T>& other) const noexcept;
@@ -21,18 +21,30 @@ public:
 	TriangleMatrix<T>& operator-=(const TriangleMatrix<T>&);
 
 	TriangleMatrix<T> operator*(const TriangleMatrix<T>&) const;
+	TriangleMatrix<T>& operator*=(const TriangleMatrix<T>&);
 	TriangleMatrix<T> operator*(const T) const;
 	TriangleMatrix<T>& operator*=(const T);
 	MVector<T> operator*(const MVector<T>&) const;
 
 	friend MVector<T> operator* (const MVector<T>& vector, const TriangleMatrix<T>& matrix) {
-		return matrix * vector;
+		if (matrix.get_n() != vector.size()) {
+			throw std::invalid_argument("Operations on matrices of different sizes aren't available");
+		}
+
+		MVector<T> result(matrix.get_n());
+		for (int i = 0; i < matrix.get_n(); i++) {
+			result[i] = T();
+			for (int j = 0; j < i + 1; j++) {
+				result[i] += vector[j] * matrix[j][i];
+			}
+		}
+		return result;
 	}
 	friend TriangleMatrix<T> operator* (const T value, const TriangleMatrix<T>& matrix) {
 		return matrix * value;
 	}
 
-	void print() noexcept;
+	void print() const noexcept;
 };
 
 template <class T>
@@ -54,27 +66,13 @@ TriangleMatrix<T>::TriangleMatrix(const size_t rows) : MVector<MVector<T>>(rows)
 
 template <class T>
 TriangleMatrix<T>::TriangleMatrix(const size_t rows, const std::initializer_list<T> data) : MVector<MVector<T>>(rows), N(rows) {
-	/*
-	for (size_t i = 0, count = 0; i < rows; i++) {
-		(*this)[i] = MVector<T>(i, rows - i);
-
-		for (size_t j = 0; j < rows - i; j++) {
-			(*this)[i][j] = *(data.begin() + count);
-			count++;
-		}
-	}
-	*/
 	for (size_t i = 0, count = 0; i < rows; i++) {
 		(*this)[i] = MVector<T>(rows - i, i);
 
 		for (size_t j = i; j < rows; j++) {
 			(*this)[i][j] = *(data.begin() + count);
-			std::cout << (*this)[i][j] << " ";
-			std::cout << "(" << *(data.begin() + count) << ")" << " ";
 			count++;
 		}
-		std::cout << "\t" << count;
-		std::cout << std::endl;
 	}
 }
 
@@ -101,12 +99,137 @@ TriangleMatrix<T>::TriangleMatrix(const size_t rows, const T* data) : MVector<MV
 }
 
 template <class T>
-size_t TriangleMatrix<T>::get_n() const {
+bool TriangleMatrix<T>::operator == (const TriangleMatrix<T>& other) const noexcept {
+	if (N != other.N) return false;
+
+	for (int i = 0; i < N; i++) {
+		if ((*this)[i] != other[i])
+			return false;
+	}
+	return true;
+}
+
+template <class T>
+bool TriangleMatrix<T>::operator != (const TriangleMatrix<T>& other) const noexcept {
+	if (N != other.N) return true;
+
+	for (int i = 0; i < N; i++) {
+		if ((*this)[i] != other[i])
+			return true;
+	}
+	return false;
+}
+
+template <class T>
+TriangleMatrix<T> TriangleMatrix<T>::operator+(const TriangleMatrix<T>& other) const {
+	if (N != other.N) {
+		throw std::invalid_argument("Operations on matrices of different sizes aren't available");
+	}
+
+	TriangleMatrix<T> result(*this);
+	result += other;
+	return result;
+}
+
+template <class T>
+TriangleMatrix<T>& TriangleMatrix<T>::operator+=(const TriangleMatrix<T>& other) {
+	if (N != other.N) {
+		throw std::invalid_argument("Operations on matrices of different sizes aren't available");
+	}
+
+	for (size_t i = 0; i < N; i++) {
+		(*this)[i] += other[i];
+	}
+	return (*this);
+}
+
+template <class T>
+TriangleMatrix<T> TriangleMatrix<T>::operator-(const TriangleMatrix<T>& other) const {
+	if (N != other.N) {
+		throw std::invalid_argument("Operations on matrices of different sizes aren't available");
+	}
+
+	TriangleMatrix<T> result(*this);
+	result -= other;
+	return result;
+}
+
+template <class T>
+TriangleMatrix<T>& TriangleMatrix<T>::operator-=(const TriangleMatrix<T>& other) {
+	if (N != other.N) {
+		throw std::invalid_argument("Operations on matrices of different sizes aren't available");
+	}
+
+	for (size_t i = 0; i < N; i++) {
+		(*this)[i] -= other[i];
+	}
+	return (*this);
+}
+
+template <class T>
+TriangleMatrix<T> TriangleMatrix<T>::operator*(const TriangleMatrix<T>& other) const {
+	if (N != other.N) {
+		throw std::invalid_argument("Operations on matrices of different sizes aren't available");
+	}
+
+	TriangleMatrix<T> result(*this);
+	result *= other;
+	return result;
+}
+
+template <class T>
+TriangleMatrix<T>& TriangleMatrix<T>::operator*=(const TriangleMatrix<T>& other) {
+	if (N != other.N) {
+		throw std::invalid_argument("Operations on matrices of different sizes aren't available");
+	}
+
+	TriangleMatrix<T> copy(*this);
+	for (int i = 0; i < N; i++) {
+		for (int j = i; j < N; j++) {
+			T sum = T();
+			for (int k = i; k <= j; k++) {
+				sum += copy[i][k] * other[k][j];
+			}
+			(*this)[i][j] = sum;
+		}
+	}
+	return (*this);
+}
+
+template <class T>
+TriangleMatrix<T> TriangleMatrix<T>::operator*(const T value) const {
+	TriangleMatrix<T> result(*this);
+	result *= value;
+	return result;
+}
+
+template <class T>
+TriangleMatrix<T>& TriangleMatrix<T>::operator*=(const T value) {
+	for (int i = 0; i < N; i++) {
+		(*this)[i] *= value;
+	}
+	return *this;
+}
+
+template <class T>
+MVector<T> TriangleMatrix<T>::operator*(const MVector<T>& vector) const {
+	if (N != vector.size()) {
+		throw std::invalid_argument("Operations on matrices of inappropriate sizes aren't available");
+	}
+	MVector<T> result(N);
+	for (int i = 0; i < N; i++) {
+		result[i] = (*this)[i] * vector;
+	}
+	return result;
+}
+
+template <class T>
+size_t TriangleMatrix<T>::get_n() const noexcept {
 	return N;
 }
 
 template <class T>
-void TriangleMatrix<T>::print() noexcept {
+void TriangleMatrix<T>::print() const noexcept {
 	for (size_t i = 0; i < N; i++) {
 		for (size_t j = 0; j < i; j++) {
 			std::cout << T() << " ";

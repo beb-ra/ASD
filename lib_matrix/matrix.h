@@ -10,8 +10,8 @@ public:
 	Matrix(const size_t rows, const size_t cols, const std::initializer_list<T> data);
 	Matrix(const size_t rows, const size_t cols, const T* data);
 
-	size_t get_n() const;
-	size_t get_m() const;
+	size_t get_n() const noexcept;
+	size_t get_m() const noexcept;
 
 	Matrix<T> transpose() const;
 
@@ -29,13 +29,23 @@ public:
 	MVector<T> operator*(const MVector<T>&) const;
 
 	friend MVector<T> operator* (const MVector<T>& vector, const Matrix<T>& matrix) {
-		return matrix * vector;
+		if (matrix.N != vector.size()) {
+			throw std::invalid_argument("Operations on matrices of inappropriate sizes aren't available");
+		}
+		MVector<T> result(matrix.M);
+		Matrix<T> tmatrix = matrix.transpose();
+
+		for (int i = 0; i < matrix.M; i++) {
+			result[i] = vector * tmatrix[i];
+		}
+		return result;
 	}
+
 	friend Matrix<T> operator* (const T value, const Matrix<T>& matrix) {
 		return matrix * value;
 	}
 
-	void print() noexcept;
+	void print() const noexcept;
 };
 
 template <class T>
@@ -193,17 +203,17 @@ MVector<T> Matrix<T>::operator*(const MVector<T>& vector) const { // vector Mx1
 }
 
 template <class T>
-size_t Matrix<T>::get_n() const {
+size_t Matrix<T>::get_n() const noexcept {
 	return N;
 }
 
 template <class T>
-size_t Matrix<T>::get_m() const {
+size_t Matrix<T>::get_m() const noexcept {
 	return M;
 }
 
 template <class T>
-void Matrix<T>::print() noexcept {
+void Matrix<T>::print() const noexcept {
 	std::cout << "Matrix " << N << "x" << M << ":" << std::endl;
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < M; j++) {

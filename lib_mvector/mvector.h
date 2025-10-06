@@ -13,7 +13,6 @@ public:
 	MVector(const MVector<T>& other);
 
 	const size_t start_index() const noexcept;
-	void set_start_index(const size_t);
 
 	const size_t size() const noexcept;
 
@@ -37,7 +36,7 @@ public:
 		return other * value;
 	}
 
-	void print() const;
+	void print() const noexcept;
 
 	/*
 	friend MVector<T> operator+ <T>(const MVector<T>&, const MVector<T>&);
@@ -52,13 +51,13 @@ template <class T>
 MVector<T>::MVector(size_t size) : TVector<T>(size), _start_index(0) {}
 
 template <class T>
-MVector<T>::MVector(size_t size, size_t start_index) : TVector<T>(size), _start_index(start_index) {}
+MVector<T>::MVector(size_t size, size_t start_index) : TVector<T>(size + start_index), _start_index(start_index) {}
 
 template <class T>
-MVector<T>::MVector(const size_t size, const T* data, const size_t start_index) : TVector<T>(size, data), _start_index(start_index) {}
+MVector<T>::MVector(const size_t size, const T* data, const size_t start_index) : TVector<T>(size + start_index, data), _start_index(start_index) {}
 
 template <class T>
-MVector<T>::MVector(const size_t size, const std::initializer_list<T> data, const size_t start_index) : TVector<T>(size, data), _start_index(start_index) {}
+MVector<T>::MVector(const size_t size, const std::initializer_list<T> data, const size_t start_index) : TVector<T>(size + start_index, data), _start_index(start_index) {}
 
 template <class T>
 MVector<T>::MVector(const MVector<T>& other) : TVector<T>(other), _start_index(other._start_index) {}
@@ -215,15 +214,9 @@ const size_t MVector<T>::start_index() const noexcept {
 }
 
 template <class T>
-void MVector<T>::set_start_index(const size_t index) {
-	_start_index = index;
-}
-
-
-template <class T>
-void MVector<T>::print() const {
+void MVector<T>::print() const noexcept {
 	std::cout << "\nsize: " << size() << std::endl;
-	for (int i = 0; i < this->size(); i++) {
+	for (int i = 0; i < size() + _start_index; i++) {
 		std::cout << (*this)[i] << " ";
 	}
 	std::cout << std::endl;

@@ -45,7 +45,7 @@ TEST(TestMVectorLib, correct_create_object_2) {
     MVector<int> object(size, start_index);
 
     EXPECT_EQ(start_index, object.start_index());
-    EXPECT_EQ(size, object.size());
+    EXPECT_EQ(size + start_index, object.size());
 }
 
 TEST(TestMVectorLib, correct_create_object3) {
@@ -57,7 +57,7 @@ TEST(TestMVectorLib, correct_create_object3) {
     MVector<int> object(size, mass, start_index);
     
     EXPECT_EQ(start_index, object.start_index());
-    EXPECT_EQ(size, object.size());
+    EXPECT_EQ(size + start_index, object.size());
 }
 
 TEST(TestMVectorLib, correct_create_object_4) {
@@ -66,7 +66,7 @@ TEST(TestMVectorLib, correct_create_object_4) {
     MVector<int> object(size, { 1, 2, 3 }, start_index);
 
     EXPECT_EQ(start_index, object.start_index());
-    EXPECT_EQ(size, object.size());
+    EXPECT_EQ(size + start_index, object.size());
 }
 
 TEST(TestMVectorLib, correct_create_object_with_copy) {
@@ -76,16 +76,7 @@ TEST(TestMVectorLib, correct_create_object_with_copy) {
     MVector<int> object2(object1);
 
     EXPECT_EQ(start_index, object2.start_index());
-    EXPECT_EQ(size, object2.size());
-}
-
-TEST(TestMVectorLib, correct_setters) {
-    size_t size = 3, old_start_index = 1, new_start_index = 2;
-    MVector<int> object(size, { 1, 2, 3 }, old_start_index);
-
-    object.set_start_index(new_start_index);
-
-    EXPECT_EQ(new_start_index, object.start_index());
+    EXPECT_EQ(size + start_index, object2.size());
 }
 
 TEST(TestMVectorLib, try_compare) {

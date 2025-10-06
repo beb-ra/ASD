@@ -198,7 +198,34 @@ TEST(TestMatrixLib, correct_sub_with_assignment) {
     EXPECT_EQ(result, matrix1);
 }
 
-// тесты на исключения
+TEST(TestMatrixLib, throw_uncorrect_add) {
+    Matrix<int> matrix1(3, 2, { 1, 2, 3, 4, 5, 6 });
+    Matrix<int> matrix2(3, 3, { 1, 3, 5, 2, 4, 6, 7, 8, 9 });
+
+    ASSERT_THROW(matrix1 + matrix2, std::invalid_argument);
+}
+
+TEST(TestMatrixLib, throw_uncorrect_add_with_assignment) {
+    Matrix<int> matrix1(2, 3, { 1, 2, 3, 4, 5, 6 });
+    Matrix<int> matrix2(3, 3, { 1, 3, 5, 2, 4, 6, 7, 8, 9 });
+
+    ASSERT_THROW(matrix1 += matrix2, std::invalid_argument);
+}
+
+TEST(TestMatrixLib, throw_uncorrect_sub) {
+    Matrix<int> matrix1(3, 2, { 1, 2, 3, 4, 5, 6 });
+    Matrix<int> matrix2(3, 3, { 1, 3, 5, 2, 4, 6, 7, 8, 9 });
+
+    ASSERT_THROW(matrix1 - matrix2, std::invalid_argument);
+}
+
+TEST(TestMatrixLib, throw_uncorrect_sub_with_assignment) {
+    Matrix<int> matrix1(2, 3, { 1, 2, 3, 4, 5, 6 });
+    Matrix<int> matrix2(3, 3, { 1, 3, 5, 2, 4, 6, 7, 8, 9 });
+
+    ASSERT_THROW(matrix1 -= matrix2, std::invalid_argument);
+}
+
 
 TEST(TestMatrixLib, correct_mult) {
     Matrix<int> matrix1(2, 2, { 1, 2, 3, 4 });
@@ -226,6 +253,13 @@ TEST(TestMatrixLib, correct_mult_on_scalar_with_assignment) {
     EXPECT_EQ(result, matrix1);
 }
 
+TEST(TestMatrixLib, throw_uncorrect_mult) {
+    Matrix<int> matrix1(2, 3, { 1, 2, 3, 4, 5, 6 });
+    Matrix<int> matrix2(2, 2, { 2, 0, 0, 1 });
+
+    ASSERT_THROW(matrix1 * matrix2, std::invalid_argument);
+}
+
 TEST(TestMatrixLib, correct_mult_2) {
     Matrix<int> matrix1(3, 2, { 1, 0, 0, 1, 0, 1 });
     Matrix<int> matrix2(2, 3, { 1, 0, 0, 0, 1, 0 });
@@ -244,8 +278,16 @@ TEST(TestMatrixLib, correct_mult_on_vector) {
 
 TEST(TestMatrixLib, correct_mult_on_vector_2) {
     Matrix<int> matrix1(3, 2, { 1, 0, 0, 1, 0, 1 });
-    MVector<int> vector(2, { 1, 0 }, 0);
-    MVector<int> result(3, { 1, 0, 0 }, 0);
+    MVector<int> vector(3, { 1, 0, 0 }, 0);
+    MVector<int> result(2, { 1, 0 }, 0);
 
     EXPECT_EQ(result, vector * matrix1);
+}
+
+TEST(TestMatrixLib, throw_uncorrect_mult_on_vector) {
+    Matrix<int> matrix1(3, 2, { 1, 0, 0, 1, 0, 1 });
+    MVector<int> vector(4, { 1, 0, 0, 0 }, 0);
+
+    ASSERT_THROW(matrix1 * vector, std::invalid_argument);
+    ASSERT_THROW(vector * matrix1, std::invalid_argument);
 }
