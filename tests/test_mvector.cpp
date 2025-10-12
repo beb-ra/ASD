@@ -456,3 +456,14 @@ TEST(TestMVectorLib, check_index_conversion_operator) {
     EXPECT_EQ(2, vec[1]);
     EXPECT_EQ(4, vec[3]);
 }
+
+TEST(TestMVectorLib, check_at) {
+    MVector<int> vec(4, { 1, 2, 3, 4 }, 0);
+    vec[2] = 6;
+    EXPECT_EQ(6, vec.at(2));
+    EXPECT_EQ(2, vec.at(1));
+    EXPECT_EQ(4, vec.at(3));
+    ASSERT_THROW(vec.at(-1), std::invalid_argument);
+    ASSERT_THROW(vec.at(4), std::invalid_argument);
+    ASSERT_THROW(vec.at(5), std::invalid_argument);
+}

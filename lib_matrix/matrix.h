@@ -18,6 +18,9 @@ public:
 	bool operator == (const Matrix<T>& other) const noexcept;
 	bool operator != (const Matrix<T>& other) const noexcept;
 
+	const T& at(size_t, size_t) const;
+	T& at(size_t, size_t);
+
 	Matrix<T> operator+(const Matrix<T>&) const;
 	Matrix<T>& operator+=(const Matrix<T>&);
 	Matrix<T> operator-(const Matrix<T>&) const;
@@ -43,6 +46,22 @@ public:
 
 	friend Matrix<T> operator* (const T value, const Matrix<T>& matrix) {
 		return matrix * value;
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& matrix) {
+		for (size_t i = 0; i < matrix.get_m(); i++) {
+			os << matrix[i];
+			if (i < matrix.get_m() - 1)
+				os << "\n";
+		}
+		return os;
+	}
+
+	friend std::istream& operator>>(std::istream& is, Matrix<T>& matrix) {
+		for (size_t i = 0; i < matrix.get_m(); i++) {
+			is >> matrix[i];
+		}
+		return is;
 	}
 
 	void print() const noexcept;
@@ -120,6 +139,17 @@ bool Matrix<T>::operator != (const Matrix<T>& other) const noexcept {
 	}
 	return false;
 }
+
+template <class T>
+const T& Matrix<T>::at(size_t rows, size_t cols) const {
+	return this->MVector<MVector<T>>::at(rows).at(cols);
+}
+
+template <class T>
+T& Matrix<T>::at(size_t rows, size_t cols) {
+	return this->MVector<MVector<T>>::at(rows).at(cols);
+}
+
 
 template <class T>
 Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {

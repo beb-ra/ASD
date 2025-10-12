@@ -26,7 +26,7 @@ public:
 	TriangleMatrix<T>& operator*=(const T);
 	MVector<T> operator*(const MVector<T>&) const;
 
-	friend MVector<T> operator* (const MVector<T>& vector, const TriangleMatrix<T>& matrix) {
+	friend MVector<T> operator*(const MVector<T>& vector, const TriangleMatrix<T>& matrix) {
 		if (matrix.get_n() != vector.size()) {
 			throw std::invalid_argument("Operations on matrices of different sizes aren't available");
 		}
@@ -40,8 +40,31 @@ public:
 		}
 		return result;
 	}
+
 	friend TriangleMatrix<T> operator* (const T value, const TriangleMatrix<T>& matrix) {
 		return matrix * value;
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const TriangleMatrix<T>& matrix) {
+		for (size_t i = 0; i < matrix.get_n(); i++) {
+			for (size_t j = 0; j < i; j++) {
+				os << "0 ";
+			}
+			for (size_t j = i; j < matrix.get_n(); j++) {
+				os << matrix[i][j] << " ";
+			}
+			os << std::endl;
+		}
+		return os;
+	}
+
+	friend std::istream& operator>>(std::istream& is, TriangleMatrix<T>& matrix) {
+		for (size_t i = 0; i < matrix.get_n(); i++) {
+			for (size_t j = i; j < matrix.get_n(); j++) {
+				is >> matrix[i][j];
+			}
+		}
+		return is;
 	}
 
 	void print() const noexcept;
@@ -78,16 +101,6 @@ TriangleMatrix<T>::TriangleMatrix(const size_t rows, const std::initializer_list
 
 template <class T>
 TriangleMatrix<T>::TriangleMatrix(const size_t rows, const T* data) : MVector<MVector<T>>(rows), N(rows) {
-	/*
-	for (size_t i = 0, count = 0; i < rows; i++) {
-		(*this)[i] = MVector<T>(i, rows - i);
-
-		for (size_t j = 0; j < rows - i; j++) {
-			(*this)[i][j] = data[count];
-			count++;
-		}
-	}
-	*/
 	for (size_t i = 0, count = 0; i < rows; i++) {
 		(*this)[i] = MVector<T>(rows - i, i);
 

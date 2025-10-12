@@ -22,6 +22,8 @@ public:
 	MVector<T>& operator=(const MVector<T>& other);
 	T& operator[](const int);
 	const T& operator[](const int) const;
+	const T& at(size_t) const;
+	T& at(size_t);
 
 	MVector<T>& operator+=(const MVector<T>& other);
 	MVector<T>& operator-=(const MVector<T>& other);
@@ -34,6 +36,20 @@ public:
 
 	friend MVector<T> operator* (const T value, const MVector<T>& other) {
 		return other * value;
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const MVector<T>& vector) {
+		for (size_t i = 0; i < vector.size(); i++) {
+			os << vector[i] << " ";
+		}
+		return os;
+	}
+
+	friend std::istream& operator>>(std::istream& is, MVector<T>& vector) {
+		for (size_t i = 0; i < vector.size(); i++) {
+			is >> vector[i];
+		}
+		return is;
 	}
 
 	void print() const noexcept;
@@ -98,6 +114,30 @@ const T& MVector<T>::operator[](const int index) const {
 	static T element = T();
 	if (index >= 0 && index < _start_index) return element;
 	return TVector<T>::operator[](index - _start_index);
+}
+
+template <class T>
+const T& MVector<T>::at(size_t index) const {
+	if (index >= _start_index + size()) 
+		throw std::invalid_argument("Index out of range");
+
+	if (index >= 0 && index < _start_index) {
+		static T element = T();
+		return element;
+	}
+	return TVector::operator[](index - _start_index);
+}
+
+template <class T>
+T& MVector<T>::at(size_t index) {
+	if (index >= _start_index + size()) 
+		throw std::invalid_argument("Index out of range");
+
+	if (index >= 0 && index < _start_index) {
+		static T element = T();
+		return element;
+	}
+	return TVector::operator[](index - _start_index);
 }
 
 template <class T>
