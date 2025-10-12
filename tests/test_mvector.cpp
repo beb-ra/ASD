@@ -45,7 +45,7 @@ TEST(TestMVectorLib, correct_create_object_2) {
     MVector<int> object(size, start_index);
 
     EXPECT_EQ(start_index, object.start_index());
-    EXPECT_EQ(size + start_index, object.size());
+    EXPECT_EQ(size, object.size());
 }
 
 TEST(TestMVectorLib, correct_create_object3) {
@@ -57,7 +57,7 @@ TEST(TestMVectorLib, correct_create_object3) {
     MVector<int> object(size, mass, start_index);
     
     EXPECT_EQ(start_index, object.start_index());
-    EXPECT_EQ(size + start_index, object.size());
+    EXPECT_EQ(size, object.size());
 }
 
 TEST(TestMVectorLib, correct_create_object_4) {
@@ -66,7 +66,7 @@ TEST(TestMVectorLib, correct_create_object_4) {
     MVector<int> object(size, { 1, 2, 3 }, start_index);
 
     EXPECT_EQ(start_index, object.start_index());
-    EXPECT_EQ(size + start_index, object.size());
+    EXPECT_EQ(size, object.size());
 }
 
 TEST(TestMVectorLib, correct_create_object_with_copy) {
@@ -76,7 +76,7 @@ TEST(TestMVectorLib, correct_create_object_with_copy) {
     MVector<int> object2(object1);
 
     EXPECT_EQ(start_index, object2.start_index());
-    EXPECT_EQ(size + start_index, object2.size());
+    EXPECT_EQ(size, object2.size());
 }
 
 TEST(TestMVectorLib, try_compare) {
@@ -249,6 +249,15 @@ TEST(TestMVectorLib, correct_mult_3) {
     EXPECT_EQ(18, object1 * object2);
 }
 
+TEST(TestMVectorLib, correct_mult_with_different_start_index) {
+    MVector<int> object1(2, { 2, -1 }, 1);
+    MVector<int> object2(1, { 3 }, 2);
+    int result = -3;
+
+    EXPECT_EQ(result, object1 * object2);
+    EXPECT_EQ(result, object2 * object1);
+}
+
 TEST(TestMVectorLib, throw_uncorrect_mult) {
     size_t start_index = 0;
     MVector<int> object1(2, { 2, 2}, start_index);
@@ -292,6 +301,26 @@ TEST(TestMVectorLib, correct_add) {
     EXPECT_EQ(result, object1 + object2);
 }
 
+TEST(TestMVectorLib, correct_add_with_different_start_index) {
+    MVector<int> object1(2, { 2, 3 }, 1);
+    MVector<int> object2(1, { -1 }, 2);
+    MVector<int> result(2, { 2, 2 }, 1);
+
+    EXPECT_EQ(result, object1 + object2);
+    object1 += object2;
+    EXPECT_EQ(result, object1);
+}
+
+TEST(TestMVectorLib, correct_add_with_different_start_index_2) {
+    MVector<int> object1(2, { 2, 3 }, 1);
+    MVector<int> object2(1, { -1 }, 2);
+    MVector<int> result(2, { 2, 2 }, 1);
+
+    EXPECT_EQ(result, object2 + object1);
+    object2 += object1;
+    EXPECT_EQ(result, object2);
+}
+
 TEST(TestMVectorLib, correct_sub) {
     size_t size = 3, start_index = 0;
     MVector<int> object1(size, { 1, 2, 3 }, start_index);
@@ -299,6 +328,26 @@ TEST(TestMVectorLib, correct_sub) {
     MVector<int> result(size, { -1, -1, 6 }, start_index);
 
     EXPECT_EQ(result, object1 - object2);
+}
+
+TEST(TestMVectorLib, correct_sub_with_different_start_index) {
+    MVector<int> object1(2, { 2, 3 }, 1);
+    MVector<int> object2(1, { -1 }, 2);
+    MVector<int> result(2, { 2, 4 }, 1);
+
+    EXPECT_EQ(result, object1 - object2);
+    object1 -= object2;
+    EXPECT_EQ(result, object1);
+}
+
+TEST(TestMVectorLib, correct_sub_with_different_start_index_2) {
+    MVector<int> object1(2, { 2, 3 }, 1);
+    MVector<int> object2(1, { -1 }, 2);
+    MVector<int> result(2, { -2, -4 }, 1);
+
+    EXPECT_EQ(result, object2 - object1);
+    object2 -= object1;
+    EXPECT_EQ(result, object2);
 }
 
 TEST(TestMVectorLib, throw_uncorrect_add) {

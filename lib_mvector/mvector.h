@@ -37,27 +37,19 @@ public:
 	}
 
 	void print() const noexcept;
-
-	/*
-	friend MVector<T> operator+ <T>(const MVector<T>&, const MVector<T>&);
-	friend MVector<T> operator- <T>(const MVector<T>&, const MVector<T>&);
-	friend T operator* <T>(const MVector<T>&, const MVector<T>&);
-	friend MVector<T> operator* <T>(const MVector<T>& other, const T value);
-	friend MVector<T> operator* <T>(const T, const MVector<T>&);
-	*/
 };
 
 template <class T>
 MVector<T>::MVector(size_t size) : TVector<T>(size), _start_index(0) {}
 
 template <class T>
-MVector<T>::MVector(size_t size, size_t start_index) : TVector<T>(size + start_index), _start_index(start_index) {}
+MVector<T>::MVector(size_t size, size_t start_index) : TVector<T>(size), _start_index(start_index) {}
 
 template <class T>
-MVector<T>::MVector(const size_t size, const T* data, const size_t start_index) : TVector<T>(size + start_index, data), _start_index(start_index) {}
+MVector<T>::MVector(const size_t size, const T* data, const size_t start_index) : TVector<T>(size, data), _start_index(start_index) {}
 
 template <class T>
-MVector<T>::MVector(const size_t size, const std::initializer_list<T> data, const size_t start_index) : TVector<T>(size + start_index, data), _start_index(start_index) {}
+MVector<T>::MVector(const size_t size, const std::initializer_list<T> data, const size_t start_index) : TVector<T>(size, data), _start_index(start_index) {}
 
 template <class T>
 MVector<T>::MVector(const MVector<T>& other) : TVector<T>(other), _start_index(other._start_index) {}
@@ -113,12 +105,17 @@ MVector<T>& MVector<T>::operator+=(const MVector<T>& other) {
 	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (this->size() != other.size())
+	if (this->size() + _start_index != other.size() + other._start_index)
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
-	for (int i = 0; i < size(); i++) {
-		(*this)[i] += other[i];
+	size_t min_start_index = (_start_index < other._start_index) ? _start_index : other._start_index;
+	size_t max_size = (size() > other.size()) ? size() : other.size();
+
+	MVector<T> result(max_size, min_start_index);
+	for (size_t i = min_start_index; i < max_size + min_start_index; i++) {
+		result[i] = (*this)[i] + other[i];
 	}
+	*this = result;
 	return *this;
 }
 
@@ -127,12 +124,17 @@ MVector<T>& MVector<T>::operator-=(const MVector<T>& other) {
 	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (this->size() != other.size())
+	if (this->size() + _start_index != other.size() + other._start_index)
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
-	for (int i = 0; i < size(); i++) {
-		(*this)[i] -= other[i];
+	size_t min_start_index = (_start_index < other._start_index) ? _start_index : other._start_index;
+	size_t max_size = (size() > other.size()) ? size() : other.size();
+
+	MVector<T> result(max_size, min_start_index);
+	for (size_t i = min_start_index; i < max_size + min_start_index; i++) {
+		result[i] = (*this)[i] - other[i];
 	}
+	*this = result;
 	return *this;
 }
 
@@ -141,7 +143,7 @@ MVector<T>& MVector<T>::operator*=(const T value) {
 	if (this->is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	for (int i = 0; i < size(); i++) {
+	for (int i = 0; i < size() + _start_index; i++) {
 		(*this)[i] *= value;
 	}
 	return *this;
@@ -157,28 +159,18 @@ MVector<T> MVector<T>::operator*(const T value) const {
 	return result;
 }
 
-/*
-template <class T>
-MVector<T> operator*(const T value, const MVector<T>& other) {
-	if (other.is_empty())
-		throw std::invalid_argument("The math vector is empty");
-
-	return other * value;
-}
-*/
-
 template <class T>
 T MVector<T>::operator*(const MVector<T>& other) const {
 	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (this->size() != other.size())
+	if (this->size() + _start_index != other.size() + other._start_index)
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
-	T result = T();
-	for (int i = 0; i < size(); i++) {
+	T result = 0;
+	size_t max_start_index = (_start_index > other._start_index) ? _start_index : other._start_index;
+	for (size_t i = max_start_index; i < size() + _start_index; i++)
 		result += (*this)[i] * other[i];
-	}
 	return result;
 }
 
@@ -187,7 +179,7 @@ MVector<T> MVector<T>::operator+(const MVector<T>& other) const {
 	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (this->size() != other.size())
+	if (this->size() + _start_index != other.size() + other._start_index)
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
 	MVector<T> result(*this);
@@ -200,7 +192,7 @@ MVector<T> MVector<T>::operator-(const MVector<T>& other) const {
 	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (this->size() != other.size())
+	if (this->size() + _start_index != other.size() + other._start_index)
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
 	MVector<T> result(*this);
