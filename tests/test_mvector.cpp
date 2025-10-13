@@ -7,10 +7,14 @@ TEST(TestMVectorLib, try_create_object) {
 }
 
 TEST(TestMVectorLib, try_create_object_2) {
+    ASSERT_NO_THROW(MVector<int> object(5));
+}
+
+TEST(TestMVectorLib, try_create_object_3) {
     ASSERT_NO_THROW(MVector<int> object(10, 2));
 }
 
-TEST(TestMVectorLib, try_create_object3) {
+TEST(TestMVectorLib, try_create_object_4) {
     int size = 2;
     int* mass = new int[size];
     mass[0] = 1; mass[1] = 2;
@@ -19,7 +23,7 @@ TEST(TestMVectorLib, try_create_object3) {
     ASSERT_NO_THROW(MVector<int> object(size, mass, index));
 }
 
-TEST(TestMVectorLib, try_create_object_4) {
+TEST(TestMVectorLib, try_create_object_5) {
     size_t size = 3, index = 0;
 
     ASSERT_NO_THROW(MVector<int> object(size, { 1, 2, 3 }, index));
@@ -69,6 +73,13 @@ TEST(TestMVectorLib, correct_create_object_4) {
     EXPECT_EQ(size, object.size());
 }
 
+TEST(TestMVectorLib, correct_create_object_5) {
+    MVector<int> object(5);
+
+    EXPECT_EQ(static_cast <size_t>(0), object.start_index());
+    EXPECT_EQ(static_cast <size_t>(5), object.size());
+}
+
 TEST(TestMVectorLib, correct_create_object_with_copy) {
     size_t size = 3, start_index = 2;
     MVector<int> object1(size, { 1, 2, 3 }, start_index);
@@ -80,37 +91,17 @@ TEST(TestMVectorLib, correct_create_object_with_copy) {
 }
 
 TEST(TestMVectorLib, try_compare) {
-    bool actual_result = true;
-
     MVector<int> object1(3, { 1, 2, 3 }, 0);
     MVector<int> object2(object1);
 
-    try {
-        object1 == object2;
-    }
-    catch (const std::exception& ex) {
-        std::cerr << ex.what();
-        actual_result = false;
-    }
-
-    EXPECT_TRUE(actual_result);
+    ASSERT_NO_THROW(object1 == object2);
 }
 
 TEST(TestMVectorLib, try_compare_2) {
-    bool actual_result = true;
-
     MVector<int> object1(3, { 1, 2, 3 }, 0);
     MVector<int> object2(object1);
 
-    try {
-        object1 != object2;
-    }
-    catch (const std::exception& ex) {
-        std::cerr << ex.what();
-        actual_result = false;
-    }
-
-    EXPECT_TRUE(actual_result);
+    ASSERT_NO_THROW(object1 != object2);
 }
 
 TEST(TestMVectorLib, correct_compare) {
@@ -170,20 +161,10 @@ TEST(TestMVectorLib, correct_compare8) {
 }
 
 TEST(TestMVectorLib, try_assignment) {
-    bool actual_result = true;
-
     MVector<int> object1(3, { 1, 2, 3 }, 0);
     MVector<int> object2;
 
-    try {
-        object2 = object1;
-    }
-    catch (const std::exception& ex) {
-        std::cerr << ex.what();
-        actual_result = false;
-    }
-
-    EXPECT_TRUE(actual_result);
+    ASSERT_NO_THROW(object1 = object2);
 }
 
 TEST(TestMVectorLib, correct_assignment) {
@@ -196,21 +177,11 @@ TEST(TestMVectorLib, correct_assignment) {
 }
 
 TEST(TestMVectorLib, try_mult) {
-    bool actual_result = true;
-
     MVector<int> object(3, { 1, 2, 3 }, 0);
     int value = 5;
 
-    try {
-        object * value;
-        value * object;
-    }
-    catch (const std::exception& ex) {
-        std::cerr << ex.what();
-        actual_result = false;
-    }
-
-    EXPECT_TRUE(actual_result);
+    ASSERT_NO_THROW(object * value);
+    ASSERT_NO_THROW(value * object);
 }
 
 TEST(TestMVectorLib, correct_mult) {

@@ -13,7 +13,6 @@ public:
 	MVector(const MVector<T>& other);
 
 	const size_t start_index() const noexcept;
-
 	const size_t size() const noexcept;
 
 	bool operator == (const MVector<T>& other) const noexcept;
@@ -81,7 +80,7 @@ bool MVector<T>::operator == (const MVector<T>& other) const noexcept {
 		return false;
 	}
 	
-	return _start_index == other._start_index;
+	return _start_index + size() == other._start_index + other.size();
 }
 
 template <class T>
@@ -90,7 +89,7 @@ bool MVector<T>::operator != (const MVector<T>& other) const noexcept {
 		return true;
 	}
 
-	return _start_index != other._start_index;
+	return _start_index + size() != other._start_index + other.size();
 }
 
 template <class T>
@@ -118,7 +117,7 @@ const T& MVector<T>::operator[](const int index) const {
 
 template <class T>
 const T& MVector<T>::at(size_t index) const {
-	if (index >= _start_index + size()) 
+	if (index >= _start_index + size() || index < 0) 
 		throw std::invalid_argument("Index out of range");
 
 	if (index >= 0 && index < _start_index) {
@@ -130,7 +129,7 @@ const T& MVector<T>::at(size_t index) const {
 
 template <class T>
 T& MVector<T>::at(size_t index) {
-	if (index >= _start_index + size()) 
+	if (index >= _start_index + size() || index < 0) 
 		throw std::invalid_argument("Index out of range");
 
 	if (index >= 0 && index < _start_index) {
@@ -183,7 +182,7 @@ MVector<T>& MVector<T>::operator*=(const T value) {
 	if (this->is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	for (int i = 0; i < size() + _start_index; i++) {
+	for (int i = _start_index; i < size() + _start_index; i++) {
 		(*this)[i] *= value;
 	}
 	return *this;

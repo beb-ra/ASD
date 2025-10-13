@@ -157,7 +157,9 @@ Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {
 		throw std::invalid_argument("Operations on matrices of different sizes aren't available");
 	}
 
-	return Matrix<T>(this->MVector<MVector<T>>::operator+(other));
+	Matrix<T> result(*this);
+	result += other;
+	return result;
 }
 
 template <class T>
@@ -165,7 +167,9 @@ Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& other) {
 	if (N != other.N || M != other.M) {
 		throw std::invalid_argument("Operations on matrices of different sizes aren't available");
 	}
-	return Matrix<T>(this->MVector<MVector<T>>::operator+=(other));
+
+	this->MVector<MVector<T>>::operator+=(other);
+	return *this;
 }
 
 template <class T>
@@ -174,7 +178,9 @@ Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) const {
 		throw std::invalid_argument("Operations on matrices of different sizes aren't available");
 	}
 
-	return Matrix<T>(this->MVector<MVector<T>>::operator-(other));
+	Matrix<T> result(*this);
+	result -= other;
+	return result;
 }
 
 template <class T>
@@ -182,15 +188,15 @@ Matrix<T>& Matrix<T>::operator-=(const Matrix<T>& other) {
 	if (N != other.N || M != other.M) {
 		throw std::invalid_argument("Operations on matrices of different sizes aren't available");
 	}
-	return Matrix<T>(this->MVector<MVector<T>>::operator-=(other));
+	
+	this->MVector<MVector<T>>::operator-=(other);
+	return *this;
 }
 
 template <class T>
 Matrix<T> Matrix<T>::operator*(const T value) const {
-	Matrix<T> result(N, M);
-	for (int i = 0; i < N; i++) {
-		result[i] = (*this)[i] * value;
-	}
+	Matrix<T> result(*this);
+	result *= value;
 	return result;
 }
 

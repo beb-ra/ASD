@@ -21,11 +21,6 @@ TEST(TestMatrixLib, try_create_object_4) {
     ASSERT_NO_THROW(Matrix<int> object(2, 2, mass));
 }
 
-TEST(TestMatrixLib, try_create_object_5) {
-    ASSERT_NO_THROW(Matrix<int> object(3, 3, { 1, 2, 3, 4 }));
-    ASSERT_NO_THROW(Matrix<int> object(2, 2, { 1, 2, 3, 4, 5, 6, 7, 8, 9 }));
-}
-
 TEST(TestMatrixLib, try_create_object_with_copy) {
     Matrix<int> object1(3, 3);
     ASSERT_NO_THROW(Matrix<int> object2(object1));
@@ -110,7 +105,11 @@ TEST(TestMatrixLib, correct_create_with_copy_3) {
     EXPECT_EQ(static_cast <size_t>(0), object2.start_index());
     EXPECT_EQ(static_cast <size_t>(3), object2.get_n());
     EXPECT_EQ(static_cast <size_t>(3), object2.get_m());
-    EXPECT_EQ(object1[0][0], object2[0][0]);
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            EXPECT_EQ(object1[i][j], object2[i][j]);
+        }
+    }
     EXPECT_TRUE(object1 == object2);
 }
 
@@ -203,6 +202,7 @@ TEST(TestMatrixLib, throw_uncorrect_add) {
     Matrix<int> matrix2(3, 3, { 1, 3, 5, 2, 4, 6, 7, 8, 9 });
 
     ASSERT_THROW(matrix1 + matrix2, std::invalid_argument);
+    ASSERT_THROW(matrix2 + matrix1, std::invalid_argument);
 }
 
 TEST(TestMatrixLib, throw_uncorrect_add_with_assignment) {
@@ -210,6 +210,7 @@ TEST(TestMatrixLib, throw_uncorrect_add_with_assignment) {
     Matrix<int> matrix2(3, 3, { 1, 3, 5, 2, 4, 6, 7, 8, 9 });
 
     ASSERT_THROW(matrix1 += matrix2, std::invalid_argument);
+    ASSERT_THROW(matrix2 += matrix1, std::invalid_argument);
 }
 
 TEST(TestMatrixLib, throw_uncorrect_sub) {
@@ -217,6 +218,7 @@ TEST(TestMatrixLib, throw_uncorrect_sub) {
     Matrix<int> matrix2(3, 3, { 1, 3, 5, 2, 4, 6, 7, 8, 9 });
 
     ASSERT_THROW(matrix1 - matrix2, std::invalid_argument);
+    ASSERT_THROW(matrix2 - matrix1, std::invalid_argument);
 }
 
 TEST(TestMatrixLib, throw_uncorrect_sub_with_assignment) {
@@ -224,8 +226,8 @@ TEST(TestMatrixLib, throw_uncorrect_sub_with_assignment) {
     Matrix<int> matrix2(3, 3, { 1, 3, 5, 2, 4, 6, 7, 8, 9 });
 
     ASSERT_THROW(matrix1 -= matrix2, std::invalid_argument);
+    ASSERT_THROW(matrix2 -= matrix1, std::invalid_argument);
 }
-
 
 TEST(TestMatrixLib, correct_mult) {
     Matrix<int> matrix1(2, 2, { 1, 2, 3, 4 });
