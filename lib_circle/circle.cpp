@@ -16,7 +16,7 @@ Circle::Circle(double x, double y, double radius) : _center(x, y) {
     _radius = radius;
 }
 
-Circle::Circle(const Point& center, const double radius) : _center(center) {
+Circle::Circle(const Point& center, double radius) : _center(center) {
     if (radius <= 0) {
         throw std::invalid_argument("the radius cannot be less than 0");
     }
@@ -38,7 +38,7 @@ void Circle::set_center(const Point& center) {
     _center = center;
 }
 
-void Circle::set_radius(const double radius) {
+void Circle::set_radius(double radius) {
     _radius = radius;
 }
 

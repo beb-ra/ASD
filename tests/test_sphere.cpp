@@ -1,21 +1,17 @@
 #include <gtest/gtest.h>
 #include "../lib_sphere/sphere.h"
 
-TEST(TestSphereLib, create_without_pr) {
-	// Arrange
-	// Act & Assert
-	ASSERT_NO_THROW(Sphere s());  //ф-ция не вызывает исключение
+TEST(TestSphereLib, try_create_without_pr) {
+	ASSERT_NO_THROW(Sphere s());
 }
 
-TEST(TestSphereLib, create_with_pr) {
-	// Arrange
+TEST(TestSphereLib, try_create_with_pr) {
 	double x = 10;
 	double y = 2;
 	double z = 7;
 	double rad = 5;
 
-	// Act & Assert
-	ASSERT_NO_THROW(Sphere s(x, y, z, rad));  //ф-ция не вызывает исключение
+	ASSERT_NO_THROW(Sphere s(x, y, z, rad));
 }
 
 TEST(TestSphereLib, uncorrect_create_with_pr) {
@@ -24,9 +20,7 @@ TEST(TestSphereLib, uncorrect_create_with_pr) {
 	double z = 7;
 	double rad = -10;
 
-	// Act & Assert
-	ASSERT_THROW(Sphere s(x, y, z, rad),  // код, который должен бросить исключение
-		std::invalid_argument);         // тип исключения, которое ожидается
+	ASSERT_THROW(Sphere s(x, y, z, rad), std::invalid_argument);
 }
 
 TEST(TestSphereLib, uncorrect_create_with_copy) {
@@ -36,11 +30,10 @@ TEST(TestSphereLib, uncorrect_create_with_copy) {
 	double rad = -10;
 
 	Point3D p(x, y, z);
-	ASSERT_THROW(Sphere s(p, rad),  // код, который должен бросить исключение
-		std::invalid_argument);         // тип исключения, которое ожидается
+	ASSERT_THROW(Sphere s(p, rad), std::invalid_argument);
 }
 
-TEST(TestSphereLib, create_with_copy) {
+TEST(TestSphereLib, try_create_with_copy) {
 	double x = 10;
 	double y = 2;
 	double z = 7;
@@ -50,7 +43,7 @@ TEST(TestSphereLib, create_with_copy) {
 	ASSERT_NO_THROW(Sphere s2(s));
 }
 
-TEST(TestSphereLib, create_with_copy2) {
+TEST(TestSphereLib, try_create_with_copy2) {
 	double x = 10;
 	double y = 2;
 	double z = 7;

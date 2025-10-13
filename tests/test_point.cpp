@@ -1,30 +1,23 @@
 #include <gtest/gtest.h>
 #include "../lib_point/point.h"
 
-//#define EPSILON 0.000001
-
-TEST(TestPointLib, create_without_pr) {
-	// Arrange
-
-	// Act & Assert
-	ASSERT_NO_THROW(Point());  //ф-ция не вызывает исключение
+TEST(TestPointLib, try_create_without_pr) {
+	ASSERT_NO_THROW(Point p());
 }
 
-TEST(TestPointLib, create_with_pr) {
-	// Arrange
+TEST(TestPointLib, try_create_with_pr) {
 	double x = 10;
 	double y = 2;
 
-	// Act & Assert
-	ASSERT_NO_THROW(Point(x, y));  //ф-ция не вызывает исключение
+	ASSERT_NO_THROW(Point p(x, y));
 }
 
-TEST(TestPointLib, create_with_copy) {
+TEST(TestPointLib, try_create_with_copy) {
 	double x = 10;
 	double y = 2;
 
 	Point p(x, y);
-	ASSERT_NO_THROW(Point(p));
+	ASSERT_NO_THROW(Point p2(p));
 }
 
 TEST(TestPointLib, correct_create_without_pr) {

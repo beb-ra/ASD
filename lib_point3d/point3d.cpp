@@ -5,7 +5,7 @@ const double Point3D::get_z() const noexcept {
 	return _z;
 }
 
-void Point3D::set_z(const double z) {
+void Point3D::set_z(double z) {
 	_z = z;
 }
 

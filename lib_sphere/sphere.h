@@ -10,16 +10,15 @@ class Sphere {
 
 public:
 	Sphere() : _center(), _radius(0) {}
-	Sphere(const double x, const double y, 
-		const double z, const double radius);
-	Sphere(const Point3D& center, const double radius);
+	Sphere(double x, double y, double z, double radius);
+	Sphere(const Point3D& center, double radius);
 	Sphere(const Sphere& other);
 
 	const Point3D& get_center() const noexcept;
 	const double get_radius() const noexcept;
 
 	void set_center(const Point3D&);
-	void set_radius(const double);
+	void set_radius(double);
 
 	double calculate_distance(const Point3D& second) const;
 

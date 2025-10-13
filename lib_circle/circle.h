@@ -10,15 +10,15 @@ class Circle {
 
 public:
 	Circle() : _center(), _radius(0) {}
-	Circle(const double x, const double y, const double radius);
-	Circle(const Point& center, const double radius);
+	Circle(double x, double y, double radius);
+	Circle(const Point& center, double radius);
 	Circle(const Circle& other);
 
 	const Point& get_center() const noexcept;
 	const double get_radius() const noexcept;
 
 	void set_center(const Point&);
-	void set_radius(const double);
+	void set_radius(double);
 
 	double calculate_distance(const Point&) const;
 

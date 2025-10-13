@@ -17,10 +17,10 @@ const double Point::get_y() const noexcept {
     return _y;
 }
 
-void Point::set_x(const double x) {
+void Point::set_x(double x) {
     _x = x;
 }
 
-void Point::set_y(const double y) {
+void Point::set_y(double y) {
     _y = y;
 }

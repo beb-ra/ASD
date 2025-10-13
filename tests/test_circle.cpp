@@ -3,31 +3,24 @@
 
 #define EPSILON 0.000001
 
-TEST(TestCircleLib, create_without_pr) {
-	// Arrange
-	// Act & Assert
-	ASSERT_NO_THROW(Circle c());  //ф-ция не вызывает исключение
+TEST(TestCircleLib, try_create_without_pr) {
+	ASSERT_NO_THROW(Circle c());
 }
 
-TEST(TestCircleLib, create_with_pr) {
-	// Arrange
+TEST(TestCircleLib, try_create_with_pr) {
 	double x = 10;
 	double y = 2;
 	double rad = 5;
 
-	// Act & Assert
-	ASSERT_NO_THROW(Circle c(x, y, rad));  //ф-ция не вызывает исключение
+	ASSERT_NO_THROW(Circle c(x, y, rad));
 }
 
 TEST(TestCircleLib, uncorrect_create_with_pr) {
-	// Arrange
 	double x = 10;
 	double y = 2;
 	double rad = -10;
 
-	// Act & Assert
-	ASSERT_THROW(Circle c(x, y, rad),  // код, который должен бросить исключение
-		std::invalid_argument);         // тип исключения, которое ожидается
+	ASSERT_THROW(Circle c(x, y, rad), std::invalid_argument);
 }
 
 TEST(TestCircleLib, uncorrect_create_with_copy) {
@@ -36,11 +29,10 @@ TEST(TestCircleLib, uncorrect_create_with_copy) {
 	double rad = -10;
 
 	Point p(x, y);
-	ASSERT_THROW(Circle c(p, rad),  // код, который должен бросить исключение
-		std::invalid_argument);         // тип исключения, которое ожидается
+	ASSERT_THROW(Circle c(p, rad), std::invalid_argument);
 }
 
-TEST(TestCircleLib, create_with_copy) {
+TEST(TestCircleLib, try_create_with_copy) {
 	double x = 10;
 	double y = 2;
 	double rad = 5;
@@ -49,7 +41,7 @@ TEST(TestCircleLib, create_with_copy) {
 	ASSERT_NO_THROW(Circle c2(c));
 }
 
-TEST(TestCircleLib, create_with_copy2) {
+TEST(TestCircleLib, try_create_with_copy2) {
 	double x = 10;
 	double y = 2;
 	double rad = 5;

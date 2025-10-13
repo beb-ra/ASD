@@ -1,8 +1,7 @@
 #include <iostream>
 #include "sphere.h"
 
-Sphere::Sphere(const double x, const double y,
-	const double z, const double radius) : _center(x, y, z) {
+Sphere::Sphere(double x, double y, double z, double radius) : _center(x, y, z) {
 	if (radius <= 0) {
 		throw std::invalid_argument("the radius cannot be less than 0");
 	}
@@ -17,7 +16,7 @@ Sphere::Sphere(const Sphere& other) {
 	_radius = other._radius;
 }
 
-Sphere::Sphere(const Point3D& center, const double radius) : _center(center) {
+Sphere::Sphere(const Point3D& center, double radius) : _center(center) {
 	if (radius <= 0) {
 		throw std::invalid_argument("the radius cannot be less than 0");
 	}
@@ -46,6 +45,6 @@ void Sphere::set_center(const Point3D& center) {
 	_center = center;
 }
 
-void Sphere::set_radius(const double radius) {
+void Sphere::set_radius(double radius) {
 	_radius = radius;
 }

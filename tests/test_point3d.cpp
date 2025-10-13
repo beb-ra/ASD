@@ -1,41 +1,36 @@
 #include <gtest/gtest.h>
 #include "../lib_point3D/point3d.h"
 
-TEST(TestPoint3DLib, create_without_pr) {
-	// Arrange
-
-	// Act & Assert
-	ASSERT_NO_THROW(Point3D());  //ф-ция не вызывает исключение
+TEST(TestPoint3DLib, try_create_without_pr) {
+	ASSERT_NO_THROW(Point3D p());
 }
 
-TEST(TestPoint3DLib, create_with_pr) {
-	// Arrange
+TEST(TestPoint3DLib, try_create_with_pr) {
 	double x = 10;
 	double y = 2;
 	double z = 5;
 
-	// Act & Assert
-	ASSERT_NO_THROW(Point3D(x, y, z));  //ф-ция не вызывает исключение
+	ASSERT_NO_THROW(Point3D p(x, y, z));
 }
 
-TEST(TestPoint3DLib, create_with_copy) {
+TEST(TestPoint3DLib, try_create_with_copy) {
 	double x = 10;
 	double y = 2;
 	double z = 5;
 
 	Point3D p(x, y, z);
 
-	ASSERT_NO_THROW(Point3D(p));
+	ASSERT_NO_THROW(Point3D p2(p));
 }
 
-TEST(TestPoint3DLib, create_with_copy2) {
+TEST(TestPoint3DLib, try_create_with_copy2) {
 	double x = 10;
 	double y = 2;
 	double z = 5;
 
 	Point p(x, y);
 
-	ASSERT_NO_THROW(Point3D(p, z));
+	ASSERT_NO_THROW(Point3D p2(p, z));
 }
 
 TEST(TestPoint3DLib, correct_create_without_pr) {

@@ -6,11 +6,10 @@ class Point3D : public Point {
 
 public:
 	Point3D() : Point(), _z(0) {}
-	Point3D(const double x, const double y, const double z)
-		: Point(x, y), _z(z) {}
+	Point3D(double x, double y, double z) : Point(x, y), _z(z) {}
 	Point3D(const Point& point, double z) : Point(point), _z(z) {}
 	Point3D(const Point3D& other);
 	
 	const double get_z() const noexcept;
-	void set_z(const double);
+	void set_z(double);
 };
