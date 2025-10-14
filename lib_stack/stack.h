@@ -1,5 +1,5 @@
 #pragma once
-#include "../lib_tvector/tvector.h"
+//#include "../lib_tvector/tvector.h"
 
 template <class T>
 class Stack {
