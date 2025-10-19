@@ -313,3 +313,21 @@ TEST(TestTriangleMatrixLib, throw_uncorrect_mult_on_vector) {
     ASSERT_THROW(matrix1 * vector, std::invalid_argument);
     ASSERT_THROW(vector * matrix1, std::invalid_argument);
 }
+
+TEST(TestTriangleMatrixLib, check_at) {
+    TriangleMatrix<int> m(3, { 1, 2, 3, 4, 5, 6 });
+
+    EXPECT_EQ(m.at(0, 0), 1);
+    EXPECT_EQ(m.at(0, 1), 2);
+    EXPECT_EQ(m.at(0, 2), 3);
+    EXPECT_EQ(m.at(1, 0), 0);
+    EXPECT_EQ(m.at(1, 1), 4);
+    EXPECT_EQ(m.at(1, 2), 5);
+    EXPECT_EQ(m.at(2, 0), 0);
+    EXPECT_EQ(m.at(2, 1), 0);
+    EXPECT_EQ(m.at(2, 2), 6);
+
+    ASSERT_THROW(m.at(0, -1), std::invalid_argument);
+    ASSERT_THROW(m.at(4, 2), std::invalid_argument);
+    ASSERT_THROW(m.at(5, 5), std::invalid_argument);
+}

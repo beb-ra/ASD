@@ -49,16 +49,16 @@ public:
 	}
 
 	friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& matrix) {
-		for (size_t i = 0; i < matrix.get_m(); i++) {
+		for (size_t i = 0; i < matrix.get_n(); i++) {
 			os << matrix[i];
-			if (i < matrix.get_m() - 1)
+			if (i < matrix.get_n() - 1)
 				os << "\n";
 		}
 		return os;
 	}
 
 	friend std::istream& operator>>(std::istream& is, Matrix<T>& matrix) {
-		for (size_t i = 0; i < matrix.get_m(); i++) {
+		for (size_t i = 0; i < matrix.get_n(); i++) {
 			is >> matrix[i];
 		}
 		return is;

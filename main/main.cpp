@@ -7,7 +7,7 @@
 #include <iomanip>
 #include <cstdlib>
 
-#define DEBUG
+//#define DEBUG
 
 #define ADD 0
 #define SUB 1
@@ -24,13 +24,13 @@
 
 #ifdef DEBUG
 template <class T>
-class MathVector {
+class MVector {
 public:
-    MathVector() {}
+    MVector() {}
 };
 
 template <class T>
-class Matrix : public MathVector<MathVector<T>> {
+class Matrix : public MVector<MVector<T>> {
 public:
     Matrix() { }
     Matrix(int n, int m) { }
@@ -60,6 +60,10 @@ template <class T>
 std::istream& operator >> (std::istream& in, Matrix<T>& m) { return in; }
 template <class T>
 std::istream& operator << (std::istream& in, TriangleMatrix<T>& num) { return in; }
+#else
+
+#include "../lib_triangle_matrix/triangle_matrix.h"
+
 #endif
 
 void handle_matrices();
@@ -178,6 +182,7 @@ void print_matrix(const Matrix<T>& matr, int num) {
     std::cout << "\n*The matrix output will be here*\n";
 #else
     std::cout << matr;
+    std::cout << "\n\n";
 #endif
 }
 
@@ -191,6 +196,7 @@ void print_matrix(const TriangleMatrix<T>& matr, int num) {
     std::cout << "\n*The matrix output will be here*\n";
 #else
     std::cout << matr;
+    std::cout << "\n\n";
 #endif
 }
 
