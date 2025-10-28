@@ -150,6 +150,17 @@ TEST(TestCircleLib, calculate_distance5) {
 	EXPECT_EQ(10, c.calculate_distance(p));
 }
 
+TEST(TestCircleLib, calculate_distance6) {
+	double x1 = 0, x2 = 5;
+	double y1 = 0, y2 = 2;
+	double rad = 5;
+	Circle c(x1, y1, rad);
+
+	Point p(x2, y2);
+
+	EXPECT_EQ(std::sqrt(29), c.calculate_distance(p));
+}
+
 TEST(TestCircleLib, correct_setters) {
 	double x1 = 1, x2 = 7;
 	double y1 = 1, y2 = 9;
