@@ -17,6 +17,7 @@ public:
 
 	bool operator == (const Matrix<T>& other) const noexcept;
 	bool operator != (const Matrix<T>& other) const noexcept;
+	Matrix<T>& operator =(const Matrix<T>&);
 
 	const T& at(size_t, size_t) const;
 	T& at(size_t, size_t);
@@ -63,7 +64,7 @@ public:
 		}
 		return is;
 	}
-
+//private:
 	void print() const noexcept;
 };
 
@@ -74,13 +75,35 @@ Matrix<T>::Matrix(size_t rows, size_t cols) : MVector<MVector<T>>(rows),
 		(*this)[i] = MVector<T>(cols);
 	}
 }
-template <class T>
-Matrix<T>::Matrix(const Matrix<T>& other) : MVector<MVector<T>>(other), 
-    N(other.N), M(other.M) {}
 
 template <class T>
+Matrix<T>::Matrix(const Matrix<T>& other) : MVector<MVector<T>>(other.N), N(other.N), M(other.M) {
+	for (int i = 0; i < N; i++) {
+		(*this)[i] = MVector<T>(other[i]);
+	}
+}
+
+template <class T>
+Matrix<T>::Matrix(const MVector<MVector<T>>& other) : MVector<MVector<T>>(other.size()), N(other.size()), M(other[0].size()) {
+	for (int i = 0; i < N; i++) {
+		(*this)[i] = MVector<T>(other[i]);
+	}
+}
+
+/*
+template <class T>
 Matrix<T>::Matrix(const MVector<MVector<T>>& other) : MVector<MVector<T>>(other), 
-    N(other.size()), M(other[0].size()) {}
+    N(other.size() - other.start_index()), M(other[0].size()) {}
+*/
+/*
+template <class T>
+Matrix<T>::Matrix(const MVector<MVector<T>>& other) : MVector<MVector<T>>(other),
+    N(other.size()), M(other[0].size()) {
+	for (int i = 0; i < N; i++) {
+		(*this)[i] = MVector<T>(other[i]);
+	}
+}
+*/
 
 template <class T>
 Matrix<T>::Matrix(const size_t rows, const size_t cols, const std::initializer_list<T> data) 
@@ -120,6 +143,7 @@ Matrix<T> Matrix<T>::transpose() const {
 
 template <class T>
 bool Matrix<T>::operator == (const Matrix<T>& other) const noexcept {
+	/*
 	if (N != other.N || M != other.M) return false;
 	
 	for (int i = 0; i < N; i++) {
@@ -127,17 +151,26 @@ bool Matrix<T>::operator == (const Matrix<T>& other) const noexcept {
 			return false;
 	}
 	return true;
+	*/
+	if (N != other.N || M != other.M) return false;
+	return this->MVector<MVector<T>>::operator==(other);
 }
+
 
 template <class T>
 bool Matrix<T>::operator != (const Matrix<T>& other) const noexcept {
-	if (N != other.N || M != other.M) return true;
+	return !((*this) == other);
+}
 
-	for (int i = 0; i < N; i++) {
-		if ((*this)[i] != other[i])
-			return true;
-	}
-	return false;
+template <class T>
+Matrix<T>& Matrix<T>::operator =(const Matrix<T>& other) {
+	if (&other == this)
+		return *this;
+	N = other.N;
+	M = other.M;
+
+	this->MVector<MVector<T>>::operator=(other);
+	return *this;
 }
 
 template <class T>
@@ -149,7 +182,6 @@ template <class T>
 T& Matrix<T>::at(size_t rows, size_t cols) {
 	return this->MVector<MVector<T>>::at(rows).at(cols);
 }
-
 
 template <class T>
 Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {

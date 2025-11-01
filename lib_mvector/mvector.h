@@ -1,5 +1,12 @@
 #include "../lib_tvector/tvector.h"
+/*
+template <class T>
+class MVector;
 
+template <class T> MVector<T> operator* <T>(const T value, const MVector<T>& other);
+template <class T> std::ostream& operator<< <T>(std::ostream& os, const MVector<T>& vector);
+template <class T> std::istream& operator>> <T>(std::istream& is, MVector<T>& vector);
+*/
 template <class T>
 class MVector : private TVector<T> {
 protected:
@@ -17,6 +24,7 @@ public:
 
 	bool operator == (const MVector<T>& other) const noexcept;
 	bool operator != (const MVector<T>& other) const noexcept;
+	bool is_empty() const noexcept;
 
 	MVector<T>& operator=(const MVector<T>& other);
 	T& operator[](const int);
@@ -51,6 +59,7 @@ public:
 		return is;
 	}
 
+//private:
 	void print() const noexcept;
 };
 
@@ -66,30 +75,59 @@ MVector<T>::MVector(const size_t size, const T* data, const size_t start_index) 
 template <class T>
 MVector<T>::MVector(const size_t size, const std::initializer_list<T> data, const size_t start_index) : TVector<T>(size, data), _start_index(start_index) {}
 
+/*
+template <class T>
+MVector<T>::MVector(const MVector<T>& other) : TVector<T>(other.TVector<T>::size()), _start_index(other._start_index) {
+	for (size_t i = 0; i < TVector<T>::size(); i++) {
+		TVector<T>::operator[](i) = other.TVector<T>::operator[](i);
+	}
+}
+*/
+
+/*
+template <class T>
+MVector<T>::MVector(const MVector<T>& other) : TVector<T>(other.TVector<T>::size()), _start_index(other._start_index) {
+	for (size_t i = 0; i < TVector<T>::size(); i++) {
+		_data[i] = other._data[i];
+	}
+}
+*/
+
 template <class T>
 MVector<T>::MVector(const MVector<T>& other) : TVector<T>(other), _start_index(other._start_index) {}
 
 template <class T>
 const size_t MVector<T>::size() const noexcept {
-	return TVector<T>::size();
+	return TVector<T>::size() + _start_index;
 }
 
 template <class T>
 bool MVector<T>::operator == (const MVector<T>& other) const noexcept {
-	if (!static_cast<const TVector<T>&>(*this).operator==(static_cast<const TVector<T>&>(other))) {
-		return false;
+	/*
+	if (size() != other.size()) return false;
+
+	return static_cast<const TVector<T>&>(*this).operator==(
+		static_cast<const TVector<T>&>(other));
+	*/
+	if (size() != other.size()) return false;
+	size_t min_start_index = (_start_index < other._start_index) ? _start_index : other._start_index;
+
+	for (size_t i = min_start_index; i < size(); i++) {
+		if (_data[i] != other._data[i]) {
+			return false;
+		}
 	}
-	
-	return _start_index + size() == other._start_index + other.size();
+	return true;
 }
 
 template <class T>
 bool MVector<T>::operator != (const MVector<T>& other) const noexcept {
-	if (static_cast<const TVector<T>&>(*this).operator!=(static_cast<const TVector<T>&>(other))) {
-		return true;
-	}
+	return !((*this) == other);
+}
 
-	return _start_index + size() != other._start_index + other.size();
+template <class T>
+bool MVector<T>::is_empty() const noexcept {
+	return TVector<T>::size() == 0;
 }
 
 template <class T>
@@ -97,8 +135,10 @@ MVector<T>& MVector<T>::operator=(const MVector<T>& other) {
 	if (this == &other) {
 		return *this;
 	}
-	(*this).TVector<T>::operator=(other);
+	TVector<T>::operator=(other);
 	_start_index = other._start_index;
+
+	return *this;
 }
 
 template <class T>
@@ -117,26 +157,26 @@ const T& MVector<T>::operator[](const int index) const {
 
 template <class T>
 const T& MVector<T>::at(size_t index) const {
-	if (index >= _start_index + size() || index < 0) 
+	if (index >= size() || index < 0) 
 		throw std::invalid_argument("Index out of range");
 
 	if (index >= 0 && index < _start_index) {
 		static T element = T();
 		return element;
 	}
-	return TVector::operator[](index - _start_index);
+	return TVector<T>::operator[](index - _start_index);
 }
 
 template <class T>
 T& MVector<T>::at(size_t index) {
-	if (index >= _start_index + size() || index < 0) 
+	if (index >= size() || index < 0) 
 		throw std::invalid_argument("Index out of range");
 
 	if (index >= 0 && index < _start_index) {
 		static T element = T();
 		return element;
 	}
-	return TVector::operator[](index - _start_index);
+	return TVector<T>::operator[](index - _start_index);
 }
 
 template <class T>
@@ -144,17 +184,23 @@ MVector<T>& MVector<T>::operator+=(const MVector<T>& other) {
 	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (this->size() + _start_index != other.size() + other._start_index)
+	if (this->size() != other.size())
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
 	size_t min_start_index = (_start_index < other._start_index) ? _start_index : other._start_index;
-	size_t max_size = (size() > other.size()) ? size() : other.size();
 
-	MVector<T> result(max_size, min_start_index);
-	for (size_t i = min_start_index; i < max_size + min_start_index; i++) {
-		result[i] = (*this)[i] + other[i];
+	if (min_start_index != _start_index) {
+		MVector<T> result(size() - min_start_index, min_start_index);
+		for (size_t i = min_start_index; i < size(); i++) {
+			result[i] = (*this)[i] + other[i];
+		}
+		*this = result;
 	}
-	*this = result;
+	else {
+		for (size_t i = min_start_index; i < size(); i++) {
+			(*this)[i] += other[i];
+		}
+	}
 	return *this;
 }
 
@@ -163,17 +209,23 @@ MVector<T>& MVector<T>::operator-=(const MVector<T>& other) {
 	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (this->size() + _start_index != other.size() + other._start_index)
+	if (this->size() != other.size())
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
 	size_t min_start_index = (_start_index < other._start_index) ? _start_index : other._start_index;
-	size_t max_size = (size() > other.size()) ? size() : other.size();
 
-	MVector<T> result(max_size, min_start_index);
-	for (size_t i = min_start_index; i < max_size + min_start_index; i++) {
-		result[i] = (*this)[i] - other[i];
+	if (min_start_index != _start_index) {
+		MVector<T> result(size() - min_start_index, min_start_index);
+		for (size_t i = min_start_index; i < size(); i++) {
+			result[i] = (*this)[i] - other[i];
+		}
+		*this = result;
 	}
-	*this = result;
+	else {
+		for (size_t i = min_start_index; i < size(); i++) {
+			(*this)[i] -= other[i];
+		}
+	}
 	return *this;
 }
 
@@ -182,7 +234,7 @@ MVector<T>& MVector<T>::operator*=(const T value) {
 	if (this->is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	for (int i = _start_index; i < size() + _start_index; i++) {
+	for (int i = _start_index; i < size(); i++) {
 		(*this)[i] *= value;
 	}
 	return *this;
@@ -203,12 +255,12 @@ T MVector<T>::operator*(const MVector<T>& other) const {
 	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (this->size() + _start_index != other.size() + other._start_index)
+	if (this->size() != other.size())
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
 	T result = 0;
 	size_t max_start_index = (_start_index > other._start_index) ? _start_index : other._start_index;
-	for (size_t i = max_start_index; i < size() + _start_index; i++)
+	for (size_t i = max_start_index; i < size(); i++)
 		result += (*this)[i] * other[i];
 	return result;
 }
@@ -218,7 +270,7 @@ MVector<T> MVector<T>::operator+(const MVector<T>& other) const {
 	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (this->size() + _start_index != other.size() + other._start_index)
+	if (this->size() != other.size())
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
 	MVector<T> result(*this);
@@ -231,7 +283,7 @@ MVector<T> MVector<T>::operator-(const MVector<T>& other) const {
 	if (this->is_empty() || other.is_empty())
 		throw std::invalid_argument("The math vector is empty");
 
-	if (this->size() + _start_index != other.size() + other._start_index)
+	if (this->size() != other.size())
 		throw std::invalid_argument("Operations on vectors of different sizes aren't available");
 
 	MVector<T> result(*this);
@@ -247,10 +299,33 @@ const size_t MVector<T>::start_index() const noexcept {
 template <class T>
 void MVector<T>::print() const noexcept {
 	std::cout << "\nsize: " << size() << std::endl;
-	for (int i = 0; i < size() + _start_index; i++) {
+	for (int i = 0; i < size(); i++) {
 		std::cout << (*this)[i] << " ";
 	}
 	std::cout << std::endl;
 
 	std::cout << "start_index: " << _start_index << std::endl;
 }
+
+/*
+template <class T>
+MVector<T> operator*(const T value, const MVector<T>& other) {
+	return other * value;
+}
+
+template <class T>
+std::ostream& operator<<(std::ostream& os, const MVector<T>& vector) {
+	for (size_t i = 0; i < vector.size(); i++) {
+		os << vector[i] << " ";
+	}
+	return os;
+}
+
+template <class T>
+std::istream& operator>>(std::istream& is, MVector<T>& vector) {
+	for (size_t i = 0; i < vector.size(); i++) {
+		is >> vector[i];
+	}
+	return is;
+}
+*/

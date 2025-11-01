@@ -49,7 +49,7 @@ TEST(TestMVectorLib, correct_create_object_2) {
     MVector<int> object(size, start_index);
 
     EXPECT_EQ(start_index, object.start_index());
-    EXPECT_EQ(size, object.size());
+    EXPECT_EQ(size + start_index, object.size());
 }
 
 TEST(TestMVectorLib, correct_create_object3) {
@@ -61,7 +61,7 @@ TEST(TestMVectorLib, correct_create_object3) {
     MVector<int> object(size, mass, start_index);
     
     EXPECT_EQ(start_index, object.start_index());
-    EXPECT_EQ(size, object.size());
+    EXPECT_EQ(size + start_index, object.size());
 }
 
 TEST(TestMVectorLib, correct_create_object_4) {
@@ -70,7 +70,7 @@ TEST(TestMVectorLib, correct_create_object_4) {
     MVector<int> object(size, { 1, 2, 3 }, start_index);
 
     EXPECT_EQ(start_index, object.start_index());
-    EXPECT_EQ(size, object.size());
+    EXPECT_EQ(size + start_index, object.size());
 }
 
 TEST(TestMVectorLib, correct_create_object_5) {
@@ -87,7 +87,7 @@ TEST(TestMVectorLib, correct_create_object_with_copy) {
     MVector<int> object2(object1);
 
     EXPECT_EQ(start_index, object2.start_index());
-    EXPECT_EQ(size, object2.size());
+    EXPECT_EQ(size + start_index, object2.size());
 }
 
 TEST(TestMVectorLib, try_compare) {
@@ -438,3 +438,10 @@ TEST(TestMVectorLib, check_at) {
     ASSERT_THROW(vec.at(4), std::invalid_argument);
     ASSERT_THROW(vec.at(5), std::invalid_argument);
 }
+/*
+TEST(TestMVectorLib, test) {
+    MVector<int> vec(4, { 1, 2, 3}, 1);
+    vec[0] = -1000;
+    EXPECT_EQ(-1000, vec[0]);
+}
+*/
