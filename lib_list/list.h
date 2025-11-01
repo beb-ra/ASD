@@ -31,6 +31,52 @@ public:
 	inline size_t size() noexcept;
 
 	void print() noexcept;
+
+	class Iterator {
+		Node<T>* _current;
+	public:
+		Iterator() : _current(nullptr) {}
+		Iterator(Node<T>* node) : _current(node) {}
+
+		bool operator == (const Iterator& other) const noexcept {
+			return this->_current == other._current;
+		}
+		bool operator != (const Iterator& other) const noexcept {
+			return !((*this) == other);
+		}
+
+		T& operator*() const {
+			return _current->value();
+		}
+
+		Iterator& operator=(const Iterator& other) {
+			if (this == &other) {
+				return *this;
+			}
+			this->_current = other._current;
+			return *this;
+		}
+		Iterator& operator++() {
+			_current = _current->next();
+			return *this;
+		}
+		Iterator operator++(int) {
+			Iterator temp = *this;
+			++(*this);
+			return temp;
+		}
+
+		const Node<T>* current() noexcept {
+			return _current;
+		}
+
+	};
+	Iterator begin() {
+		return Iterator(_head);
+	}
+	Iterator end() {
+		return Iterator(nullptr);
+	}
 };
 
 template <class T>

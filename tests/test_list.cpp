@@ -406,3 +406,89 @@ TEST(TestListLib, correct_insert_and_erase) {
 	EXPECT_EQ(333, l.head()->next()->value());
 	EXPECT_EQ(2, l.tail()->value());
 }
+
+TEST(TestListIteratorLib, try_create_iterator) {
+	List<int> l;
+	l.push_back(11);
+	l.push_back(22);
+
+	ASSERT_NO_THROW(List<int>::Iterator it);
+}
+
+TEST(TestListIteratorLib, correct_create_iterator) {
+	List<int> l;
+	List<int>::Iterator it;
+
+	EXPECT_EQ(it.current(), nullptr);
+}
+
+TEST(TestListIteratorLib, correct_operator_star) {
+	List<int> l;
+	for (int i = 0; i < 3; i++) {
+		l.push_back(i + 1);
+	}
+	List<int>::Iterator it = l.begin();
+
+	EXPECT_EQ(*it, 1);
+	*it = 100;
+	EXPECT_EQ(*it, 100);
+	EXPECT_EQ(l.head()->value(), 100);
+}
+
+TEST(TestListIteratorLib, correct_iteration) {
+	List<int> l;
+	for (int i = 0; i < 4; i++) {
+		l.push_back(i + 1);
+	}
+	List<int>::Iterator it;
+
+	int i = 1;
+	for (it = l.begin(); it != l.end(); it++) {
+		EXPECT_EQ(i++, *it);
+	}
+}
+
+TEST(TestListIteratorLib, correct_begin_and_end) {
+	List<int> l;
+
+	EXPECT_EQ(l.begin(), l.end());
+}
+
+TEST(TestListIteratorLib, correct_assignment) {
+	List<int> l;
+	for (int i = 0; i < 3; i++) {
+		l.push_back(i + 1);
+	}
+	List<int>::Iterator it1 = l.begin();
+	List<int>::Iterator it2 = ++l.begin();
+
+	it2 = it1;
+	EXPECT_EQ(it1, it2);
+	EXPECT_EQ(*it1, *it2);
+}
+
+TEST(TestListIteratorLib, correct_equality) {
+	List<int> l;
+	for (int i = 0; i < 3; i++) {
+		l.push_back(i + 1);
+	}
+	List<int>::Iterator it1 = l.begin();
+	List<int>::Iterator it2 = l.begin();
+
+	EXPECT_TRUE(it1 == it2);
+	EXPECT_FALSE(it1 != it2);
+}
+
+TEST(TestListIteratorLib, correct_equality_2) {
+	List<int> l;
+	l.push_back(1);
+	l.push_back(2);
+
+	List<int>::Iterator it1 = l.begin();
+	List<int>::Iterator it2 = l.begin();
+	List<int>::Iterator it3 = ++l.begin();
+
+	EXPECT_TRUE(it1 == it2);
+	EXPECT_FALSE(it1 == it3);
+	EXPECT_TRUE(it1 != it3);
+}
