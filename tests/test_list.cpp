@@ -1,6 +1,25 @@
 #include <gtest/gtest.h>
 #include "../lib_list/list.h"
 
+TEST(TestListNodeLib, try_create) {
+	ASSERT_NO_THROW(List<int>::Node n(5));
+}
+
+TEST(TestListNodeLib, correct_create) {
+	List<int>::Node n(5);
+
+	EXPECT_EQ(5, n.value);
+	EXPECT_EQ(nullptr, n.next);
+}
+
+TEST(TestListNodeLib, correct_create_2) {
+	List<int>::Node n(5);
+	List<int>::Node n2(111, &n);
+
+	EXPECT_EQ(111, n2.value);
+	EXPECT_EQ(&n, n2.next);
+}
+
 TEST(TestListLib, try_create) {
 	ASSERT_NO_THROW(List<int> l);
 }

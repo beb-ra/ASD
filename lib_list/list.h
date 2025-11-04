@@ -1,5 +1,4 @@
 #pragma once
-//#include "../lib_node/node.h"
 
 template <class T>
 class List {
@@ -10,7 +9,7 @@ public:
 
 		Node(T val, Node* nxt = nullptr) : value(val), next(nxt) {}
 	};
-private:
+protected:
 	Node* _head;
 	Node* _tail;
 	size_t _count;
@@ -83,7 +82,7 @@ public:
 		return Iterator(_head);
 	}
 	Iterator end() {
-		return Iterator(nullptr);
+		return Iterator(_tail);
 	}
 };
 
