@@ -13,7 +13,6 @@ include(cmake/function.cmake)         # подхватываем функции,
                                       # для простоты мы объединили наборы команд для создания статической библиотеки
 				      # и для создания исполняемого проекта в отдельные функции
 
-add_subdirectory(lib_tvector)
 add_subdirectory(lib_stack)
 add_subdirectory(lib_queue)
 add_subdirectory(lib_algorithms)
