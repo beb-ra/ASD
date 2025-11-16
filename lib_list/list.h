@@ -72,6 +72,13 @@ public:
 			++(*this);
 			return temp;
 		}
+		Iterator operator+=(int x) {
+			Iterator temp = *this;
+			for (int i = 0; i < x; i++) {
+				++(*this);
+			}
+			return temp;
+		}
 
 		const Node* current() noexcept {
 			return _current;
@@ -82,7 +89,45 @@ public:
 		return Iterator(_head);
 	}
 	Iterator end() {
-		return Iterator(_tail);
+		return Iterator(nullptr);
+	}
+
+	List<T>& operator=(const List<T>& other) {
+		if (this != &other) {
+			while (!is_empty()) {
+				pop_front();
+			}
+
+			Node* current = other._head;
+			while (current != nullptr) {
+				push_back(current->value);
+				current = current->next;
+			}
+		}
+		return *this;
+	}
+
+	bool operator==(const List<T>& other) const noexcept {
+		if (size() != other.size()) {
+			return false;
+		}
+
+		List<T>::Node* current1 = _head;
+		List<T>::Node* current2 = other._head;
+
+		while (current1 != nullptr && current2 != nullptr) {
+			if (current1->value != current2->value) {
+				return false;
+			}
+			current1 = current1->next;
+			current2 = current2->next;
+		}
+
+		return true;
+	}
+
+	bool operator!=(const List<T>& other) const noexcept {
+		return !(*this == other);
 	}
 };
 
@@ -97,10 +142,17 @@ List<T>::List() : _head(nullptr), _tail(nullptr), _count(0) {}
 template <class T>
 List<T>::List(const List<T>& other) : _head(nullptr), _tail(nullptr), _count(0) {
 	Node* node = other._head;
+	
 	while (node != nullptr) {
 		push_back(node->value);
 		node = node->next;
 	}
+	/*
+	for (int i = 0; i < other._count; i++) {
+		push_back(node->value);
+		node = node->next;
+	}
+	*/
 }
 
 template <class T>

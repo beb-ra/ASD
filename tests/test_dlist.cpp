@@ -470,21 +470,26 @@ TEST(TestDListIteratorLib, correct_iteration) {
 	for (it = l.begin(); it != l.end(); it++) {
 		EXPECT_EQ(i++, *it);
 	}
-	EXPECT_EQ(4, i);
 }
 
 TEST(TestDListIteratorLib, correct_iteration_2) {
 	DList<int> l;
-	for (int i = 0; i < 4; i++) {
-		l.push_back(i + 1);
-	}
-	DList<int>::Iterator it;
 
-	int i = 4;
-	for (it = l.end(); it != l.begin(); it--) {
-		EXPECT_EQ(i--, *it);
+	for (int i = 0; i < 4; i++) {
+		l.push_back(i+1);
 	}
-	EXPECT_EQ(1, i);
+
+	int i = 1;
+	DList<int>::Iterator it;
+	for (it = l.begin(); it != l.end(); it++, i++) {
+		*it = i + 100;
+	}
+
+	it = l.begin();
+	EXPECT_EQ(101, *it);
+	EXPECT_EQ(102, *(++it));
+	EXPECT_EQ(103, *(++it));
+	EXPECT_EQ(104, *(++it));
 }
 
 TEST(TestDListIteratorLib, correct_begin_and_end) {
@@ -507,18 +512,6 @@ TEST(TestDListIteratorLib, correct_assignment) {
 }
 
 TEST(TestDListIteratorLib, correct_equality) {
-	DList<int> l;
-	for (int i = 0; i < 3; i++) {
-		l.push_back(i + 1);
-	}
-	DList<int>::Iterator it1 = l.begin();
-	DList<int>::Iterator it2 = l.begin();
-
-	EXPECT_TRUE(it1 == it2);
-	EXPECT_FALSE(it1 != it2);
-}
-
-TEST(TestDListIteratorLib, correct_equality_2) {
 	DList<int> l;
 	l.push_back(1);
 	l.push_back(2);

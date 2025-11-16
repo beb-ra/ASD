@@ -92,7 +92,7 @@ public:
         return Iterator(_head);
     }
     Iterator end() {
-        return Iterator(_tail);
+        return Iterator(nullptr);
     }
 };
 
