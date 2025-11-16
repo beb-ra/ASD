@@ -1,2 +1,0 @@
-create_project_lib(TriangleMatrix)
-add_depend(TriangleMatrix MVector lib_mvector)

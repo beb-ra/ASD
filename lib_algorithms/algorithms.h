@@ -1,22 +1,39 @@
 #pragma once
 
 #include "../lib_matrix/matrix.h"
+#include "../lib_dsu/dsu.h"
 
-template <class T>
-int local_min(Matrix<T>& matrix, int i, int j) {
-	int start_elem = matrix[i][j];
+int island_counting(Matrix<int>& matrix) {
+    int N = matrix.get_n();
+    int M = matrix.get_m();
 
-	if (j > 0 && matrix[i][j - 1] < start_elem) {  //левый
-		return local_min(matrix, i, j - 1);
-	}
-	else if (j < matrix.get_m() - 1 && matrix[i][j + 1] < start_elem) {  //правый
-		return local_min(matrix, i, j + 1);
-	}
-	else if (i > 0 && matrix[i - 1][j] < start_elem) { //сверху
-		return local_min(matrix, i - 1, j);
-	}
-	else if (i < matrix.get_n() - 1 && matrix[i + 1][j] < start_elem) { //снизу
-		return local_min(matrix, i + 1, j);
-	}
-	else return start_elem;
+    DSU dsu(N * M);
+    int count = 0;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            if (matrix[i][j] == 1) {
+                count++;
+                int current = i * M + j;
+
+                if (i > 0 && matrix[i - 1][j] == 1) {
+                    int top = (i - 1) * M + j;
+                    if (dsu.find(current) != dsu.find(top)) {
+                        dsu.dsu_union(current, top);
+                        count--;
+                    }
+                }
+
+                if (j > 0 && matrix[i][j - 1] == 1) {
+                    int left = i * M + (j - 1);
+                    if (dsu.find(current) != dsu.find(left)) {
+                        dsu.dsu_union(current, left);
+                        count--;
+                    }
+                }
+            }
+        }
+    }
+
+    return count;
 }
