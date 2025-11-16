@@ -12,6 +12,7 @@ public:
 
 	bool operator == (const TriangleMatrix<T>& other) const noexcept;
 	bool operator != (const TriangleMatrix<T>& other) const noexcept;
+	TriangleMatrix<T>& operator = (const TriangleMatrix<T>&);
 
 	TriangleMatrix<T> operator+(const TriangleMatrix<T>&) const;
 	TriangleMatrix<T>& operator+=(const TriangleMatrix<T>&);
@@ -25,6 +26,7 @@ public:
 	MVector<T> operator*(const MVector<T>&) const;
 
 	friend MVector<T> operator*(const MVector<T>& vector, const TriangleMatrix<T>& matrix) {
+		/*
 		if (matrix.get_n() != vector.size()) {
 			throw std::invalid_argument("Operations on matrices of different sizes aren't available");
 		}
@@ -37,6 +39,8 @@ public:
 			}
 		}
 		return result;
+		*/
+		return vector * static_cast<const Matrix<T>&>(matrix);
 	}
 
 	friend TriangleMatrix<T> operator* (const T value, const TriangleMatrix<T>& matrix) {
@@ -133,6 +137,15 @@ bool TriangleMatrix<T>::operator != (const TriangleMatrix<T>& other) const noexc
 }
 
 template <class T>
+TriangleMatrix<T>& TriangleMatrix<T>::operator =(const TriangleMatrix<T>& other) {
+	if (&other == this)
+		return *this;
+
+	this->Matrix<T>::operator=(other);
+	return *this;
+}
+
+template <class T>
 TriangleMatrix<T> TriangleMatrix<T>::operator+(const TriangleMatrix<T>& other) const {
 	TriangleMatrix<T> result(*this);
 	result += other;
@@ -170,7 +183,6 @@ TriangleMatrix<T>& TriangleMatrix<T>::operator*=(const TriangleMatrix<T>& other)
 	if (get_n() != other.get_n()) {
 		throw std::invalid_argument("Operations on matrices of different sizes aren't available");
 	}
-
 	TriangleMatrix<T> copy(*this);
 	for (int i = 0; i < get_n(); i++) {
 		for (int j = i; j < get_n(); j++) {

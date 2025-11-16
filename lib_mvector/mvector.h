@@ -59,7 +59,7 @@ public:
 		return is;
 	}
 
-//private:
+private:
 	void print() const noexcept;
 };
 
@@ -75,24 +75,6 @@ MVector<T>::MVector(const size_t size, const T* data, const size_t start_index) 
 template <class T>
 MVector<T>::MVector(const size_t size, const std::initializer_list<T> data, const size_t start_index) : TVector<T>(size, data), _start_index(start_index) {}
 
-/*
-template <class T>
-MVector<T>::MVector(const MVector<T>& other) : TVector<T>(other.TVector<T>::size()), _start_index(other._start_index) {
-	for (size_t i = 0; i < TVector<T>::size(); i++) {
-		TVector<T>::operator[](i) = other.TVector<T>::operator[](i);
-	}
-}
-*/
-
-/*
-template <class T>
-MVector<T>::MVector(const MVector<T>& other) : TVector<T>(other.TVector<T>::size()), _start_index(other._start_index) {
-	for (size_t i = 0; i < TVector<T>::size(); i++) {
-		_data[i] = other._data[i];
-	}
-}
-*/
-
 template <class T>
 MVector<T>::MVector(const MVector<T>& other) : TVector<T>(other), _start_index(other._start_index) {}
 
@@ -103,12 +85,6 @@ const size_t MVector<T>::size() const noexcept {
 
 template <class T>
 bool MVector<T>::operator == (const MVector<T>& other) const noexcept {
-	/*
-	if (size() != other.size()) return false;
-
-	return static_cast<const TVector<T>&>(*this).operator==(
-		static_cast<const TVector<T>&>(other));
-	*/
 	if (size() != other.size()) return false;
 	size_t min_start_index = (_start_index < other._start_index) ? _start_index : other._start_index;
 
@@ -306,26 +282,3 @@ void MVector<T>::print() const noexcept {
 
 	std::cout << "start_index: " << _start_index << std::endl;
 }
-
-/*
-template <class T>
-MVector<T> operator*(const T value, const MVector<T>& other) {
-	return other * value;
-}
-
-template <class T>
-std::ostream& operator<<(std::ostream& os, const MVector<T>& vector) {
-	for (size_t i = 0; i < vector.size(); i++) {
-		os << vector[i] << " ";
-	}
-	return os;
-}
-
-template <class T>
-std::istream& operator>>(std::istream& is, MVector<T>& vector) {
-	for (size_t i = 0; i < vector.size(); i++) {
-		is >> vector[i];
-	}
-	return is;
-}
-*/
