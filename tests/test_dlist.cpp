@@ -459,6 +459,38 @@ TEST(TestDListIteratorLib, correct_operator_star) {
 	EXPECT_EQ(l.dhead()->value, 100);
 }
 
+TEST(TestDListIteratorLib, throw_uncorrect_operator_star) {
+	DList<int> l;
+	for (int i = 0; i < 3; i++) {
+		l.push_back(i + 1);
+	}
+	DList<int>::Iterator it = l.end();
+
+	EXPECT_THROW(*it, std::logic_error);
+}
+
+TEST(TestDListIteratorLib, throw_uncorrect_increment) {
+	DList<int> l;
+	for (int i = 0; i < 3; i++) {
+		l.push_back(i + 1);
+	}
+	DList<int>::Iterator it = l.end();
+
+	EXPECT_THROW(it++, std::logic_error);
+	EXPECT_THROW(++it, std::logic_error);
+}
+
+TEST(TestDListIteratorLib, throw_uncorrect_decrement) {
+	DList<int> l;
+	for (int i = 0; i < 3; i++) {
+		l.push_back(i + 1);
+	}
+	DList<int>::Iterator it = l.rend();
+
+	EXPECT_THROW(it--, std::logic_error);
+	EXPECT_THROW(--it, std::logic_error);
+}
+
 TEST(TestDListIteratorLib, correct_iteration) {
 	DList<int> l;
 	for (int i = 0; i < 4; i++) {
@@ -482,6 +514,39 @@ TEST(TestDListIteratorLib, correct_iteration_2) {
 	int i = 1;
 	DList<int>::Iterator it;
 	for (it = l.begin(); it != l.end(); it++, i++) {
+		*it = i + 100;
+	}
+
+	it = l.begin();
+	EXPECT_EQ(101, *it);
+	EXPECT_EQ(102, *(++it));
+	EXPECT_EQ(103, *(++it));
+	EXPECT_EQ(104, *(++it));
+}
+
+TEST(TestDListIteratorLib, correct_reverse_iteration) {
+	DList<int> l;
+	for (int i = 0; i < 4; i++) {
+		l.push_back(i + 1);
+	}
+	DList<int>::Iterator it;
+
+	int i = 4;
+	for (it = l.rbegin(); it != l.rend(); it++) {
+		EXPECT_EQ(i--, *it);
+	}
+}
+
+TEST(TestDListIteratorLib, correct_reverse_iteration_2) {
+	DList<int> l;
+
+	for (int i = 0; i < 4; i++) {
+		l.push_back(i + 1);
+	}
+
+	int i = 4;
+	DList<int>::Iterator it;
+	for (it = l.rbegin(); it != l.rend(); it--, i--) {
 		*it = i + 100;
 	}
 

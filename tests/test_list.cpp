@@ -465,6 +465,27 @@ TEST(TestListIteratorLib, correct_operator_star) {
 	EXPECT_EQ(l.head()->value, 100);
 }
 
+TEST(TestListIteratorLib, throw_uncorrect_operator_star) {
+	List<int> l;
+	for (int i = 0; i < 3; i++) {
+		l.push_back(i + 1);
+	}
+	List<int>::Iterator it = l.end();
+
+	EXPECT_THROW(*it, std::logic_error);
+}
+
+TEST(TestListIteratorLib, throw_uncorrect_increment) {
+	List<int> l;
+	for (int i = 0; i < 3; i++) {
+		l.push_back(i + 1);
+	}
+	List<int>::Iterator it = l.end();
+
+	EXPECT_THROW(it++, std::logic_error);
+	EXPECT_THROW(++it, std::logic_error);
+}
+
 TEST(TestListIteratorLib, correct_iteration) {
 	List<int> l;
 	for (int i = 0; i < 4; i++) {

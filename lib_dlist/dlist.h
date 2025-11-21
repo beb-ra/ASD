@@ -54,6 +54,8 @@ public:
         }
 
         T& operator*() const {
+            if (_current == nullptr)
+                throw std::logic_error("Node was nullptr");
             return _current->value;
         }
 
@@ -65,10 +67,14 @@ public:
             return *this;
         }
         Iterator& operator++() {
+            if (_current == nullptr) 
+                throw std::logic_error("Node was nullptr");
             _current = _current->next;
             return *this;
         }
         Iterator& operator--() {
+            if (_current == nullptr)
+                throw std::logic_error("Node was nullptr");
             _current = _current->prev;
             return *this;
         }
@@ -92,6 +98,12 @@ public:
         return Iterator(_head);
     }
     Iterator end() {
+        return Iterator(nullptr);
+    }
+    Iterator rbegin() {
+        return Iterator(_tail);
+    }
+    Iterator rend() {
         return Iterator(nullptr);
     }
 };
