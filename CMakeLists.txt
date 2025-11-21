@@ -15,6 +15,8 @@ include(cmake/function.cmake)         # подхватываем функции,
 
 add_subdirectory(lib_list)
 add_subdirectory(lib_dlist)
+add_subdirectory(lib_lstack)
+add_subdirectory(lib_lqueue)
 add_subdirectory(lib_algorithms)
 add_subdirectory(main)                # подключаем дополнительный CMakeLists.txt из подкаталога с именем main
 
