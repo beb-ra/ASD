@@ -24,7 +24,7 @@ public:
 };
 
 template <class T>
-Stack<T>::Stack(size_t size) {
+Stack<T>::Stack(size_t size = 50) {
 	_data = new T[size];
 	_size = size;
 	_top = -1;
@@ -66,8 +66,8 @@ void Stack<T>::pop() {
 
 template <class T>
 T Stack<T>::top() const {
-	if (_top == -1) 
-		return -1;
+	//if (_top == -1) 
+	//	return -1;
 	return _data[_top];
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 
 template <class T>
 class List {
@@ -8,6 +9,11 @@ public:
 		Node* next;
 
 		Node(T val, Node* nxt = nullptr) : value(val), next(nxt) {}
+
+		friend std::ostream& operator<<(std::ostream& os, Node& node) {
+			os << node.value << " ";
+			return os;
+		}
 	};
 protected:
 	Node* _head;
@@ -82,7 +88,45 @@ public:
 		return Iterator(_head);
 	}
 	Iterator end() {
-		return Iterator(_tail);
+		return Iterator(nullptr);
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, List<T>& list) {
+		/*
+		for (List<T>::Iterator it = list.begin(); it != list.end(); it++) {
+			os << *it << " ";
+		}
+		return os;
+		*/
+		if (list.is_empty()) {
+			os << "Empty list";
+			return os;
+		}
+
+		List<T>::Node* current = list._head;
+		while (current != nullptr) {
+			os << current->value;
+			if (current->next != nullptr) {
+				os << " ";
+			}
+			current = current->next;
+		}
+		return os;
+	}
+
+	List<T>& operator=(const List<T>& other) {
+		if (this != &other) {
+			while (!is_empty()) {
+				pop_front();
+			}
+
+			Node* current = other._head;
+			while (current != nullptr) {
+				push_back(current->value);
+				current = current->next;
+			}
+		}
+		return *this;
 	}
 };
 

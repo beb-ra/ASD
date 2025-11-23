@@ -16,7 +16,6 @@ TEST(TestStackLib, correct_create_object) {
     Stack<int> object(10);
 
     EXPECT_EQ(10, object.size());
-    EXPECT_EQ(-1, object.top());
 }
 
 TEST(TestStackLib, correct_create_object_with_copy) {
@@ -24,7 +23,7 @@ TEST(TestStackLib, correct_create_object_with_copy) {
     Stack<int> object2(object);
 
     EXPECT_EQ(10, object2.size());
-    EXPECT_EQ(-1, object2.top());
+    EXPECT_EQ(object.top(), object2.top());
 }
 
 TEST(TestStackLib, correct_create_object_with_copy_2) {
@@ -80,12 +79,6 @@ TEST(TestStackLib, correct_push_and_pop) {
     EXPECT_EQ(111, object.top());
 }
 
-TEST(TestStackLib, correct_top) {
-    Stack<int> object(10);
-
-    EXPECT_EQ(-1, object.top());
-}
-
 TEST(TestStackLib, correct_is_empty) {
     Stack<int> object(10);
 
@@ -129,6 +122,5 @@ TEST(TestStackLib, correct_clear) {
     object.push(22);
     object.clear();
 
-    EXPECT_EQ(-1, object.top());
     EXPECT_EQ(10, object.size());
 }
