@@ -426,6 +426,17 @@ TEST(TestListLib, correct_insert_and_erase) {
 	EXPECT_EQ(2, l.tail()->value);
 }
 
+TEST(TestListLib, correct_assignment_operator) {
+	List<int> l;
+	l.push_back(1);
+	l.push_back(2);
+	List<int> l2 = l;
+
+	EXPECT_EQ(l, l2);
+	l2.push_back(222);
+	EXPECT_NE(l, l2);
+}
+
 TEST(TestListIteratorLib, try_create_iterator) {
 	List<int> l;
 	l.push_back(11);
@@ -454,6 +465,27 @@ TEST(TestListIteratorLib, correct_operator_star) {
 	EXPECT_EQ(l.head()->value, 100);
 }
 
+TEST(TestListIteratorLib, throw_uncorrect_operator_star) {
+	List<int> l;
+	for (int i = 0; i < 3; i++) {
+		l.push_back(i + 1);
+	}
+	List<int>::Iterator it = l.end();
+
+	EXPECT_THROW(*it, std::logic_error);
+}
+
+TEST(TestListIteratorLib, throw_uncorrect_increment) {
+	List<int> l;
+	for (int i = 0; i < 3; i++) {
+		l.push_back(i + 1);
+	}
+	List<int>::Iterator it = l.end();
+
+	EXPECT_THROW(it++, std::logic_error);
+	EXPECT_THROW(++it, std::logic_error);
+}
+
 TEST(TestListIteratorLib, correct_iteration) {
 	List<int> l;
 	for (int i = 0; i < 4; i++) {
@@ -465,6 +497,26 @@ TEST(TestListIteratorLib, correct_iteration) {
 	for (it = l.begin(); it != l.end(); it++) {
 		EXPECT_EQ(i++, *it);
 	}
+}
+
+TEST(TestListIteratorLib, correct_iteration_2) {
+	List<int> l;
+
+	for (int i = 0; i < 4; i++) {
+		l.push_back(i + 1);
+	}
+
+	int i = 1;
+	List<int>::Iterator it;
+	for (it = l.begin(); it != l.end(); it++, i++) {
+		*it = i + 100;
+	}
+
+	it = l.begin();
+	EXPECT_EQ(101, *it);
+	EXPECT_EQ(102, *(++it));
+	EXPECT_EQ(103, *(++it));
+	EXPECT_EQ(104, *(++it));
 }
 
 TEST(TestListIteratorLib, correct_begin_and_end) {
@@ -487,18 +539,6 @@ TEST(TestListIteratorLib, correct_assignment) {
 }
 
 TEST(TestListIteratorLib, correct_equality) {
-	List<int> l;
-	for (int i = 0; i < 3; i++) {
-		l.push_back(i + 1);
-	}
-	List<int>::Iterator it1 = l.begin();
-	List<int>::Iterator it2 = l.begin();
-
-	EXPECT_TRUE(it1 == it2);
-	EXPECT_FALSE(it1 != it2);
-}
-
-TEST(TestListIteratorLib, correct_equality_2) {
 	List<int> l;
 	l.push_back(1);
 	l.push_back(2);
