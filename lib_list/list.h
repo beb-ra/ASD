@@ -75,9 +75,9 @@ public:
 			++(*this);
 			return temp;
 		}
-		Iterator& operator+=(int x) {
-			for (int i = 0; i < x && _current != nullptr; i++) {
-				_current = _current->next;
+		Iterator& operator+=(int count) {
+			for (int i = 0; i < count; i++) {
+				++(*this);
 			}
 			return *this;
 		}
