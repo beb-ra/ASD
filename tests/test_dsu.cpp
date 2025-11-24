@@ -13,29 +13,71 @@ TEST(TestDSULib, correct_create) {
 TEST(TestDSULib, correct_union) {
     DSU dsu(3);
 
-    EXPECT_NO_THROW(dsu.dsu_union(1, 1));
+    EXPECT_NO_THROW(dsu.unite(1, 1));
     EXPECT_EQ(dsu.find(1), 1);
 }
 
-TEST(TestDSULib, correct_find_and_union) {
-    DSU dsu(6);
-
-    dsu.dsu_union(0, 1);
-    dsu.dsu_union(1, 2);
-    dsu.dsu_union(3, 4);
+TEST(TestDSULib, correct_find_and_union_1) {
+    DSU dsu(3);
+    dsu.unite(0, 1);
+    dsu.unite(0, 2);
 
     EXPECT_EQ(dsu.find(0), dsu.find(1));
+    EXPECT_EQ(dsu.find(0), dsu.find(2));
     EXPECT_EQ(dsu.find(1), dsu.find(2));
+}
+
+TEST(TestDsuLib, correct_find_and_union_2) {
+    DSU dsu(8);
+
+    dsu.unite(7, 1);
+
+    dsu.unite(4, 6);
+    dsu.unite(2, 3);
+    dsu.unite(2, 6);
+
+    dsu.unite(1, 3);
+    EXPECT_EQ(dsu.find(7), 2);
+    EXPECT_EQ(dsu.find(1), 2);
+    EXPECT_EQ(dsu.find(4), 2);
+    EXPECT_EQ(dsu.find(3), 2);
+    EXPECT_EQ(dsu.find(6), 2);
+}
+
+TEST(TestDSULib, correct_find_and_union_3) {
+    DSU dsu(6);
+
+    dsu.unite(0, 1);
+    dsu.unite(1, 2);
+    dsu.unite(3, 4);
+
+    EXPECT_EQ(dsu.find(0), dsu.find(1));
+    EXPECT_EQ(dsu.find(0), dsu.find(2));
     EXPECT_EQ(dsu.find(3), dsu.find(4));
     EXPECT_NE(dsu.find(0), dsu.find(3));
     EXPECT_NE(dsu.find(0), dsu.find(5));
+    EXPECT_NE(dsu.find(3), dsu.find(5));
+}
+
+TEST(TestDSULib, correct_already_union) {
+    DSU dsu(4);
+
+    dsu.unite(0, 1);
+    int before = dsu.find(0);
+
+    dsu.unite(0, 1);
+    dsu.unite(1, 0);
+
+    int after = dsu.find(0);
+    EXPECT_EQ(before, after);
+    EXPECT_EQ(dsu.find(0), dsu.find(1));
 }
 
 TEST(TestDSULib, throw_uncorrect_union_and_find) {
     DSU dsu(3);
 
-    EXPECT_THROW(dsu.dsu_union(-1, 0), std::invalid_argument);
-    EXPECT_THROW(dsu.dsu_union(0, 5), std::invalid_argument);
+    EXPECT_THROW(dsu.unite(-1, 0), std::invalid_argument);
+    EXPECT_THROW(dsu.unite(0, 5), std::invalid_argument);
     EXPECT_THROW(dsu.find(-1), std::invalid_argument);
     EXPECT_THROW(dsu.find(10), std::invalid_argument);
 }
@@ -43,12 +85,12 @@ TEST(TestDSULib, throw_uncorrect_union_and_find) {
 TEST(TestDSULib, correct_path_compression) {
     DSU dsu(5);
 
-    dsu.dsu_union(0, 1);
-    dsu.dsu_union(1, 2);
-    dsu.dsu_union(2, 3);
+    dsu.unite(0, 1);
+    dsu.unite(1, 2);
+    dsu.unite(2, 3);
 
-    int parent1 = dsu.find(0);
-    int parent2 = dsu.find(3);
+    int p1 = dsu.find(3);
+    int p2 = dsu.find(2);
 
-    EXPECT_EQ(parent1, parent2);
+    EXPECT_EQ(p1, p2);
 }

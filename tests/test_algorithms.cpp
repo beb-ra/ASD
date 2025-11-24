@@ -55,3 +55,16 @@ TEST(TestAlgorithmsLib, test_island_counting_7) {
     EXPECT_EQ(island_counting(matrix), count);
 }
 
+TEST(TestAlgorithmsLib, test_island_counting_8) {
+    Matrix<int> matrix(5, 5, {
+        0, 1, 0, 0, 1,
+        0, 1, 1, 0, 1,
+        1, 1, 0, 1, 1,
+        0, 0, 0, 0, 1,
+        1, 0, 1, 1, 1
+        });
+    int count = 3;
+
+    EXPECT_EQ(island_counting(matrix), count);
+}
+

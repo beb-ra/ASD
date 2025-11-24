@@ -15,7 +15,7 @@ DSU::~DSU() {
 	_rank = nullptr;
 }
 
-void DSU::dsu_union(int x, int y) {
+void DSU::unite(int x, int y) {
 	if (x >= _size || y >= _size || x < 0 || y < 0)
 		throw std::invalid_argument("Argument out of range");
 	if (x == y) return;
@@ -24,10 +24,10 @@ void DSU::dsu_union(int x, int y) {
 	int parent_y = find(y);
 
 	if (_rank[parent_x] >= _rank[parent_y]) {
-		_parent[parent_x] = parent_y;
-	}
-	else if (_rank[parent_x] < _rank[parent_y]) {
 		_parent[parent_y] = parent_x;
+	}
+	else {
+		_parent[parent_x] = parent_y;
 	}
 	if (_rank[parent_x] == _rank[parent_y])
 		_rank[parent_x]++;
@@ -36,7 +36,7 @@ void DSU::dsu_union(int x, int y) {
 int DSU::find(int x) {
 	if (x >= _size || x < 0)
 		throw std::invalid_argument("Argument out of range");
-	return find_rec(x);
+	return x = find_rec(_parent[x]);
 }
 
 int DSU::find_rec(int x) {
