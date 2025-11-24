@@ -124,6 +124,17 @@ TEST(TestDListLib, corect_create_with_copy) {   // переписать с помощью итератор
 	EXPECT_EQ(33, l2.dtail()->value);
 }
 
+TEST(TestDListLib, correct_create_with_initialize) {
+	DList<int> l = { 1, 2, 3, 4, 5 };
+	DList<int> l2;
+	for (int i = 0; i < 5; i++) {
+		l2.push_back(i + 1);
+	}
+
+	EXPECT_EQ(5, l.size());
+	EXPECT_EQ(l, l2);
+}
+
 TEST(TestDListLib, correct_insert) {
 	DList<int> l;
 	l.push_back(1);
@@ -280,11 +291,11 @@ TEST(TestDListLib, correct_erase_by_pointer) {
 	l.push_back(4);
 
 	DList<int>::DNode* node1 = l.dhead()->next;
-	l.erase(node1);    // 1 2  4
+	l.erase(node1);    // 1  3 4
 
 	EXPECT_EQ(3, l.size());
 	EXPECT_EQ(1, l.dhead()->value);
-	EXPECT_EQ(2, l.dhead()->next->value);
+	EXPECT_EQ(3, l.dhead()->next->value);
 	EXPECT_EQ(4, l.dhead()->next->next->value);
 	EXPECT_EQ(4, l.dtail()->value);
 }
@@ -295,7 +306,7 @@ TEST(TestDListLib, correct_erase_by_pointer_2) {
 	l.push_back(2);
 	l.push_back(3);
 
-	DList<int>::DNode* node1 = l.dhead()->next;
+	DList<int>::DNode* node1 = l.dhead()->next->next;
 	l.erase(node1);    // 1 2 
 
 	EXPECT_EQ(2, l.size());
@@ -311,10 +322,10 @@ TEST(TestDListLib, correct_erase_by_pointer_3) {
 	l.push_back(3);
 
 	DList<int>::DNode* node1 = l.dhead();
-	l.erase(node1);    // 1  3
+	l.erase(node1);    //  2 3
 
 	EXPECT_EQ(2, l.size());
-	EXPECT_EQ(1, l.dhead()->value);
+	EXPECT_EQ(2, l.dhead()->value);
 	EXPECT_EQ(3, l.dhead()->next->value);
 	EXPECT_EQ(3, l.dtail()->value);
 }
@@ -332,14 +343,14 @@ TEST(TestDListLib, throw_uncorrect_erase_by_pointer_2) {
 	l.push_back(2);
 
 	EXPECT_THROW(l.erase(nullptr), std::invalid_argument);
-	EXPECT_THROW(l.erase(l.dtail()), std::logic_error);
+	EXPECT_THROW(l.erase(l.dtail()->next), std::logic_error);
 }
 
 TEST(TestDListLib, throw_uncorrect_erase_by_pointer_3) {
 	DList<int> l;
 	l.push_back(1);
 
-	EXPECT_THROW(l.erase(l.dhead()), std::logic_error);
+	EXPECT_THROW(l.erase(l.dhead()->next), std::logic_error);
 }
 
 TEST(TestDListLib, correct_erase) {
@@ -423,12 +434,23 @@ TEST(TestDListLib, correct_insert_and_erase) {
 	l.insert(2, 333);
 	l.insert(4, 444);
 	l.erase(1);
-	l.erase(l.dhead()->next->next);   // 222 333 2
+	l.erase(l.dhead()->next->next); // 222 333 444
 
 	EXPECT_EQ(3, l.size());
 	EXPECT_EQ(222, l.dhead()->value);
 	EXPECT_EQ(333, l.dhead()->next->value);
-	EXPECT_EQ(2, l.dtail()->value);
+	EXPECT_EQ(444, l.dtail()->value);
+}
+
+TEST(TestDListLib, correct_assignment_operator) {
+	DList<int> l;
+	l.push_back(1);
+	l.push_back(2);
+	DList<int> l2 = l;
+
+	EXPECT_EQ(l, l2);
+	l2.push_back(222);
+	EXPECT_NE(l, l2);
 }
 
 TEST(TestDListIteratorLib, try_create_iterator) {

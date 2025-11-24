@@ -33,6 +33,17 @@ TEST(TestListLib, correct_create) {
 	EXPECT_EQ(nullptr, l.tail());
 }
 
+TEST(TestListLib, correct_create_with_initialize) {
+	List<int> l = {1, 2, 3, 4, 5};
+	List<int> l2;
+	for (int i = 0; i < 5; i++) {
+		l2.push_back(i + 1);
+	}
+
+	EXPECT_EQ(5, l.size());
+	EXPECT_EQ(l, l2);
+}
+
 TEST(TestListLib, correct_push_front) {
 	List<int> l;
 	l.push_front(111);
@@ -126,30 +137,10 @@ TEST(TestListLib, correct_insert) {
 	l.push_back(2);
 	l.push_back(3);
 	l.push_back(4);
-	l.insert(2, 111);
+	l.insert(2, 111); // 1 2 3 111 4 
 
 	EXPECT_EQ(5, l.size());
-	EXPECT_EQ(111, l.head()->next->next->value);
-}
-
-TEST(TestListLib, correct_insert_at_begin) {
-	List<int> l;
-	l.push_back(1);
-	l.push_back(2);
-	l.push_back(3);
-	l.push_back(4);
-	l.insert(static_cast <size_t>(0), 111);
-
-	EXPECT_EQ(5, l.size());
-	EXPECT_EQ(111, l.head()->value);
-}
-
-TEST(TestListLib, correct_insert_at_begin_2) {
-	List<int> l;
-	l.insert(static_cast <size_t>(0), 111);
-
-	EXPECT_EQ(1, l.size());
-	EXPECT_EQ(111, l.head()->value);
+	EXPECT_EQ(111, l.head()->next->next->next->value);
 }
 
 TEST(TestListLib, correct_insert_at_end) {
@@ -158,7 +149,7 @@ TEST(TestListLib, correct_insert_at_end) {
 	l.push_back(2);
 	l.push_back(3);
 	l.push_back(4);
-	l.insert(static_cast <size_t>(4), 111);
+	l.insert(static_cast <size_t>(3), 111);  // 1 2 3 4 111
 
 	EXPECT_EQ(5, l.size());
 	EXPECT_EQ(111, l.tail()->value);
@@ -344,13 +335,13 @@ TEST(TestListLib, correct_erase) {
 	l.push_back(3);
 	l.push_back(4);
 
-	l.erase(2);    // 1 2  4
+	l.erase(2);    // 1 2 3
 
 	EXPECT_EQ(3, l.size());
 	EXPECT_EQ(1, l.head()->value);
 	EXPECT_EQ(2, l.head()->next->value);
-	EXPECT_EQ(4, l.head()->next->next->value);
-	EXPECT_EQ(4, l.tail()->value);
+	EXPECT_EQ(3, l.head()->next->next->value);
+	EXPECT_EQ(3, l.tail()->value);
 }
 
 TEST(TestListLib, correct_erase_2) {
@@ -359,7 +350,7 @@ TEST(TestListLib, correct_erase_2) {
 	l.push_back(2);
 	l.push_back(3);
 
-	l.erase(2);    // 1 2 
+	l.erase(1);    // 1 2 
 
 	EXPECT_EQ(2, l.size());
 	EXPECT_EQ(1, l.head()->value);
@@ -373,24 +364,10 @@ TEST(TestListLib, correct_erase_3) {
 	l.push_back(2);
 	l.push_back(3);
 
-	l.erase(1);    // 1  3
+	l.erase(static_cast <size_t>(0));    // 1  3
 
 	EXPECT_EQ(2, l.size());
 	EXPECT_EQ(1, l.head()->value);
-	EXPECT_EQ(3, l.head()->next->value);
-	EXPECT_EQ(3, l.tail()->value);
-}
-
-TEST(TestListLib, correct_erase_4) {
-	List<int> l;
-	l.push_back(1);
-	l.push_back(2);
-	l.push_back(3);
-
-	l.erase(static_cast <size_t>(0));    //  2 3
-
-	EXPECT_EQ(2, l.size());
-	EXPECT_EQ(2, l.head()->value);
 	EXPECT_EQ(3, l.head()->next->value);
 	EXPECT_EQ(3, l.tail()->value);
 }
@@ -416,14 +393,14 @@ TEST(TestListLib, correct_insert_and_erase) {
 	l.erase(static_cast <size_t>(0));
 	l.push_front(222);
 	l.insert(2, 333);
-	l.insert(4, 444);
+	l.insert(2, 444);
 	l.erase(1);
-	l.erase(l.head()->next->next);   // 222 333 2
+	l.erase(l.head()->next->next);  // 222 1 444
 
 	EXPECT_EQ(3, l.size());
 	EXPECT_EQ(222, l.head()->value);
-	EXPECT_EQ(333, l.head()->next->value);
-	EXPECT_EQ(2, l.tail()->value);
+	EXPECT_EQ(1, l.head()->next->value);
+	EXPECT_EQ(444, l.tail()->value);
 }
 
 TEST(TestListLib, correct_assignment_operator) {

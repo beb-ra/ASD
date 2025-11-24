@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 
 template <class T>
 class List {
@@ -16,6 +17,7 @@ protected:
 public:
 	List();
 	List(const List<T>&);
+	List(std::initializer_list<T> init);
 	~List();
 
 	inline bool is_empty() const noexcept;
@@ -35,9 +37,6 @@ public:
 	const size_t size() const noexcept { return _count; }
 	Node* head() noexcept { return _head; }
 	Node* tail() noexcept { return _tail; }
-	size_t size() noexcept { return _count; }
-
-	void print() noexcept;
 
 	class Iterator {
 		Node* _current;
@@ -76,15 +75,14 @@ public:
 			++(*this);
 			return temp;
 		}
-		Iterator operator+=(int x) {
-			Iterator temp = *this;
-			for (int i = 0; i < x; i++) {
-				++(*this);
+		Iterator& operator+=(int x) {
+			for (int i = 0; i < x && _current != nullptr; i++) {
+				_current = _current->next;
 			}
-			return temp;
+			return *this;
 		}
 
-		const Node* current() noexcept {
+		const Node* current() const noexcept {
 			return _current;
 		}
 
@@ -96,43 +94,12 @@ public:
 		return Iterator(nullptr);
 	}
 
-	List<T>& operator=(const List<T>& other) {
-		if (this != &other) {
-			while (!is_empty()) {
-				pop_front();
-			}
+	List<T>& operator=(const List<T>& other);
+	bool operator==(const List<T>& other) const noexcept;
+	bool operator!=(const List<T>& other) const noexcept;
 
-			Node* current = other._head;
-			while (current != nullptr) {
-				push_back(current->value);
-				current = current->next;
-			}
-		}
-		return *this;
-	}
-
-	bool operator==(const List<T>& other) const noexcept {
-		if (size() != other.size()) {
-			return false;
-		}
-
-		List<T>::Node* current1 = _head;
-		List<T>::Node* current2 = other._head;
-
-		while (current1 != nullptr && current2 != nullptr) {
-			if (current1->value != current2->value) {
-				return false;
-			}
-			current1 = current1->next;
-			current2 = current2->next;
-		}
-
-		return true;
-	}
-
-	bool operator!=(const List<T>& other) const noexcept {
-		return !(*this == other);
-	}
+private:
+	void print() noexcept;
 };
 
 template <class T>
@@ -144,19 +111,19 @@ template <class T>
 List<T>::List() : _head(nullptr), _tail(nullptr), _count(0) {}
 
 template <class T>
+List<T>::List(std::initializer_list<T> init) : _head(nullptr), _tail(nullptr), _count(0) {
+	for (auto it = init.begin(); it != init.end(); it++) {
+		push_back(*it);
+	}
+}
+
+template <class T>
 List<T>::List(const List<T>& other) : _head(nullptr), _tail(nullptr), _count(0) {
 	Node* node = other._head;
-	
 	while (node != nullptr) {
 		push_back(node->value);
 		node = node->next;
 	}
-	/*
-	for (int i = 0; i < other._count; i++) {
-		push_back(node->value);
-		node = node->next;
-	}
-	*/
 }
 
 template <class T>
@@ -192,20 +159,17 @@ void List<T>::push_back(const T& val) noexcept {
 }
 
 template <class T>
-void List<T>::insert(size_t pos, const T& value) {
-	if (is_empty() && pos != 0) throw std::invalid_argument("The list is empty");
-	if (pos == 0) {
-		push_front(value);
-		return;
-	}
-	else if (pos == _count) {
+void List<T>::insert(size_t pos, const T& value) {  // вставляет после позиции
+	if (is_empty()) throw std::invalid_argument("The list is empty");
+	if (pos >= _count) throw std::invalid_argument("Position out of range");
+	else if (pos == _count - 1) {
 		push_back(value);
 		return;
 	}
 	Node* cur = _head;
 	size_t cur_pos = 0;
 	while (cur != nullptr) {
-		if (cur_pos == pos - 1) break;
+		if (cur_pos == pos) break;
 		cur_pos++;
 		cur = cur->next;
 	}
@@ -214,7 +178,7 @@ void List<T>::insert(size_t pos, const T& value) {
 }
 
 template <class T>
-void List<T>::insert(Node* node, const T& value) {
+void List<T>::insert(Node* node, const T& value) { // вставка после переданной ноды
 	if (is_empty()) throw std::invalid_argument("The list is empty");
 	if (node == nullptr) throw std::invalid_argument("The node not found");
 
@@ -263,20 +227,17 @@ void List<T>::pop_back() {
 }
 
 template <class T>
-void List<T>::erase(size_t pos) {
+void List<T>::erase(size_t pos) { // удаляет после позиции
 	if (is_empty()) throw std::invalid_argument("The list is empty");
-	if (pos == 0) {
-		pop_front();
-		return;
-	}
-	else if (pos == _count) {
+	if (pos >= _count - 1) throw std::invalid_argument("Position out of range");
+	else if (pos == _count - 2) {
 		pop_back();
 		return;
 	}
 	Node* cur = _head;
 	size_t cur_pos = 0;
 	while (cur != nullptr) {
-		if (cur_pos == pos - 1) break;
+		if (cur_pos == pos) break;
 		cur_pos++;
 		cur = cur->next;
 	}
@@ -285,7 +246,7 @@ void List<T>::erase(size_t pos) {
 }
 
 template <class T>
-void List<T>::erase(Node* node) {
+void List<T>::erase(Node* node) { // удаляет ноду после переданной
 	if (is_empty()) throw std::invalid_argument("The list is empty");
 	if (node == nullptr) throw std::invalid_argument("The node not found");
 	if (node == _tail) throw std::logic_error("You can't delete a node after the last one");
@@ -297,6 +258,49 @@ void List<T>::erase(Node* node) {
 	delete node->next;
 	node->next = cur;
 	_count--;
+}
+
+template <class T>
+List<T>& List<T>::operator=(const List<T>& other) {
+	if (this != &other) {
+		while (_head != nullptr) {
+			Node* node = _head;
+			_head = _head->next;
+			delete node;
+		}
+		_tail = nullptr;
+		_count = 0;
+
+		Node* current = other._head;
+		while (current != nullptr) {
+			push_back(current->value);
+			current = current->next;
+		}
+	}
+	return *this;
+}
+
+template <class T>
+bool List<T>::operator==(const List<T>& other) const noexcept {
+	if (size() != other.size()) {
+		return false;
+	}
+	const List<T>::Node* current1 = _head;
+	const List<T>::Node* current2 = other._head;
+
+	while (current1 != nullptr && current2 != nullptr) {
+		if (current1->value != current2->value) {
+			return false;
+		}
+		current1 = current1->next;
+		current2 = current2->next;
+	}
+	return true;
+}
+
+template <class T>
+bool List<T>::operator!=(const List<T>& other) const noexcept {
+	return !(*this == other);
 }
 
 template <class T>

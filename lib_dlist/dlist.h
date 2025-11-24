@@ -1,5 +1,6 @@
 #pragma once
-#include "../lib_list/list.h"
+//#include "../lib_list/list.h"
+#include <iostream>
 
 template <class T>
 class DList {
@@ -20,6 +21,7 @@ private:
 
 public:
     DList() : _head(nullptr), _tail(nullptr), _count(0) {}
+    DList(std::initializer_list<T> init);
     DList(const DList<T>& other);
     ~DList();
 
@@ -28,7 +30,7 @@ public:
     DNode* dtail() noexcept { return _tail; }
     const DNode* dhead() const noexcept { return _head; }
     const DNode* dtail() const noexcept { return _tail; }
-    size_t size() const noexcept { return _count; }
+    const size_t size() const noexcept { return _count; }
 
     void push_front(const T& val) noexcept;
     void push_back(const T& val) noexcept;
@@ -38,7 +40,6 @@ public:
     void pop_back();
     void erase(size_t pos);
     void erase(DNode* node);
-    void print() noexcept;
 
     class Iterator {
         DNode* _current;
@@ -106,6 +107,13 @@ public:
     Iterator rend() {
         return Iterator(nullptr);
     }
+
+    DList<T>& operator=(const DList<T>& other);
+    bool operator==(const DList<T>& other) const noexcept;
+    bool operator!=(const DList<T>& other) const noexcept;
+
+private:
+    void print() noexcept;
 };
 
 template <class T>
@@ -114,6 +122,13 @@ DList<T>::DList(const DList<T>& other) : _head(nullptr), _tail(nullptr), _count(
     while (node != nullptr) {
         push_back(node->value);
         node = node->next;
+    }
+}
+
+template <class T>
+DList<T>::DList(std::initializer_list<T> init) : _head(nullptr), _tail(nullptr), _count(0) {
+    for (auto it = init.begin(); it != init.end(); it++) {
+        push_back(*it);
     }
 }
 
@@ -153,8 +168,9 @@ void DList<T>::push_back(const T& val) noexcept {
 }
 
 template <class T>
-void DList<T>::insert(size_t pos, const T& value) {
+void DList<T>::insert(size_t pos, const T& value) { // вставляет по позиции
     if (is_empty() && pos != 0) throw std::invalid_argument("The list is empty");
+    if (pos > _count) throw std::invalid_argument("Position out of range");
     if (pos == 0) {
         push_front(value);
         return;
@@ -176,7 +192,7 @@ void DList<T>::insert(size_t pos, const T& value) {
 }
 
 template <class T>
-void DList<T>::insert(DNode* node, const T& value) {
+void DList<T>::insert(DNode* node, const T& value) { // вставка после переданной ноды
     if (is_empty()) throw std::invalid_argument("The list is empty");
     if (node == nullptr) throw std::invalid_argument("The node not found");
 
@@ -229,13 +245,14 @@ void DList<T>::pop_back() {
 }
 
 template <class T>
-void DList<T>::erase(size_t pos) {
+void DList<T>::erase(size_t pos) { // удаляет по позиции
     if (is_empty()) throw std::invalid_argument("The list is empty");
+    if (pos >= _count) throw std::invalid_argument("Position out of range");
     if (pos == 0) {
         pop_front();
         return;
     }
-    else if (pos == _count) {
+    else if (pos == _count - 1) {
         pop_back();
         return;
     }
@@ -243,7 +260,7 @@ void DList<T>::erase(size_t pos) {
     DNode* cur = _head;
     size_t cur_pos = 0;
     while (cur != nullptr) {
-        if (cur_pos == pos - 1) break;
+        if (cur_pos == pos) break;
         cur_pos++;
         cur = cur->next;
     }
@@ -252,23 +269,65 @@ void DList<T>::erase(size_t pos) {
 }
 
 template <class T>
-void DList<T>::erase(DNode* node) {
+void DList<T>::erase(DNode* node) { // удаляет переданную ноду
     if (is_empty()) throw std::invalid_argument("The list is empty");
     if (node == nullptr) throw std::invalid_argument("The node not found");
-    if (node->next == nullptr) throw std::logic_error("You can't delete a node after the last one");
-
-    DNode* delete_node = node->next;
-    node->next = delete_node->next;
-
-    if (delete_node->next != nullptr) {
-        delete_node->next->prev = node;
+    if (node == _head) {
+        pop_front();
+        return;
     }
-    else {
-        _tail = node;
+    if (node == _tail) {
+        pop_back();
+        return;
     }
 
-    delete delete_node;
+    node->prev->next = node->next;
+    node->next->prev = node->prev;
+    delete node;
     _count--;
+}
+
+template <class T>
+DList<T>& DList<T>::operator=(const DList<T>& other) {
+    if (this != &other) {
+        while (_head != nullptr) {
+            DNode* node = _head;
+            _head = _head->next;
+            delete node;
+        }
+        _tail = nullptr;
+        _count = 0;
+
+        DNode* current = other._head;
+        while (current != nullptr) {
+            push_back(current->value);
+            current = current->next;
+        }
+    }
+    return *this;
+}
+
+template <class T>
+bool DList<T>::operator==(const DList<T>& other) const noexcept {
+    if (size() != other.size()) {
+        return false;
+    }
+    const DList<T>::DNode* current1 = _head;
+    const DList<T>::DNode* current2 = other._head;
+
+    while (current1 != nullptr) {
+        if (current1->value != current2->value) {
+            return false;
+        }
+        current1 = current1->next;
+        current2 = current2->next;
+    }
+    return true;
+}
+
+template <class T>
+bool DList<T>::operator!=(const DList<T>& other) const noexcept {
+    return !(*this == other);
 }
 
 template <class T>
