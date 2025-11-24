@@ -9,7 +9,7 @@ public:
 	LQueue(int size = -1);
 	LQueue(const LQueue&);
 
-	void push(const T value);
+	void push(const T& value);
 	void pop();
 
 	inline T head() const;
@@ -32,7 +32,7 @@ template <class T>
 LQueue<T>::LQueue(const LQueue& other) : _list(other._list), _size(other._size) {}
 
 template <class T>
-void LQueue<T>::push(const T value) {
+void LQueue<T>::push(const T& value) {
 	if (is_full())
 		throw std::logic_error("Queue is full\n");
 	_list.push_back(value);

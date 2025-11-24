@@ -8,7 +8,7 @@ class LStack {
 public:
 	LStack(int size = -1);
 	LStack(const LStack&);
-	inline void push(const T value);
+	inline void push(const T& value);
 	inline void pop();
 	inline T top() const;
 
@@ -30,7 +30,7 @@ template <class T>
 LStack<T>::LStack(const LStack& other) : _list(other._list), _size(other._size) {}
 
 template <class T>
-void LStack<T>::push(const T value) {
+void LStack<T>::push(const T& value) {
 	if (is_full())
 		throw std::logic_error("Stack is full\n");
 	_list.push_back(value);
