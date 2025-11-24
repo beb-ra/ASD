@@ -4,7 +4,7 @@
 #include "../lib_list/list.h"
 #include "../lib_lexem/lexem.h"
 #include "../lib_parser/parser.h"
-#include "../lib_algorithms/algorithms.h"
+//#include "../lib_algorithms/algorithms.h"
 
 class Expression {
     List<Lexem> _lexems;
@@ -25,18 +25,12 @@ public:
         variables[name] = value;
     }
 
-    void set_variables(double x, double y) {
-        variables["x"] = x;
-        variables["y"] = y;
-    }
-
-    /*
     double calculate() {
         if (_polish_record.is_empty()) {
             convert_to_postfix();
         }
 
-        Stack<double> stack(100);
+        LStack<double> stack;
 
         for (const auto& lexem : _polish_record) {
             TypeLexem type = lexem.type;
@@ -82,6 +76,16 @@ public:
                 }
                 break;
 
+            case Abs:
+                if (stack.is_empty()) {
+                    throw std::runtime_error("Not enough operands for absolute value");
+                }
+                {
+                    double val = stack.top(); stack.pop();
+                    stack.push(std::abs(val));
+                }
+                break;
+
             case Function: {
                 if (stack.is_empty()) {
                     throw std::runtime_error("Not enough operands for function: " + name);
@@ -105,13 +109,14 @@ public:
 
         return stack.top();
     }
-    */
+
+    /*
     double calculate() {
         if (_polish_record.is_empty()) {
             convert_to_postfix();
         }
 
-        Stack<double> stack(100);
+        LStack<double> stack;
         std::cout << "=== CALCULATION START ===" << std::endl;
 
         for (const auto& lexem : _polish_record) {
@@ -175,6 +180,7 @@ public:
         std::cout << "Final result: " << final_result << std::endl;
         return final_result;
     }
+    */
 
     void print() {
         std::cout << "lexems: ";
@@ -196,8 +202,9 @@ public:
     }
 private:
     void convert_to_postfix() {
-        //_polish_record.clear();
-        Stack<Lexem> stack(100);
+        _polish_record = List<Lexem>();
+        LStack<Lexem> stack;
+        bool is_first_modul = true;
 
         for (const auto& lexem : _lexems) {
             TypeLexem type = lexem.type;
@@ -209,29 +216,18 @@ private:
                 break;
 
             case OpenBracket:
-            case OpenAbs:
                 stack.push(lexem);
                 break;
 
-            case ClosedBracket:
-            case ClosedAbs: {
-                while (!stack.is_empty() && !is_opening_bracket(stack.top()) &&
-                    stack.top().type != OpenAbs) {
+            case ClosedBracket: {
+                while (!stack.is_empty() && stack.top().type != OpenBracket) {
                     _polish_record.push_back(stack.top());
                     stack.pop();
                 }
-
                 if (stack.is_empty()) {
                     throw std::runtime_error("Unbalanced brackets");
                 }
-
-                Lexem opening = stack.top();
-                stack.pop();
-
-                if (!stack.is_empty() && stack.top().type == Function) {
-                    _polish_record.push_back(stack.top());
-                    stack.pop();
-                }
+                stack.pop(); // Убираем открывающую скобку
                 break;
             }
 
@@ -239,13 +235,24 @@ private:
                 stack.push(lexem);
                 break;
 
-            case Operator:
+            case Abs: 
+                if (is_first_modul) 
+                    is_first_modul = false;
+                else {
+                    stack.push(lexem);
+                    is_first_modul = true;
+                }
+                break;
             case UnOperator:
+                stack.push(lexem);
+                break;
+
+            case Operator:
                 while (!stack.is_empty() &&
                     (stack.top().type == Function ||
-                        stack.top().type == Operator ||
-                        stack.top().type == UnOperator) &&
-                    get_precedence(stack.top()) >= get_precedence(lexem)) {
+                        stack.top().type == UnOperator ||
+                        stack.top().type == Abs ||
+                        (stack.top().type == Operator && get_precedence(stack.top()) >= get_precedence(lexem)))) {
                     _polish_record.push_back(stack.top());
                     stack.pop();
                 }
@@ -253,8 +260,9 @@ private:
                 break;
             }
         }
+
         while (!stack.is_empty()) {
-            if (is_opening_bracket(stack.top()) || stack.top().type == OpenAbs) {
+            if (stack.top().type == OpenBracket) {
                 throw std::runtime_error("Unbalanced brackets");
             }
             _polish_record.push_back(stack.top());
@@ -274,11 +282,10 @@ private:
         TypeLexem type = lexem.type;
         std::string name = lexem.name;
 
-        if (type == Function) return 4;
+        if (type == Function || type == Abs) return 4;
         if (type == UnOperator) return 3;
 
         if (name == "^") return 3;
-        if (name == "||") return 3;
         if (name == "*" || name == "/") return 2;
         if (name == "+" || name == "-") return 1;
 

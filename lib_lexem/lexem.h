@@ -4,8 +4,7 @@
 
 enum TypeLexem {
     Constant, Variable, OpenBracket, ClosedBracket,
-    Function, Operator, UnOperator, OpenAbs, ClosedAbs,
-    None
+    Function, Operator, UnOperator, Abs, None
 };
 
 struct Lexem {
@@ -21,7 +20,6 @@ struct Lexem {
         int _priority = -1, double(*_function)(double) = nullptr)
         : name(_name), type(_type), value(_value), priority(_priority), function(_function)
     {
-        // Если передано значение по умолчанию для double, но тип Constant - вычисляем значение
         if (type == Constant && value == DBL_MAX && !name.empty()) {
             try {
                 value = std::stod(name);
@@ -30,6 +28,23 @@ struct Lexem {
                 value = 0.0;
             }
         }
+    }
+
+    bool operator==(const Lexem& other) const {
+        if (type != other.type || name != other.name) {
+            return false;
+        }
+        if (type == Constant && std::abs(value - other.value) > 1e-10) {
+            return false;
+        }
+        if (type == Function && function != other.function) {
+            return false;
+        }
+        return true;
+    }
+
+    bool operator!=(const Lexem& other) const {
+        return !(*this == other);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Lexem& lexem) {

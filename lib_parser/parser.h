@@ -8,7 +8,7 @@
 #include <sstream>
 #include "../lib_list/list.h"
 #include "../lib_lexem/lexem.h"
-#include "../lib_stack/stack.h"
+#include "../lib_lstack/lstack.h"
 
 namespace Parser {
     enum State {
@@ -30,6 +30,9 @@ namespace Parser {
     bool isBracket(char c) {
         return c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}';
     }
+    bool isClosedBracket(char c) {
+        return c == ')' || c == ']' || c == '}';
+    }
     bool isValidVariableChar(char c) {
         return std::isalnum(c) || c == '_';
     }
@@ -37,9 +40,6 @@ namespace Parser {
         return str == "sin" || str == "cos" || str == "tg";
     }
     TypeLexem getBracketType(char bracket, bool isOpen) {
-        if (bracket == '|') {
-            return isOpen ? OpenAbs : ClosedAbs;
-        }
         return isOpen ? OpenBracket : ClosedBracket;
     }
     void validateExpression(const std::string& expression) {
@@ -63,10 +63,9 @@ namespace Parser {
                 }
             }
             else if (c == '|') {
-                absBalance = 1 - absBalance; // toggle 0/1
+                absBalance = 1 - absBalance;
             }
 
-            // Проверка на недопустимые символы
             if (!std::isdigit(c) && !std::isalpha(c) && c != '_' &&
                 !isOperator(c) && !isBracket(c) && c != '.' && c != '|' && c != ' ') {
                 throw std::runtime_error("Invalid character '" + std::string(1, c) + "' at position " + std::to_string(i));
@@ -83,7 +82,14 @@ namespace Parser {
     }
 
     List<Lexem> parse(std::string expression) {
-        validateExpression(expression);
+        std::string cleaned_expr;
+        for (char c : expression) {
+            if (!std::isspace(c)) {
+                cleaned_expr += c;
+            }
+        }
+
+        expression = cleaned_expr;
 
         List<Lexem> lexems;
         State currentState = START;
@@ -91,6 +97,9 @@ namespace Parser {
 
         for (size_t i = 0; i < expression.length(); i++) {
             char c = expression[i];
+
+            //std::cout << "\ni: " << i << "  c: " << c << std::endl;
+            //lexems.print();
 
             switch (currentState) {
             case START:
@@ -107,7 +116,7 @@ namespace Parser {
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c == '|') {
-                    lexems.push_back(Lexem("|", OpenAbs));
+                    lexems.push_back(Lexem("|", Abs));
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (isOperator(c)) {
@@ -137,7 +146,7 @@ namespace Parser {
                         currentState = AFTER_CLOSED_BRACKET;
                     }
                     else if (c == '|') {
-                        lexems.push_back(Lexem("|", ClosedAbs));
+                        lexems.push_back(Lexem("|", Abs));
                         currentState = AFTER_CLOSED_BRACKET;
                     }
                     else if (isOperator(c)) {
@@ -150,29 +159,33 @@ namespace Parser {
                     else {
                         currentState = AFTER_CLOSED_BRACKET;
                     }
-                    i--;
                 }
                 break;
 
             case IN_VARIABLE:
-                if (isValidVariableChar(c)) {
-                    currentToken += c;
-                }
-                else {
-                    if (isFunction(currentToken)) {
-                        lexems.push_back(Lexem(currentToken, Function));
-                    }
-                    else {
-                        lexems.push_back(Lexem(currentToken, Variable));
-                    }
+                if (isFunction(currentToken)) {
+                    lexems.push_back(Lexem(currentToken, Function));
+                    currentState = AFTER_FUNCTION;
                     currentToken.clear();
                     i--;
-                    if (isFunction(currentToken)) {
-                        currentState = AFTER_FUNCTION;
+                    break;
+                }
+                if (isValidVariableChar(c)) {
+                    currentToken += c;
+                    break;
+                }
+                else {
+                    lexems.push_back(Lexem(currentToken, Variable));
+                    if (isOperator(c)) {
+                        currentState = AFTER_OPERATOR;
+                        lexems.push_back(Lexem(std::string(1, c), Operator));
                     }
-                    else {
+                    else if (isClosedBracket(c)) {
                         currentState = AFTER_CLOSED_BRACKET;
+                        // проверка на нужную скобку через стек
+                        lexems.push_back(Lexem(std::string(1, c), Operator));
                     }
+                    currentToken.clear();
                 }
                 break;
 
@@ -190,7 +203,7 @@ namespace Parser {
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c == '|') {
-                    lexems.push_back(Lexem("|", OpenAbs));
+                    lexems.push_back(Lexem("|", Abs));
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c == '-' && expression[i - 1] != ' ') {
@@ -216,7 +229,7 @@ namespace Parser {
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c == '|') {
-                    lexems.push_back(Lexem("|", OpenAbs));
+                    lexems.push_back(Lexem("|", Abs));
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c != ' ') {
@@ -237,7 +250,7 @@ namespace Parser {
                     lexems.push_back(Lexem(std::string(1, c), getBracketType(c, true)));
                 }
                 else if (c == '|') {
-                    lexems.push_back(Lexem("|", OpenAbs));
+                    lexems.push_back(Lexem("|", Abs));
                 }
                 else if (c == '-') {
                     lexems.push_back(Lexem("-", UnOperator));
@@ -253,7 +266,7 @@ namespace Parser {
                     lexems.push_back(Lexem(std::string(1, c), getBracketType(c, false)));
                 }
                 else if (c == '|') {
-                    lexems.push_back(Lexem("|", ClosedAbs));
+                    lexems.push_back(Lexem("|", Abs));
                 }
                 else if (isOperator(c)) {
                     lexems.push_back(Lexem(std::string(1, c), Operator));
@@ -266,7 +279,7 @@ namespace Parser {
 
             case AFTER_FUNCTION:
                 if (c == '(' || c == '[' || c == '{') {
-                    lexems.push_back(Lexem(std::string(1, c), getBracketType(c, true)));
+                    lexems.push_back(Lexem(std::string(1, c), OpenBracket));
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c != ' ') {
@@ -292,7 +305,6 @@ namespace Parser {
                 }
             }
         }
-
         return lexems;
     }
 }

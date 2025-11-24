@@ -22,6 +22,7 @@ protected:
 public:
 	List();
 	List(const List<T>&);
+	List(std::initializer_list<T>);
 	~List();
 
 	inline bool is_empty() const noexcept;
@@ -178,12 +179,13 @@ List<T>::List(const List<T>& other) : _head(nullptr), _tail(nullptr), _count(0) 
 		push_back(node->value);
 		node = node->next;
 	}
-	/*
-	for (int i = 0; i < other._count; i++) {
-		push_back(node->value);
-		node = node->next;
+}
+
+template <class T>
+List<T>::List(std::initializer_list<T> init) : _head(nullptr), _tail(nullptr), _count(0) {
+	for (auto it = init.begin(); it != init.end(); it++) {
+		push_back(*it);
 	}
-	*/
 }
 
 template <class T>
