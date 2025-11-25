@@ -60,6 +60,7 @@ bool is_looped_2(List<T>& list) {
         curr = tmp;
     }
 
+    // функция свапа
     curr = prev;
     prev = nullptr;
     while (curr != nullptr) {
