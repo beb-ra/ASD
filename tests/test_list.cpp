@@ -468,10 +468,10 @@ TEST(TestListIteratorLib, correct_iteration) {
 	for (int i = 0; i < 4; i++) {
 		l.push_back(i + 1);
 	}
-	List<int>::Iterator it;
+	//List<int>::Iterator it;
 
 	int i = 1;
-	for (it = l.begin(); it != l.end(); it++) {
+	for (auto it = l.begin(); it != l.end(); it++) {
 		EXPECT_EQ(i++, *it);
 	}
 }
@@ -485,7 +485,7 @@ TEST(TestListIteratorLib, correct_iteration_2) {
 
 	int i = 1;
 	List<int>::Iterator it;
-	for (it = l.begin(); it != l.end(); it++, i++) {
+	for (it = l.begin(); it != l.end(); ++it, i++) {
 		*it = i + 100;
 	}
 

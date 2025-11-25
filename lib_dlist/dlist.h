@@ -112,7 +112,7 @@ public:
     bool operator==(const DList<T>& other) const noexcept;
     bool operator!=(const DList<T>& other) const noexcept;
 
-private:
+//private:
     void print() noexcept;
 };
 

@@ -1,9 +1,9 @@
 #pragma once
-#include "../lib_dlist/dlist.h"
+#include "../lib_list/list.h"
 
 template <class T>
 class LQueue {
-	DList<T> _list;
+	List<T> _list;
 	int _size;
 public:
 	LQueue(int size = -1);
@@ -77,6 +77,6 @@ bool LQueue<T>::is_full() const noexcept {
 template <class T>
 void LQueue<T>::clear() noexcept {
 	while (!_list.is_empty()) {
-		_list.pop_back();
+		_list.pop_front();
 	}
 }

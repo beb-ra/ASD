@@ -98,7 +98,7 @@ public:
 	bool operator==(const List<T>& other) const noexcept;
 	bool operator!=(const List<T>& other) const noexcept;
 
-private:
+//private:
 	void print() noexcept;
 };
 

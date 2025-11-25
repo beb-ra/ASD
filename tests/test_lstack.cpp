@@ -20,8 +20,9 @@ TEST(TestLStackLib, correct_create_object) {
 TEST(TestLStackLib, correct_create_object_2) {
     LStack<int> object(20);
 
-    EXPECT_EQ(20, object.size());
+    EXPECT_EQ(20, object.capacity());
     EXPECT_EQ(0, object.top());
+    EXPECT_EQ(0, object.size());
 }
 
 TEST(TestLStackLib, correct_create_object_with_copy) {
@@ -48,7 +49,8 @@ TEST(TestLStackLib, correct_create_object_with_copy_3) {
     object.push(222);
     LStack<int> object2(object);
 
-    EXPECT_EQ(10, object2.size());
+    EXPECT_EQ(10, object2.capacity());
+    EXPECT_EQ(2, object2.size());
     EXPECT_EQ(222, object2.top());
 }
 
@@ -177,7 +179,8 @@ TEST(TestLStackLib, correct_clear_2) {
     object.clear();
 
     EXPECT_EQ(0, object.top());
-    EXPECT_EQ(10, object.size());
+    EXPECT_EQ(0, object.size());
+    EXPECT_EQ(10, object.capacity());
 
     ASSERT_NO_THROW(object.push(22));
 }

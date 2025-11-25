@@ -554,7 +554,7 @@ TEST(TestDListIteratorLib, correct_reverse_iteration) {
 	DList<int>::Iterator it;
 
 	int i = 4;
-	for (it = l.rbegin(); it != l.rend(); it++) {
+	for (it = l.rbegin(); it != l.rend(); it--) {
 		EXPECT_EQ(i--, *it);
 	}
 }

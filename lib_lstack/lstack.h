@@ -1,9 +1,9 @@
 #pragma once
-#include "../lib_dlist/dlist.h"
+#include "../lib_list/list.h"
 
 template <class T>
 class LStack {
-	DList<T> _list;
+	List<T> _list;
 	int _size;
 public:
 	LStack(int size = -1);
@@ -13,6 +13,7 @@ public:
 	inline T top() const;
 
 	inline size_t size() const noexcept;
+	inline size_t capacity() const noexcept;
 
 	bool is_empty() const noexcept;
 	bool is_full() const noexcept;
@@ -33,26 +34,31 @@ template <class T>
 void LStack<T>::push(const T& value) {
 	if (is_full())
 		throw std::logic_error("Stack is full\n");
-	_list.push_back(value);
+	_list.push_front(value);
 }
 
 template <class T>
 void LStack<T>::pop() {
 	if (is_empty()) 
 		throw std::logic_error("Stack is empty\n");
-	_list.pop_back();
+	_list.pop_front();
 }
 
 template <class T>
 T LStack<T>::top() const {
 	if (is_empty())
 		return T();
-	return _list.dtail()->value;
+	return _list.head()->value;
 }
 
 template <class T>
 size_t LStack<T>::size() const noexcept {
-	return _size != -1 ? _size : _list.size();
+	return _list.size();
+}
+
+template <class T>
+size_t LStack<T>::capacity() const noexcept {
+	return _size;
 }
 
 template <class T>
@@ -68,6 +74,6 @@ bool LStack<T>::is_full() const noexcept {
 template <class T>
 void LStack<T>::clear() noexcept {
 	while (!_list.is_empty()) {
-		_list.pop_back();
+		_list.pop_front();
 	}
 }
