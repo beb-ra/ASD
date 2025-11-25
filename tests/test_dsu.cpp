@@ -83,14 +83,20 @@ TEST(TestDSULib, throw_uncorrect_union_and_find) {
 }
 
 TEST(TestDSULib, correct_path_compression) {
-    DSU dsu(5);
+    DSU dsu(8);
 
-    dsu.unite(0, 1);
     dsu.unite(1, 2);
-    dsu.unite(2, 3);
 
-    int p1 = dsu.find(3);
-    int p2 = dsu.find(2);
+    dsu.unite(3, 4);
+    dsu.unite(5, 6);
+    dsu.unite(4, 5);
 
-    EXPECT_EQ(p1, p2);
+    dsu.unite(2, 6);
+
+    EXPECT_EQ(3, dsu.find(4));
+    EXPECT_EQ(3, dsu.find(5));
+    EXPECT_EQ(3, dsu.find(6));
+
+    EXPECT_EQ(1, dsu.find(2));
+    EXPECT_EQ(1, dsu.find(3));
 }

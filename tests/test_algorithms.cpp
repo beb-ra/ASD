@@ -10,21 +10,27 @@ TEST(TestAlgorithmsLib, test_island_counting) {
 }
 
 TEST(TestAlgorithmsLib, test_island_counting_2) {
-    Matrix<int> matrix(3, 3, { 1, 0, 0, 0, 1, 0, 0, 0, 1 });
+    Matrix<int> matrix(3, 3, { 1, 0, 0, 
+                               0, 1, 0, 
+                               0, 0, 1 });
     int count = 3;
 
     EXPECT_EQ(island_counting(matrix), count);
 }
 
 TEST(TestAlgorithmsLib, test_island_counting_3) {
-    Matrix<int> matrix(3, 3, { 1, 0, 1, 0, 1, 0, 0, 0, 1 });
+    Matrix<int> matrix(3, 3, { 1, 0, 1,
+                               0, 1, 0, 
+                               0, 0, 1 });
     int count = 4;
 
     EXPECT_EQ(island_counting(matrix), count);
 }
 
 TEST(TestAlgorithmsLib, test_island_counting_4) {
-    Matrix<int> matrix(3, 3, { 1, 1, 1, 0, 1, 0, 0, 0, 1 });
+    Matrix<int> matrix(3, 3, { 1, 1, 1, 
+                               0, 1, 0, 
+                               0, 0, 1 });
     int count = 2;
 
     EXPECT_EQ(island_counting(matrix), count);

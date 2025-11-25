@@ -36,7 +36,7 @@ void DSU::unite(int x, int y) {
 int DSU::find(int x) {
 	if (x >= _size || x < 0)
 		throw std::invalid_argument("Argument out of range");
-	return x = find_rec(_parent[x]);
+	return x = find_rec(_parent[x]);    //ранги нужно менять
 }
 
 int DSU::find_rec(int x) {
