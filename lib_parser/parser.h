@@ -42,61 +42,15 @@ namespace Parser {
     TypeLexem getBracketType(char bracket, bool isOpen) {
         return isOpen ? OpenBracket : ClosedBracket;
     }
-    void validateExpression(const std::string& expression) {
-        if (expression.empty()) {
-            throw std::runtime_error("Empty expression");
-        }
-
-        int bracketBalance = 0;
-        int absBalance = 0;
-
-        for (size_t i = 0; i < expression.length(); i++) {
-            char c = expression[i];
-
-            if (c == '(' || c == '[' || c == '{') {
-                bracketBalance++;
-            }
-            else if (c == ')' || c == ']' || c == '}') {
-                bracketBalance--;
-                if (bracketBalance < 0) {
-                    throw std::runtime_error("Unbalanced brackets at position " + std::to_string(i));
-                }
-            }
-            else if (c == '|') {
-                absBalance = 1 - absBalance;
-            }
-
-            if (!std::isdigit(c) && !std::isalpha(c) && c != '_' &&
-                !isOperator(c) && !isBracket(c) && c != '.' && c != '|' && c != ' ') {
-                throw std::runtime_error("Invalid character '" + std::string(1, c) + "' at position " + std::to_string(i));
-            }
-        }
-
-        if (bracketBalance != 0) {
-            throw std::runtime_error("Unbalanced brackets");
-        }
-
-        if (absBalance != 0) {
-            throw std::runtime_error("Unbalanced absolute value bars");
-        }
-    }
 
     List<Lexem> parse(std::string expression) {
-        std::string cleaned_expr;
-        for (char c : expression) {
-            if (!std::isspace(c)) {
-                cleaned_expr += c;
-            }
-        }
-
-        expression = cleaned_expr;
-
         List<Lexem> lexems;
         State currentState = START;
         std::string currentToken;
 
         for (size_t i = 0; i < expression.length(); i++) {
             char c = expression[i];
+            if (c == ' ') continue;
 
             //std::cout << "\ni: " << i << "  c: " << c << std::endl;
             //lexems.print();
@@ -121,15 +75,15 @@ namespace Parser {
                 }
                 else if (isOperator(c)) {
                     if (c == '-' && lexems.is_empty()) {
-                        lexems.push_back(Lexem("-", UnOperator));
+                        lexems.push_back(Lexem("~", UnOperator));
                         currentState = AFTER_UN_OPERATOR;
                     }
                     else {
-                        throw std::runtime_error("Unexpected operator at position " + std::to_string(i));
+                        throw std::logic_error("Unexpected operator at position " + std::to_string(i));
                     }
                 }
-                else if (c != ' ') {
-                    throw std::runtime_error("Unexpected character at position " + std::to_string(i));
+                else {
+                    throw std::logic_error("Unknown symbol at position " + std::to_string(i));
                 }
                 break;
 
@@ -153,11 +107,9 @@ namespace Parser {
                         lexems.push_back(Lexem(std::string(1, c), Operator));
                         currentState = AFTER_OPERATOR;
                     }
-                    else if (c != ' ') {
-                        throw std::runtime_error("Unexpected character after number at position " + std::to_string(i));
-                    }
                     else {
-                        currentState = AFTER_CLOSED_BRACKET;
+                        //currentState = AFTER_CLOSED_BRACKET;
+                        throw std::logic_error("There is no operator after the operand: " + std::to_string(i));
                     }
                 }
                 break;
@@ -180,10 +132,16 @@ namespace Parser {
                         currentState = AFTER_OPERATOR;
                         lexems.push_back(Lexem(std::string(1, c), Operator));
                     }
-                    else if (isClosedBracket(c)) {
+                    else if (c == ')' || c == ']' || c == '}') {
                         currentState = AFTER_CLOSED_BRACKET;
-                        // проверка на нужную скобку через стек
-                        lexems.push_back(Lexem(std::string(1, c), Operator));
+                        lexems.push_back(Lexem(std::string(1, c), ClosedBracket));
+                    }
+                    else if (c == '|') {
+                        currentState = AFTER_CLOSED_BRACKET;
+                        lexems.push_back(Lexem("|", Abs));
+                    }
+                    else {
+                        throw std::logic_error("There is no operator after the operand: " + std::to_string(i));
                     }
                     currentToken.clear();
                 }
@@ -207,11 +165,12 @@ namespace Parser {
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c == '-' && expression[i - 1] != ' ') {
-                    lexems.push_back(Lexem("-", UnOperator));
-                    currentState = AFTER_UN_OPERATOR;
+                    //lexems.push_back(Lexem("~", UnOperator));
+                    //currentState = AFTER_UN_OPERATOR;
+                    throw std::logic_error("Unexpected unary minus after the operator: " + std::to_string(i));
                 }
-                else if (c != ' ') {
-                    throw std::runtime_error("Unexpected character after operator at position " + std::to_string(i));
+                else {
+                    throw std::logic_error("There is no operand after the operator: " + std::to_string(i));
                 }
                 break;
 
@@ -232,8 +191,8 @@ namespace Parser {
                     lexems.push_back(Lexem("|", Abs));
                     currentState = AFTER_OPEN_BRACKET;
                 }
-                else if (c != ' ') {
-                    throw std::runtime_error("Unexpected character after unary operator at position " + std::to_string(i));
+                else {
+                    throw std::logic_error("There is no operand after the unary operator: " + std::to_string(i));
                 }
                 break;
 
@@ -253,11 +212,11 @@ namespace Parser {
                     lexems.push_back(Lexem("|", Abs));
                 }
                 else if (c == '-') {
-                    lexems.push_back(Lexem("-", UnOperator));
+                    lexems.push_back(Lexem("~", UnOperator));
                     currentState = AFTER_UN_OPERATOR;
                 }
-                else if (c != ' ') {
-                    throw std::runtime_error("Unexpected character after opening bracket at position " + std::to_string(i));
+                else {
+                    throw std::logic_error("There is no operand after the open bracket: " + std::to_string(i));
                 }
                 break;
 
@@ -272,8 +231,8 @@ namespace Parser {
                     lexems.push_back(Lexem(std::string(1, c), Operator));
                     currentState = AFTER_OPERATOR;
                 }
-                else if (c != ' ') {
-                    throw std::runtime_error("Unexpected character after closing bracket at position " + std::to_string(i));
+                else {
+                    throw std::logic_error("There is no operator after the closed bracket: " + std::to_string(i));
                 }
                 break;
 
@@ -282,13 +241,13 @@ namespace Parser {
                     lexems.push_back(Lexem(std::string(1, c), OpenBracket));
                     currentState = AFTER_OPEN_BRACKET;
                 }
-                else if (c != ' ') {
-                    throw std::runtime_error("Expected opening bracket after function at position " + std::to_string(i));
+                else {
+                    throw std::logic_error("There is no open bracket after the function: " + std::to_string(i));
                 }
                 break;
 
             case ERROR:
-                throw std::runtime_error("Parser error at position " + std::to_string(i));
+                throw std::logic_error("Parser error at position " + std::to_string(i));
             }
         }
 
@@ -308,8 +267,4 @@ namespace Parser {
         return lexems;
     }
 }
-
-double my_sin(double x) { return sin(x); }
-double my_cos(double x) { return cos(x); }
-double my_tan(double x) { return tan(x); }
 

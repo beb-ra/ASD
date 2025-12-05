@@ -70,7 +70,7 @@ public:
                 if (stack.is_empty()) {
                     throw std::runtime_error("Not enough operands for unary operator: " + name);
                 }
-                if (name == "-") {
+                if (name == "~") {
                     double val = stack.top(); stack.pop();
                     stack.push(-val);
                 }
@@ -201,6 +201,7 @@ public:
         std::cout << std::endl;
     }
 private:
+    /*
     void convert_to_postfix() {
         _polish_record = List<Lexem>();
         LStack<Lexem> stack;
@@ -267,6 +268,99 @@ private:
             }
             _polish_record.push_back(stack.top());
             stack.pop();
+        }
+    }
+    */
+    void convert_to_postfix() {
+        _polish_record = List<Lexem>();
+        LStack<Lexem> stack;
+        bool in_abs = false;
+
+        for (const auto& lexem : _lexems) {
+            TypeLexem type = lexem.type;
+
+            switch (type) {
+            case Constant:
+            case Variable:
+                _polish_record.push_back(lexem);
+                break;
+
+            case OpenBracket:
+                stack.push(lexem);
+                break;
+
+            case ClosedBracket:
+                while (!stack.is_empty() && stack.top().type != OpenBracket) {
+                    _polish_record.push_back(stack.top());
+                    stack.pop();
+                }
+                if (stack.is_empty()) {
+                    throw std::runtime_error("Unbalanced brackets");
+                }
+                stack.pop();
+
+                if (!stack.is_empty() && stack.top().type == Function) {
+                    _polish_record.push_back(stack.top());
+                    stack.pop();
+                }
+                break;
+
+            case Function:
+                stack.push(lexem);
+                break;
+            case Abs:
+                if (!in_abs) {
+                    in_abs = true;
+                    Lexem marker;
+                    marker.type = OpenBracket;
+                    marker.name = "|";
+                    stack.push(marker);
+                }
+                else {
+                    in_abs = false;
+                    while (!stack.is_empty() && stack.top().type != OpenBracket) {
+                        _polish_record.push_back(stack.top());
+                        stack.pop();
+                    }
+                    if (!stack.is_empty() && stack.top().name == "|") {
+                        stack.pop();
+                        Lexem abs_op = lexem;
+                        _polish_record.push_back(abs_op);
+                    }
+                    else {
+                        throw std::runtime_error("Unbalanced absolute value");
+                    }
+                }
+                break;
+            case UnOperator:
+                stack.push(lexem);
+                break;
+
+            case Operator:
+                while (!stack.is_empty()) {
+                    Lexem top = stack.top();
+                    if ((top.type == UnOperator || top.type == Function || top.type == Operator) &&
+                        get_precedence(top) >= get_precedence(lexem)) {
+                        _polish_record.push_back(top);
+                        stack.pop();
+                    }
+                    else {
+                        break;
+                    }
+                }
+                stack.push(lexem);
+                break;
+            }
+        }
+        while (!stack.is_empty()) {
+            if (stack.top().type == OpenBracket) {
+                throw std::runtime_error("Unbalanced brackets");
+            }
+            _polish_record.push_back(stack.top());
+            stack.pop();
+        }
+        if (in_abs) {
+            throw std::runtime_error("Unclosed absolute value");
         }
     }
 
