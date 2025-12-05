@@ -4,7 +4,7 @@
 
 enum TypeLexem {
     Constant, Variable, OpenBracket, ClosedBracket,
-    Function, Operator, UnOperator, Abs, None
+    Function, Operator, UnOperator, None
 };
 
 struct Lexem {

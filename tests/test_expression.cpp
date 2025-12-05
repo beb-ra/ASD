@@ -22,9 +22,22 @@ TEST(TestParserLib, correct_parsing_2) {
 	List<Lexem> result = { Lexem("x_1", Variable), Lexem("*", Operator), Lexem("sin", Function), 
 		Lexem("(", OpenBracket), Lexem("y", Variable), Lexem("+", Operator), Lexem("7", Constant, 7), 
 		Lexem(")", ClosedBracket), Lexem("+", Operator), Lexem("y", Variable), Lexem("*", Operator), 
-		Lexem("(", OpenBracket), Lexem("~", UnOperator), Lexem("|", Abs), Lexem("x_2", Variable), 
-		Lexem("-", Operator), Lexem("17", Constant, 17), Lexem("|", Abs),  Lexem("+", Operator), 
-		Lexem("23", Constant, 23), Lexem(")", ClosedBracket) };
+		Lexem("(", OpenBracket), Lexem("~", UnOperator), Lexem("abs", Function), Lexem("(", OpenBracket),
+		Lexem("x_2", Variable), Lexem("-", Operator), Lexem("17", Constant, 17), Lexem(")", ClosedBracket),
+		Lexem("+", Operator), Lexem("23", Constant, 23), Lexem(")", ClosedBracket) };
+	ASSERT_EQ(list, result);
+}
+
+TEST(TestParserLib, correct_parsing_3) {
+	std::string s = "||x| - |y||";
+
+	ASSERT_NO_THROW(Parser::parse(s));
+	List<Lexem> list = Parser::parse(s);
+
+	List<Lexem> result = { Lexem("abs", Function), Lexem("(", OpenBracket), Lexem("abs", Function),
+	 Lexem("(", OpenBracket), Lexem("x", Variable), Lexem(")", ClosedBracket), Lexem("-", Operator),
+		Lexem("abs", Function), Lexem("(", OpenBracket), Lexem("y", Variable), Lexem(")", ClosedBracket),
+		Lexem(")", ClosedBracket) };
 	ASSERT_EQ(list, result);
 }
 

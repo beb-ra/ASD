@@ -15,7 +15,7 @@ namespace Parser {
         START,
         IN_NUMBER,
         IN_VARIABLE,
-        IN_FUNCTION,
+        //IN_FUNCTION,
         AFTER_OPERATOR,
         AFTER_UN_OPERATOR,
         AFTER_OPEN_BRACKET,
@@ -48,6 +48,8 @@ namespace Parser {
         State currentState = START;
         std::string currentToken;
 
+        //корректность скобок и модуля стеком
+
         for (size_t i = 0; i < expression.length(); i++) {
             char c = expression[i];
             if (c == ' ') continue;
@@ -70,7 +72,8 @@ namespace Parser {
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c == '|') {
-                    lexems.push_back(Lexem("|", Abs));
+                    lexems.push_back(Lexem("abs", Function));
+                    lexems.push_back(Lexem("(", OpenBracket));
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (isOperator(c)) {
@@ -100,7 +103,7 @@ namespace Parser {
                         currentState = AFTER_CLOSED_BRACKET;
                     }
                     else if (c == '|') {
-                        lexems.push_back(Lexem("|", Abs));
+                        lexems.push_back(Lexem(")", ClosedBracket));
                         currentState = AFTER_CLOSED_BRACKET;
                     }
                     else if (isOperator(c)) {
@@ -137,8 +140,8 @@ namespace Parser {
                         lexems.push_back(Lexem(std::string(1, c), ClosedBracket));
                     }
                     else if (c == '|') {
+                        lexems.push_back(Lexem(")", ClosedBracket));
                         currentState = AFTER_CLOSED_BRACKET;
-                        lexems.push_back(Lexem("|", Abs));
                     }
                     else {
                         throw std::logic_error("There is no operator after the operand: " + std::to_string(i));
@@ -161,7 +164,8 @@ namespace Parser {
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c == '|') {
-                    lexems.push_back(Lexem("|", Abs));
+                    lexems.push_back(Lexem("abs", Function));
+                    lexems.push_back(Lexem("(", OpenBracket));
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c == '-' && expression[i - 1] != ' ') {
@@ -188,7 +192,8 @@ namespace Parser {
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c == '|') {
-                    lexems.push_back(Lexem("|", Abs));
+                    lexems.push_back(Lexem("abs", Function));
+                    lexems.push_back(Lexem("(", OpenBracket));
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else {
@@ -209,7 +214,9 @@ namespace Parser {
                     lexems.push_back(Lexem(std::string(1, c), getBracketType(c, true)));
                 }
                 else if (c == '|') {
-                    lexems.push_back(Lexem("|", Abs));
+                    lexems.push_back(Lexem("abs", Function));
+                    lexems.push_back(Lexem("(", OpenBracket));
+                    currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c == '-') {
                     lexems.push_back(Lexem("~", UnOperator));
@@ -225,7 +232,8 @@ namespace Parser {
                     lexems.push_back(Lexem(std::string(1, c), getBracketType(c, false)));
                 }
                 else if (c == '|') {
-                    lexems.push_back(Lexem("|", Abs));
+                    lexems.push_back(Lexem(")", ClosedBracket));
+                    currentState = AFTER_CLOSED_BRACKET;
                 }
                 else if (isOperator(c)) {
                     lexems.push_back(Lexem(std::string(1, c), Operator));
@@ -239,6 +247,11 @@ namespace Parser {
             case AFTER_FUNCTION:
                 if (c == '(' || c == '[' || c == '{') {
                     lexems.push_back(Lexem(std::string(1, c), OpenBracket));
+                    currentState = AFTER_OPEN_BRACKET;
+                }
+                else if (c == '|') {
+                    lexems.push_back(Lexem("abs", Function));
+                    lexems.push_back(Lexem("(", OpenBracket));
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else {
