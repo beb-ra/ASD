@@ -19,10 +19,10 @@ TEST(TestParserLib, correct_parsing_2) {
 	ASSERT_NO_THROW(Parser::parse(s));
 	List<Lexem> list = Parser::parse(s);
 
-	List<Lexem> result = { Lexem("x_1", Variable), Lexem("*", Operator), Lexem("sin", Function), 
+	List<Lexem> result = { Lexem("x_1", Variable), Lexem("*", Operator), Lexem("sin", Function, DBL_MAX, -1, std::sin),
 		Lexem("(", OpenBracket), Lexem("y", Variable), Lexem("+", Operator), Lexem("7", Constant, 7), 
 		Lexem(")", ClosedBracket), Lexem("+", Operator), Lexem("y", Variable), Lexem("*", Operator), 
-		Lexem("(", OpenBracket), Lexem("~", UnOperator), Lexem("abs", Function), Lexem("(", OpenBracket),
+		Lexem("(", OpenBracket), Lexem("~", UnOperator), Lexem("abs", Function, DBL_MAX, -1, std::abs), Lexem("(", OpenBracket),
 		Lexem("x_2", Variable), Lexem("-", Operator), Lexem("17", Constant, 17), Lexem(")", ClosedBracket),
 		Lexem("+", Operator), Lexem("23", Constant, 23), Lexem(")", ClosedBracket) };
 	ASSERT_EQ(list, result);
@@ -34,10 +34,10 @@ TEST(TestParserLib, correct_parsing_3) {
 	ASSERT_NO_THROW(Parser::parse(s));
 	List<Lexem> list = Parser::parse(s);
 
-	List<Lexem> result = { Lexem("abs", Function), Lexem("(", OpenBracket), Lexem("abs", Function),
-	 Lexem("(", OpenBracket), Lexem("x", Variable), Lexem(")", ClosedBracket), Lexem("-", Operator),
-		Lexem("abs", Function), Lexem("(", OpenBracket), Lexem("y", Variable), Lexem(")", ClosedBracket),
-		Lexem(")", ClosedBracket) };
+	List<Lexem> result = { Lexem("abs", Function, DBL_MAX, -1, std::abs), Lexem("(", OpenBracket), 
+		Lexem("abs", Function, DBL_MAX, -1, std::abs), Lexem("(", OpenBracket), Lexem("x", Variable), 
+		Lexem(")", ClosedBracket), Lexem("-", Operator), Lexem("abs", Function, DBL_MAX, -1, std::abs), 
+		Lexem("(", OpenBracket), Lexem("y", Variable), Lexem(")", ClosedBracket), Lexem(")", ClosedBracket) };
 	ASSERT_EQ(list, result);
 }
 
@@ -66,9 +66,11 @@ TEST(TestParserLib, throw_uncorrect_parsing_missing_operand) {
 TEST(TestParserLib, throw_uncorrect_parsing) {
 	std::string s = "  ";
 	std::string s2 = "3 + $5";
+	std::string s3 = "sin()";
 
 	ASSERT_THROW(Parser::parse(s), std::logic_error);
 	ASSERT_THROW(Parser::parse(s2), std::logic_error);
+	ASSERT_THROW(Parser::parse(s3), std::logic_error);
 }
 
 TEST(TestParserLib, throw_uncorrect_parsing_2) {
@@ -107,8 +109,8 @@ TEST(TestParserLib, correct_parsing_brackets) {
 		Lexem("x", Variable), Lexem("+", Operator), Lexem("y", Variable), Lexem(")", ClosedBracket),
 		Lexem("*", Operator), Lexem("(", OpenBracket), Lexem("x", Variable), Lexem("-", Operator),
 		Lexem("y", Variable), Lexem(")", ClosedBracket), Lexem("}", ClosedBracket), Lexem("-", Operator),
-		Lexem("abs", Function), Lexem("(", OpenBracket), Lexem("x", Variable), Lexem("+", Operator),
-		Lexem("z_2", Variable), Lexem(")", ClosedBracket), Lexem("]", ClosedBracket)
+		Lexem("abs", Function, DBL_MAX, -1, std::abs), Lexem("(", OpenBracket), Lexem("x", Variable), 
+		Lexem("+", Operator), Lexem("z_2", Variable), Lexem(")", ClosedBracket), Lexem("]", ClosedBracket)
 	};
 	ASSERT_EQ(list, result);
 }
@@ -120,13 +122,9 @@ TEST(TestParserLib, function_with_abs) {
 	List<Lexem> list = Parser::parse(s);
 
 	List<Lexem> result = {
-		Lexem("sin", Function),
-		Lexem("(", OpenBracket),
-		Lexem("abs", Function),
-		Lexem("(", OpenBracket),
-		Lexem("x", Variable),
-		Lexem(")", ClosedBracket),
-		Lexem(")", ClosedBracket)
+		Lexem("sin", Function, DBL_MAX, -1, std::sin), Lexem("(", OpenBracket), 
+		Lexem("abs", Function, DBL_MAX, -1, std::abs), Lexem("(", OpenBracket),
+		Lexem("x", Variable), Lexem(")", ClosedBracket), Lexem(")", ClosedBracket)
 	};
 	ASSERT_EQ(list, result);
 }
@@ -139,4 +137,79 @@ TEST(TestExpressionLib, try_create) {
 TEST(TestExpressionLib, correct_create) {
 	std::string s = "21 * (x + 33 * y)";
 	Expression e(s);
+}
+
+TEST(TestExpressionLib, correct_operator_precedence) {
+	Expression e("2 + 3 * 4");
+	ASSERT_DOUBLE_EQ(e.calculate(), 14.0);
+
+	Expression e2("(2 + 3) * 4");
+	ASSERT_DOUBLE_EQ(e2.calculate(), 20.0);
+
+	Expression e3("2 * 3 ^ 2");
+	ASSERT_DOUBLE_EQ(e3.calculate(), 18.0);
+
+	Expression e4("(2 * 3) ^ 2");
+	ASSERT_DOUBLE_EQ(e4.calculate(), 36.0);
+}
+
+TEST(TestExpressionLib, correct_calculate_expressions) {
+	Expression e("2 * (3 + 4) - 5 / 2");
+	ASSERT_DOUBLE_EQ(e.calculate(), 11.5);
+
+	Expression e2("sin(0) + cos(0) * 2");
+	ASSERT_DOUBLE_EQ(e2.calculate(), 2.0);
+
+	Expression e3("|x| + |y|");
+	e3.set_variables("x", -5);
+	e3.set_variables("y", -3);
+	ASSERT_DOUBLE_EQ(e3.calculate(), 8.0);
+
+	Expression e4("||x_1| - |x_2||");
+	e4.set_variables("x_1", -7);
+	e4.set_variables("x_2", -10);
+	ASSERT_DOUBLE_EQ(e4.calculate(), 3.0);
+}
+
+TEST(TestExpressionLib, correct_calculate_float) {
+	Expression e("3.14 * x");
+	e.set_variables("x", 2.0);
+	ASSERT_DOUBLE_EQ(e.calculate(), 6.28);
+
+	Expression e2("x_1 / 0.5");
+	e2.set_variables("x_1", 1.5);
+	ASSERT_DOUBLE_EQ(e2.calculate(), 3.0);
+}
+
+TEST(TestExpressionLib, correct_different_brackets) {
+	Expression e("( [ { x + y } * 2 ] - z )");
+	e.set_variables("x", 3);
+	e.set_variables("y", 4);
+	e.set_variables("z", 5);
+	ASSERT_DOUBLE_EQ(e.calculate(), 9.0);
+}
+
+TEST(TestExpressionLib, throw_uncorrect_calculate) {
+	Expression e1("5 / 0");
+	ASSERT_THROW(e1.calculate(), std::runtime_error);
+
+	Expression e2("x + 5");
+	ASSERT_THROW(e2.calculate(), std::runtime_error);
+
+	e2.set_variables("x", 3);
+	ASSERT_DOUBLE_EQ(e2.calculate(), 8.0);
+}
+
+TEST(TestExpressionLib, correct_calculate) {
+	Expression e("a * b + c");
+
+	e.set_variables("a", 2);
+	e.set_variables("b", 3);
+	e.set_variables("c", 4);
+	ASSERT_DOUBLE_EQ(e.calculate(), 10.0);
+
+	e.set_variables("a", 5);
+	e.set_variables("b", 6);
+	e.set_variables("c", 7);
+	ASSERT_DOUBLE_EQ(e.calculate(), 37.0);
 }

@@ -20,32 +20,363 @@ namespace Parser {
         AFTER_OPEN_BRACKET,
         AFTER_CLOSED_BRACKET,
         AFTER_FUNCTION,
-        ERROR
+        AFTER_OPERAND
     };
 
-    bool isOperator(char c) {
+    bool is_operator(char c) {
         return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
     }
-    bool isBracket(char c) {
+    bool is_bracket(char c) {
         return c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}';
     }
-    bool isClosedBracket(char c) {
+    bool is_closed_bracket(char c) {
         return c == ')' || c == ']' || c == '}';
     }
-    bool isValidVariableChar(char c) {
+    bool is_valid_variable_char(char c) {
         return std::isalnum(c) || c == '_';
     }
-    bool isFunction(const std::string& str) {
+    bool is_function(const std::string& str) {
         return str == "sin" || str == "cos" || str == "tg";
     }
-    TypeLexem getBracketType(char bracket, bool isOpen) {
+    TypeLexem get_bracket_type(char bracket, bool isOpen) {
         return isOpen ? OpenBracket : ClosedBracket;
     }
-    char getMatchingBracket(char bracket) {
+    char get_matching_bracket(char bracket) {
         switch (bracket) {
         case ')': return '(';
         case ']': return '[';
         case '}': return '{';
+        }
+    }
+    void print_error(const std::string& expression, std::string message, size_t pos) {
+        std::string s = "Input expression: " + expression + "\n";
+        s += std::string(18 + pos, ' ') + "^\n";
+        s += "Error in function 'Parser::parse()' at position " + std::to_string(pos) + ": " + message;
+
+        throw std::logic_error(s);
+    }
+
+    void handle_start(List<Lexem>& lexems, State& currentState, std::string& currentToken,
+        LStack<char>& brackets, const std::string& expression, size_t i, char c) {
+        if (std::isdigit(c)) {
+            currentToken += c;
+            currentState = IN_NUMBER;
+        }
+        else if (std::isalpha(c) || c == '_') {
+            currentToken += c;
+            currentState = IN_VARIABLE;
+        }
+        else if (c == '(' || c == '[' || c == '{') {
+            brackets.push(c);
+            lexems.push_back(Lexem(std::string(1, c), get_bracket_type(c, true)));
+            currentState = AFTER_OPEN_BRACKET;
+        }
+        else if (c == '|') {
+            brackets.push(c);
+            lexems.push_back(Lexem("abs", Function, DBL_MAX, -1, std::abs));
+            lexems.push_back(Lexem("(", OpenBracket));
+            currentState = AFTER_OPEN_BRACKET;
+        }
+        else if (is_operator(c)) {
+            if (c == '-' && lexems.is_empty()) {
+                lexems.push_back(Lexem("~", UnOperator));
+                currentState = AFTER_UN_OPERATOR;
+            }
+            else {
+                print_error(expression, "Unexpected operator", i);
+            }
+        }
+        else {
+            print_error(expression, "Unknown symbol", i);
+        }
+    }
+
+    void handle_in_number(List<Lexem>& lexems, State& currentState, std::string& currentToken,
+        LStack<char>& brackets, const std::string& expression, size_t& i, char c) {
+        if (std::isdigit(c) || c == '.') {
+            currentToken += c;
+        }
+        else {
+            lexems.push_back(Lexem(currentToken, Constant, std::stod(currentToken)));
+            currentToken.clear();
+            currentState = AFTER_OPERAND;
+            i--; // Пересмотреть тот же символ в следующем состоянии
+        }
+    }
+
+    void handle_in_variable(List<Lexem>& lexems, State& currentState, std::string& currentToken,
+        LStack<char>& brackets, const std::string& expression, size_t& i, char c) {
+        if (is_function(currentToken)) {
+            if (currentToken == "sin") {
+                Lexem lex("sin", Function, DBL_MAX, -1, std::sin);
+                lexems.push_back(lex);
+            }
+            else if (currentToken == "cos") {
+                Lexem lex("cos", Function, DBL_MAX, -1, std::cos);
+                lexems.push_back(lex);
+            }
+            else if (currentToken == "tg") {
+                Lexem lex("tg", Function, DBL_MAX, -1, std::tan);
+                lexems.push_back(lex);
+            }
+            currentState = AFTER_FUNCTION;
+            currentToken.clear();
+            i--;
+            return;
+        }
+
+        if (is_valid_variable_char(c)) {
+            currentToken += c;
+        }
+        else {
+            lexems.push_back(Lexem(currentToken, Variable));
+            currentToken.clear();
+            currentState = AFTER_OPERAND;
+            i--;
+        }
+    }
+
+    void handle_after_operator(List<Lexem>& lexems, State& currentState, std::string& currentToken,
+        LStack<char>& brackets, const std::string& expression, size_t i, char c) {
+        if (std::isdigit(c)) {
+            currentToken += c;
+            currentState = IN_NUMBER;
+        }
+        else if (std::isalpha(c) || c == '_') {
+            currentToken += c;
+            currentState = IN_VARIABLE;
+        }
+        else if (c == '(' || c == '[' || c == '{') {
+            brackets.push(c);
+            lexems.push_back(Lexem(std::string(1, c), get_bracket_type(c, true)));
+            currentState = AFTER_OPEN_BRACKET;
+        }
+        else if (c == '|') {
+            brackets.push(c);
+            lexems.push_back(Lexem("abs", Function, DBL_MAX, -1, std::abs));
+            lexems.push_back(Lexem("(", OpenBracket));
+            currentState = AFTER_OPEN_BRACKET;
+        }
+        else if (c == '-') {
+            print_error(expression, "Unexpected unary minus after the operator", i);
+        }
+        else if (is_closed_bracket(c)) {
+            print_error(expression, "Unexcepted closed bracket", i);
+        }
+        else if (is_operator(c)) {
+            print_error(expression, "Unexcepted operator", i);
+        }
+        else {
+            print_error(expression, "Unexcepted symbol", i);
+        }
+    }
+
+    void handle_after_un_operator(List<Lexem>& lexems, State& currentState, std::string& currentToken,
+        LStack<char>& brackets, const std::string& expression, size_t i, char c) {
+        if (std::isdigit(c)) {
+            currentToken += c;
+            currentState = IN_NUMBER;
+        }
+        else if (std::isalpha(c) || c == '_') {
+            currentToken += c;
+            currentState = IN_VARIABLE;
+        }
+        else if (c == '(' || c == '[' || c == '{') {
+            brackets.push(c);
+            lexems.push_back(Lexem(std::string(1, c), get_bracket_type(c, true)));
+            currentState = AFTER_OPEN_BRACKET;
+        }
+        else if (c == '|') {
+            brackets.push(c);
+            lexems.push_back(Lexem("abs", Function, DBL_MAX, -1, std::abs));
+            lexems.push_back(Lexem("(", OpenBracket));
+            currentState = AFTER_OPEN_BRACKET;
+        }
+        else if (is_closed_bracket(c)) {
+            print_error(expression, "Unexcepted closed bracket", i);
+        }
+        else if (is_operator(c)) {
+            print_error(expression, "Unexcepted operator", i);
+        }
+        else {
+            print_error(expression, "Unexpected symbol", i);
+        }
+    }
+
+    void handle_after_open_bracket(List<Lexem>& lexems, State& currentState, std::string& currentToken,
+        LStack<char>& brackets, const std::string& expression, size_t i, char c) {
+        if (std::isdigit(c)) {
+            currentToken += c;
+            currentState = IN_NUMBER;
+        }
+        else if (std::isalpha(c) || c == '_') {
+            currentToken += c;
+            currentState = IN_VARIABLE;
+        }
+        else if (c == '(' || c == '[' || c == '{') {
+            brackets.push(c);
+            lexems.push_back(Lexem(std::string(1, c), get_bracket_type(c, true)));
+        }
+        else if (c == '|') {
+            brackets.push(c);
+            lexems.push_back(Lexem("abs", Function, DBL_MAX, -1, std::abs));
+            lexems.push_back(Lexem("(", OpenBracket));
+            currentState = AFTER_OPEN_BRACKET;
+        }
+        else if (c == '-') {
+            lexems.push_back(Lexem("~", UnOperator));
+            currentState = AFTER_UN_OPERATOR;
+        }
+        else if (is_closed_bracket(c)) {
+            print_error(expression, "Unexcepted closed bracket", i);
+        }
+        else if (is_operator(c) && c != '-') {
+            print_error(expression, "Unexcepted operator", i);
+        }
+        else {
+            print_error(expression, "Unexpected symbol", i);
+        }
+    }
+
+    void handle_after_closed_bracket(List<Lexem>& lexems, State& currentState, std::string& currentToken,
+        LStack<char>& brackets, const std::string& expression, size_t i, char c) {
+        if (c == ')' || c == ']' || c == '}') {
+            if (!brackets.is_empty() && brackets.top() == get_matching_bracket(c)) {
+                brackets.pop();
+            }
+            else {
+                if (brackets.is_empty())
+                    print_error(expression, "Unexpected closed bracket", i);
+                print_error(expression, "Wrong type of bracket", i);
+            }
+            lexems.push_back(Lexem(std::string(1, c), get_bracket_type(c, false)));
+        }
+        else if (c == '|') {
+            if (!brackets.is_empty() && brackets.top() == '|') {
+                brackets.pop();
+            }
+            else {
+                if (brackets.is_empty())
+                    print_error(expression, "Unexpected closed bracket", i);
+                print_error(expression, "Wrong type of bracket", i);
+            }
+            lexems.push_back(Lexem(")", ClosedBracket));
+            currentState = AFTER_CLOSED_BRACKET;
+        }
+        else if (is_operator(c)) {
+            lexems.push_back(Lexem(std::string(1, c), Operator));
+            currentState = AFTER_OPERATOR;
+        }
+        else if (is_valid_variable_char(c)) {
+            print_error(expression, "Unexcepted operand", i);
+        }
+        else {
+            print_error(expression, "Unexpected symbol", i);
+        }
+    }
+
+    void handle_after_function(List<Lexem>& lexems, State& currentState, std::string& currentToken,
+        LStack<char>& brackets, const std::string& expression, size_t i, char c) {
+        if (c == '(' || c == '[' || c == '{') {
+            brackets.push(c);
+            lexems.push_back(Lexem(std::string(1, c), OpenBracket));
+            currentState = AFTER_OPEN_BRACKET;
+        }
+        else if (c == '|') {
+            brackets.push(c);
+            lexems.push_back(Lexem("abs", Function, DBL_MAX, -1, std::abs));
+            lexems.push_back(Lexem("(", OpenBracket));
+            currentState = AFTER_OPEN_BRACKET;
+        }
+        else {
+            print_error(expression, "There is no open bracket after the function", i - 1);
+        }
+    }
+
+    void handle_after_operand(List<Lexem>& lexems, State& currentState, std::string& currentToken,
+        LStack<char>& brackets, const std::string& expression, size_t i, char c) {
+        if (c == ')' || c == ']' || c == '}') {
+            if (!brackets.is_empty() && brackets.top() == get_matching_bracket(c)) {
+                brackets.pop();
+            }
+            else {
+                if (brackets.is_empty())
+                    print_error(expression, "Unexpected closed bracket", i);
+                print_error(expression, "Wrong type of bracket", i);
+            }
+            lexems.push_back(Lexem(std::string(1, c), get_bracket_type(c, false)));
+            currentState = AFTER_CLOSED_BRACKET;
+        }
+        else if (c == '|') {
+            if (!brackets.is_empty() && brackets.top() == '|') {
+                brackets.pop();
+            }
+            else {
+                print_error(expression, "Wrong type of bracket", i);
+            }
+            lexems.push_back(Lexem(")", ClosedBracket));
+            currentState = AFTER_CLOSED_BRACKET;
+        }
+        else if (is_operator(c)) {
+            lexems.push_back(Lexem(std::string(1, c), Operator));
+            currentState = AFTER_OPERATOR;
+        }
+        else if (is_valid_variable_char(c)) {
+            print_error(expression, "Unexcepted operand", i);
+        }
+        else if (c == '(' || c == '[' || c == '{') {
+            print_error(expression, "Unexpected open bracket", i);
+        }
+        else {
+            print_error(expression, "Unexpected symbol", i);
+        }
+    }
+
+    void handle_remaining_token(List<Lexem>& lexems, State& currentState,
+        std::string& currentToken) {
+        if (!currentToken.empty()) {
+            if (currentState == IN_NUMBER) {
+                lexems.push_back(Lexem(currentToken, Constant, std::stod(currentToken)));
+            }
+            else if (currentState == IN_VARIABLE) {
+                if (is_function(currentToken)) {
+                    if (currentToken == "sin") {
+                        Lexem lex("sin", Function, DBL_MAX, -1, std::sin);
+                        lexems.push_back(lex);
+                    }
+                    else if (currentToken == "cos") {
+                        Lexem lex("cos", Function, DBL_MAX, -1, std::cos);
+                        lexems.push_back(lex);
+                    }
+                    else if (currentToken == "tg") {
+                        Lexem lex("tg", Function, DBL_MAX, -1, std::tan);
+                        lexems.push_back(lex);
+                    }
+                    currentState = AFTER_FUNCTION;
+                    currentToken.clear();
+                }
+                else {
+                    lexems.push_back(Lexem(currentToken, Variable));
+                }
+            }
+        }
+    }
+
+    void validate_final_state(State currentState, const std::string& expression) {
+        if (currentState == AFTER_OPERATOR) {
+            print_error(expression, "Expression can not ends with operator", expression.length() - 1);
+        }
+        else if (currentState == AFTER_UN_OPERATOR) {
+            print_error(expression, "Expression can not ends with unary operator", expression.length() - 1);
+        }
+        else if (currentState == AFTER_OPEN_BRACKET) {
+            print_error(expression, "Expression can not ends with unclosed bracket", expression.length() - 1);
+        }
+        else if (currentState == AFTER_FUNCTION) {
+            print_error(expression, "Expression can not ends with function", expression.length() - 1);
+        }
+        else if (currentState == START) {
+            print_error(expression, "Expression can not be empty", expression.length() - 1);
         }
     }
 
@@ -55,7 +386,39 @@ namespace Parser {
         std::string currentToken;
         LStack<char> brackets;
 
-        // добавить состояние AFTER_OPERAND
+        for (size_t i = 0; i < expression.length(); i++) {
+            char c = expression[i];
+            if (c == ' ') continue;
+
+            switch (currentState) {
+            case START: handle_start(lexems, currentState, currentToken, brackets, expression, i, c); break;
+            case IN_NUMBER: handle_in_number(lexems, currentState, currentToken, brackets, expression, i, c); break;
+            case IN_VARIABLE: handle_in_variable(lexems, currentState, currentToken, brackets, expression, i, c); break;
+            case AFTER_OPERATOR: handle_after_operator(lexems, currentState, currentToken, brackets, expression, i, c); break;
+            case AFTER_UN_OPERATOR: handle_after_un_operator(lexems, currentState, currentToken, brackets, expression, i, c); break;
+            case AFTER_OPEN_BRACKET: handle_after_open_bracket(lexems, currentState, currentToken, brackets, expression, i, c); break;
+            case AFTER_CLOSED_BRACKET: handle_after_closed_bracket(lexems, currentState, currentToken, brackets, expression, i, c); break;
+            case AFTER_FUNCTION: handle_after_function(lexems, currentState, currentToken, brackets, expression, i, c); break;
+            case AFTER_OPERAND: handle_after_operand(lexems, currentState, currentToken, brackets, expression, i, c); break;
+            }
+        }
+
+        if (!brackets.is_empty()) {
+            print_error(expression, "Missing closing bracket", expression.length());
+        }
+
+        handle_remaining_token(lexems, currentState, currentToken);
+        validate_final_state(currentState, expression);
+
+        return lexems;
+    }
+
+/*
+    List<Lexem> parse(std::string expression) {
+        List<Lexem> lexems;
+        State currentState = START;
+        std::string currentToken;
+        LStack<char> brackets;
 
         for (size_t i = 0; i < expression.length(); i++) {
             char c = expression[i];
@@ -76,26 +439,26 @@ namespace Parser {
                 }
                 else if (c == '(' || c == '[' || c == '{') {
                     brackets.push(c);
-                    lexems.push_back(Lexem(std::string(1, c), getBracketType(c, true)));
+                    lexems.push_back(Lexem(std::string(1, c), get_bracket_type(c, true)));
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c == '|') {
                     brackets.push(c);
-                    lexems.push_back(Lexem("abs", Function));
+                    lexems.push_back(Lexem("abs", Function, DBL_MAX, -1, std::abs));
                     lexems.push_back(Lexem("(", OpenBracket));
                     currentState = AFTER_OPEN_BRACKET;
                 }
-                else if (isOperator(c)) {
+                else if (is_operator(c)) {
                     if (c == '-' && lexems.is_empty()) {
                         lexems.push_back(Lexem("~", UnOperator));
                         currentState = AFTER_UN_OPERATOR;
                     }
                     else {
-                        throw std::logic_error("Unexpected operator at position " + std::to_string(i));
+                        print_error(expression, "Unexpected operator", i);
                     }
                 }
                 else {
-                    throw std::logic_error("Unknown symbol at position " + std::to_string(i));
+                    print_error(expression, "Unknown symbol", i);
                 }
                 break;
 
@@ -106,80 +469,39 @@ namespace Parser {
                 else {
                     lexems.push_back(Lexem(currentToken, Constant, std::stod(currentToken)));
                     currentToken.clear();
-
-                    if (c == ')' || c == ']' || c == '}') {
-                        if (brackets.is_empty() || brackets.top() == getMatchingBracket(c)) {
-                            brackets.pop();
-                        }
-                        else {
-                            throw std::logic_error("Wrong type of bracket " + std::to_string(i));
-                        }
-                        lexems.push_back(Lexem(std::string(1, c), getBracketType(c, false)));
-                        currentState = AFTER_CLOSED_BRACKET;
-                    }
-                    else if (c == '|') {
-                        if (brackets.is_empty() || brackets.top() == '|') {
-                            brackets.pop();
-                        }
-                        else {
-                            throw std::logic_error("Wrong type of bracket " + std::to_string(i));
-                        }
-                        lexems.push_back(Lexem(")", ClosedBracket));
-                        currentState = AFTER_CLOSED_BRACKET;
-                    }
-                    else if (isOperator(c)) {
-                        lexems.push_back(Lexem(std::string(1, c), Operator));
-                        currentState = AFTER_OPERATOR;
-                    }
-                    else {
-                        //currentState = AFTER_CLOSED_BRACKET;
-                        throw std::logic_error("There is no operator after the operand: " + std::to_string(i));
-                    }
+                    currentState = AFTER_OPERAND;
+                    i--;
                 }
                 break;
 
             case IN_VARIABLE:
-                if (isFunction(currentToken)) {
-                    lexems.push_back(Lexem(currentToken, Function));
+                if (is_function(currentToken)) {
+                    if (currentToken == "sin") {
+                        Lexem lex("sin", Function, DBL_MAX, -1, std::sin);
+                        lexems.push_back(lex);
+                    }
+                    else if (currentToken == "cos") {
+                        Lexem lex("cos", Function, DBL_MAX, -1, std::cos);
+                        lexems.push_back(lex);
+                    }
+                    else if (currentToken == "tg") {
+                        Lexem lex("tg", Function, DBL_MAX, -1, std::tan);
+                        lexems.push_back(lex);
+                    }
                     currentState = AFTER_FUNCTION;
                     currentToken.clear();
                     i--;
                     break;
                 }
-                if (isValidVariableChar(c)) {
+                if (is_valid_variable_char(c)) {
                     currentToken += c;
                     break;
                 }
                 else {
                     lexems.push_back(Lexem(currentToken, Variable));
-                    if (isOperator(c)) {
-                        currentState = AFTER_OPERATOR;
-                        lexems.push_back(Lexem(std::string(1, c), Operator));
-                    }
-                    else if (c == ')' || c == ']' || c == '}') {
-                        if (brackets.is_empty() || brackets.top() == getMatchingBracket(c)) {
-                            brackets.pop();
-                        }
-                        else {
-                            throw std::logic_error("Wrong type of bracket " + std::to_string(i));
-                        }
-                        currentState = AFTER_CLOSED_BRACKET;
-                        lexems.push_back(Lexem(std::string(1, c), ClosedBracket));
-                    }
-                    else if (c == '|') {
-                        if (brackets.is_empty() || brackets.top() == '|') {
-                            brackets.pop();
-                        }
-                        else {
-                            throw std::logic_error("Wrong type of bracket " + std::to_string(i));
-                        }
-                        lexems.push_back(Lexem(")", ClosedBracket));
-                        currentState = AFTER_CLOSED_BRACKET;
-                    }
-                    else {
-                        throw std::logic_error("There is no operator after the operand: " + std::to_string(i));
-                    }
                     currentToken.clear();
+                    currentState = AFTER_OPERAND;
+                    i--;
                 }
                 break;
 
@@ -194,22 +516,26 @@ namespace Parser {
                 }
                 else if (c == '(' || c == '[' || c == '{') {
                     brackets.push(c);
-                    lexems.push_back(Lexem(std::string(1, c), getBracketType(c, true)));
+                    lexems.push_back(Lexem(std::string(1, c), get_bracket_type(c, true)));
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c == '|') {
                     brackets.push(c);
-                    lexems.push_back(Lexem("abs", Function));
+                    lexems.push_back(Lexem("abs", Function, DBL_MAX, -1, std::abs));
                     lexems.push_back(Lexem("(", OpenBracket));
                     currentState = AFTER_OPEN_BRACKET;
                 }
-                else if (c == '-' && expression[i - 1] != ' ') {
-                    //lexems.push_back(Lexem("~", UnOperator));
-                    //currentState = AFTER_UN_OPERATOR;
-                    throw std::logic_error("Unexpected unary minus after the operator: " + std::to_string(i));
+                else if (c == '-') {
+                    print_error(expression, "Unexpected unary minus after the operator", i);
+                }
+                else if (is_closed_bracket(c)) {
+                    print_error(expression, "Unexcepted closed bracket", i);
+                }
+                else if (is_operator(c)) {
+                    print_error(expression, "Unexcepted operator", i);
                 }
                 else {
-                    throw std::logic_error("There is no operand after the operator: " + std::to_string(i));
+                    print_error(expression, "Unexcepted symbol", i);
                 }
                 break;
 
@@ -224,17 +550,23 @@ namespace Parser {
                 }
                 else if (c == '(' || c == '[' || c == '{') {
                     brackets.push(c);
-                    lexems.push_back(Lexem(std::string(1, c), getBracketType(c, true)));
+                    lexems.push_back(Lexem(std::string(1, c), get_bracket_type(c, true)));
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else if (c == '|') {
                     brackets.push(c);
-                    lexems.push_back(Lexem("abs", Function));
+                    lexems.push_back(Lexem("abs", Function, DBL_MAX, -1, std::abs));
                     lexems.push_back(Lexem("(", OpenBracket));
                     currentState = AFTER_OPEN_BRACKET;
                 }
+                else if (is_closed_bracket(c)) {
+                    print_error(expression, "Unexcepted closed bracket", i);
+                }
+                else if (is_operator(c)) {
+                    print_error(expression, "Unexcepted operator", i);
+                }
                 else {
-                    throw std::logic_error("There is no operand after the unary operator: " + std::to_string(i));
+                    print_error(expression, "Unexpected symbol", i);
                 }
                 break;
 
@@ -249,11 +581,11 @@ namespace Parser {
                 }
                 else if (c == '(' || c == '[' || c == '{') {
                     brackets.push(c);
-                    lexems.push_back(Lexem(std::string(1, c), getBracketType(c, true)));
+                    lexems.push_back(Lexem(std::string(1, c), get_bracket_type(c, true)));
                 }
                 else if (c == '|') {
                     brackets.push(c);
-                    lexems.push_back(Lexem("abs", Function));
+                    lexems.push_back(Lexem("abs", Function, DBL_MAX, -1, std::abs));
                     lexems.push_back(Lexem("(", OpenBracket));
                     currentState = AFTER_OPEN_BRACKET;
                 }
@@ -261,37 +593,50 @@ namespace Parser {
                     lexems.push_back(Lexem("~", UnOperator));
                     currentState = AFTER_UN_OPERATOR;
                 }
+                else if (is_closed_bracket(c)) {
+                    print_error(expression, "Unexcepted closed bracket", i);
+                }
+                else if (is_operator(c) && c != '-') {
+                    print_error(expression, "Unexcepted operator", i);
+                }
                 else {
-                    throw std::logic_error("There is no operand after the open bracket: " + std::to_string(i));
+                    print_error(expression, "Unexpected symbol", i);
                 }
                 break;
 
             case AFTER_CLOSED_BRACKET:
                 if (c == ')' || c == ']' || c == '}') {
-                    if (brackets.is_empty() || brackets.top() == getMatchingBracket(c)) {
+                    if (!brackets.is_empty() && brackets.top() == get_matching_bracket(c)) {
                         brackets.pop();
                     }
                     else {
-                        throw std::logic_error("Wrong type of bracket " + std::to_string(i));
+                        if (brackets.is_empty())
+                            print_error(expression, "Unexpected closed bracket", i);
+                        print_error(expression, "Wrong type of bracket", i);
                     }
-                    lexems.push_back(Lexem(std::string(1, c), getBracketType(c, false)));
+                    lexems.push_back(Lexem(std::string(1, c), get_bracket_type(c, false)));
                 }
                 else if (c == '|') {
-                    if (brackets.is_empty() || brackets.top() == '|') {
+                    if (!brackets.is_empty() || brackets.top() == '|') {
                         brackets.pop();
                     }
                     else {
-                        throw std::logic_error("Wrong type of bracket " + std::to_string(i));
+                        if (brackets.is_empty()) 
+                            print_error(expression, "Unexpected closed bracket", i);
+                        print_error(expression, "Wrong type of bracket", i);
                     }
                     lexems.push_back(Lexem(")", ClosedBracket));
                     currentState = AFTER_CLOSED_BRACKET;
                 }
-                else if (isOperator(c)) {
+                else if (is_operator(c)) {
                     lexems.push_back(Lexem(std::string(1, c), Operator));
                     currentState = AFTER_OPERATOR;
                 }
+                else if (is_valid_variable_char(c)) {
+                    print_error(expression, "Unexcepted operand", i);
+                }
                 else {
-                    throw std::logic_error("There is no operator after the closed bracket: " + std::to_string(i));
+                    print_error(expression, "Unexpected symbol", i);
                 }
                 break;
 
@@ -303,22 +648,56 @@ namespace Parser {
                 }
                 else if (c == '|') {
                     brackets.push(c);
-                    lexems.push_back(Lexem("abs", Function));
+                    lexems.push_back(Lexem("abs", Function, DBL_MAX, -1, std::abs));
                     lexems.push_back(Lexem("(", OpenBracket));
                     currentState = AFTER_OPEN_BRACKET;
                 }
                 else {
-                    throw std::logic_error("There is no open bracket after the function: " + std::to_string(i));
+                    print_error(expression, "There is no open bracket after the function", i-1);
                 }
                 break;
 
-            case ERROR:
-                throw std::logic_error("Parser error at position " + std::to_string(i));
+            case AFTER_OPERAND:
+                if (c == ')' || c == ']' || c == '}') {
+                    if (!brackets.is_empty() || brackets.top() == get_matching_bracket(c)) {
+                        brackets.pop();
+                    }
+                    else {
+                        if (brackets.is_empty())
+                            print_error(expression, "Unexpected closed bracket", i);
+                        print_error(expression, "Wrong type of bracket", i);
+                    }
+                    lexems.push_back(Lexem(std::string(1, c), get_bracket_type(c, false)));
+                    currentState = AFTER_CLOSED_BRACKET;
+                }
+                else if (c == '|') {
+                    if (!brackets.is_empty() && brackets.top() == '|') {
+                        brackets.pop();
+                    }
+                    else {
+                        print_error(expression, "Wrong type of bracket", i);
+                    }
+                    lexems.push_back(Lexem(")", ClosedBracket));
+                    currentState = AFTER_CLOSED_BRACKET;
+                }
+                else if (is_operator(c)) {
+                    lexems.push_back(Lexem(std::string(1, c), Operator));
+                    currentState = AFTER_OPERATOR;
+                }
+                else if (is_valid_variable_char(c)) {
+                    print_error(expression, "Unexcepted operand", i);
+                }
+                else if (c == '(' || c == '[' || c == '{') {
+                    print_error(expression, "Unexpected open bracket", i);
+                }
+                else {
+                    print_error(expression, "Unexpected symbol", i);
+                } break;
             }
         }
 
         if (!brackets.is_empty()) {
-            throw std::logic_error("Missing closing bracket in the end");
+            print_error(expression, "Missing closing bracket", expression.length());
         }
 
         if (!currentToken.empty()) {
@@ -326,9 +705,21 @@ namespace Parser {
                 lexems.push_back(Lexem(currentToken, Constant, std::stod(currentToken)));
             }
             else if (currentState == IN_VARIABLE) {
-                if (isFunction(currentToken)) {
-                    lexems.push_back(Lexem(currentToken, Function));
+                if (is_function(currentToken)) {
+                    if (currentToken == "sin") {
+                        Lexem lex("sin", Function, DBL_MAX, -1, std::sin);
+                        lexems.push_back(lex);
+                    }
+                    else if (currentToken == "cos") {
+                        Lexem lex("cos", Function, DBL_MAX, -1, std::cos);
+                        lexems.push_back(lex);
+                    }
+                    else if (currentToken == "tg") {
+                        Lexem lex("tg", Function, DBL_MAX, -1, std::tan);
+                        lexems.push_back(lex);
+                    }
                     currentState = AFTER_FUNCTION;
+                    currentToken.clear();
                 }
                 else {
                     lexems.push_back(Lexem(currentToken, Variable));
@@ -337,19 +728,23 @@ namespace Parser {
         }
 
         if (currentState == AFTER_OPERATOR) {
-            throw std::logic_error("Expression ends with operator");
+            print_error(expression, "Expression can not ends with operator", expression.length()-1);
         }
         else if (currentState == AFTER_UN_OPERATOR) {
-            throw std::logic_error("Expression ends with unary operator");
+            print_error(expression, "Expression can not ends with unary operator", expression.length()-1);
         }
-        else if (currentState == AFTER_OPEN_BRACKET || currentState == AFTER_FUNCTION) {
-            throw std::logic_error("Expression ends with unclosed bracket or function");
+        else if (currentState == AFTER_OPEN_BRACKET) {
+            print_error(expression, "Expression can not ends with unclosed bracket", expression.length()-1);
+        }
+        else if (currentState == AFTER_FUNCTION) {
+            print_error(expression, "Expression can not ends with function", expression.length()-1);
         }
         else if (currentState == START) {
-            throw std::logic_error("Expression is empty");
+            print_error(expression, "Expression can not be empty", expression.length()-1);
         }
 
         return lexems;
     }
+*/
 }
 

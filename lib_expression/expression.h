@@ -82,11 +82,16 @@ public:
                 }
                 double val = stack.top(); stack.pop();
 
+                stack.push(lexem.function(val));
+                break;
+
+                /*
                 if (name == "sin") stack.push(std::sin(val));
                 else if (name == "cos") stack.push(std::cos(val));
                 else if (name == "tg") stack.push(std::tan(val));
                 else if (name == "abs") stack.push(std::abs(val));
                 break;
+                */
             }
 
             default:
