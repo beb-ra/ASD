@@ -13,8 +13,6 @@ struct Lexem {
     double value;
     int priority;
     double (*function)(double);
-    //Lexem(std::string _name = "", TypeLexem _type = None, double _value = DBL_MAX, int _priority = -1, double(*_function)(double) = nullptr) { /* ... */ }
-    /* ... */
 
     Lexem(std::string _name = "", TypeLexem _type = None, double _value = DBL_MAX,
         int _priority = -1, double(*_function)(double) = nullptr)

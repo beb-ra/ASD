@@ -139,22 +139,9 @@ TEST(TestExpressionLib, correct_create) {
 	Expression e(s);
 }
 
-TEST(TestExpressionLib, correct_operator_precedence) {
-	Expression e("2 + 3 * 4");
-	ASSERT_DOUBLE_EQ(e.calculate(), 14.0);
-
-	Expression e2("(2 + 3) * 4");
-	ASSERT_DOUBLE_EQ(e2.calculate(), 20.0);
-
-	Expression e3("2 * 3 ^ 2");
-	ASSERT_DOUBLE_EQ(e3.calculate(), 18.0);
-
-	Expression e4("(2 * 3) ^ 2");
-	ASSERT_DOUBLE_EQ(e4.calculate(), 36.0);
-}
-
 TEST(TestExpressionLib, correct_calculate_expressions) {
 	Expression e("2 * (3 + 4) - 5 / 2");
+	e.print();
 	ASSERT_DOUBLE_EQ(e.calculate(), 11.5);
 
 	Expression e2("sin(0) + cos(0) * 2");
@@ -191,10 +178,10 @@ TEST(TestExpressionLib, correct_different_brackets) {
 
 TEST(TestExpressionLib, throw_uncorrect_calculate) {
 	Expression e1("5 / 0");
-	ASSERT_THROW(e1.calculate(), std::runtime_error);
+	ASSERT_THROW(e1.calculate(), std::logic_error);
 
 	Expression e2("x + 5");
-	ASSERT_THROW(e2.calculate(), std::runtime_error);
+	ASSERT_THROW(e2.calculate(), std::logic_error);
 
 	e2.set_variables("x", 3);
 	ASSERT_DOUBLE_EQ(e2.calculate(), 8.0);
@@ -212,4 +199,87 @@ TEST(TestExpressionLib, correct_calculate) {
 	e.set_variables("b", 6);
 	e.set_variables("c", 7);
 	ASSERT_DOUBLE_EQ(e.calculate(), 37.0);
+}
+
+TEST(TestExpressionLib, correct_calculate_2) {
+	Expression e("2 ^ 3 + 3 ^ 2 - 4 * 5 / 2");
+	e.print();
+	ASSERT_DOUBLE_EQ(e.calculate(), 7);
+
+	Expression e2("|x - y| * (a + b) / c");
+	e2.set_variables("x", 10);
+	e2.set_variables("y", 7);
+	e2.set_variables("a", 3);
+	e2.set_variables("b", 2);
+	e2.set_variables("c", 5);
+	ASSERT_DOUBLE_EQ(e2.calculate(), 3);
+}
+
+TEST(TestExpressionLib, correct_calculate_unary_minus) {
+	Expression e("-(-x)");
+	e.set_variables("x", 5);
+	ASSERT_DOUBLE_EQ(e.calculate(), 5.0);
+
+	Expression e2("(-x) * (-y)");
+	e2.set_variables("x", 3);
+	e2.set_variables("y", 4);
+	ASSERT_DOUBLE_EQ(e2.calculate(), 12.0);
+
+	Expression e3("-x * (-y)");
+	e3.set_variables("x", 3);
+	e3.set_variables("y", 4);
+	ASSERT_DOUBLE_EQ(e3.calculate(), 12.0);
+
+	Expression e4("-(x + y) * (-z)");
+	e4.set_variables("x", 2);
+	e4.set_variables("y", 3);
+	e4.set_variables("z", 4);
+	ASSERT_DOUBLE_EQ(e4.calculate(), 20.0);
+
+	Expression e5("x^(-y)");
+	e5.set_variables("x", 2);
+	e5.set_variables("y", 2);
+	ASSERT_DOUBLE_EQ(e5.calculate(), 0.25);
+}
+
+TEST(TestExpressionLib, correct_calculate_absolute_value) {
+	Expression e("||x| - |-y||");
+	e.set_variables("x", -3);
+	e.set_variables("y", 5);
+	ASSERT_DOUBLE_EQ(e.calculate(), 2);
+
+	Expression e2("|x - y| - |y - x|");
+	e2.set_variables("x", -10);
+	e2.set_variables("y", 7);
+	ASSERT_DOUBLE_EQ(e2.calculate(), 0.0);
+}
+
+TEST(TestExpressionLib, correct_calculate_operator_precedence) {
+	Expression e("x + y * z ^ w");
+	e.set_variables("x", 1);
+	e.set_variables("y", 2);
+	e.set_variables("z", 3);
+	e.set_variables("w", 2);
+	ASSERT_DOUBLE_EQ(e.calculate(), 19.0);
+
+	Expression e2("x * y + z / w - t");
+	e2.set_variables("x", 3);
+	e2.set_variables("y", 4);
+	e2.set_variables("z", 10);
+	e2.set_variables("w", 2);
+	e2.set_variables("t", 5);
+	ASSERT_DOUBLE_EQ(e2.calculate(), 12.0);
+}
+
+TEST(TestExpressionLib, correct_calculate_same_precedence) {
+	Expression e("10 - 3 - 2");
+	ASSERT_DOUBLE_EQ(e.calculate(), 5.0);
+
+	Expression e2("12 / 3 / 2");
+	ASSERT_DOUBLE_EQ(e2.calculate(), 2.0);
+}
+
+TEST(TestExpressionLib, correct_calculate_power_precedence) {
+	Expression e1("-2^2");
+	ASSERT_DOUBLE_EQ(e1.calculate(), -4.0);
 }
