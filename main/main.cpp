@@ -69,21 +69,32 @@ std::istream& operator << (std::istream& in, TriangleMatrix<T>& num) { return in
 void handle_matrices();
 void handle_triangle_matrices();
 template <class T>
-Matrix<T> start_binary_operation(int, char, char, const Matrix<T>&, 
+Matrix<T> select_and_apply(int, char, char, const Matrix<T>&,
     const Matrix<T>&, const Matrix<T>&);
 template <class T>
 Matrix<T> start_scalar_operation(int, char, const Matrix<T>&, 
     const Matrix<T>&, const Matrix<T>&);
 template <class T>
-TriangleMatrix<T> start_binary_operation(int, char, char, 
+TriangleMatrix<T> select_and_apply(int, char, char,
     const TriangleMatrix<T>&, const TriangleMatrix<T>&, const TriangleMatrix<T>&);
 template <class T>
 TriangleMatrix<T> start_scalar_operation(int, char, 
     const TriangleMatrix<T>&, const TriangleMatrix<T>&, const TriangleMatrix<T>&);
+//template <class T>
+//void start_matrix_operations(Matrix<T>&, Matrix<T>&, Matrix<T>&);
+//template <class T>
+//void start_matrix_operations(TriangleMatrix<T>&, TriangleMatrix<T>&, TriangleMatrix<T>&);
 template <class T>
-void start_matrix_operations(Matrix<T>&, Matrix<T>&, Matrix<T>&);
+void initialize_matrix_C(Matrix<T>& matrixA, Matrix<T>& matrixB,
+    Matrix<T>& matrixC);
 template <class T>
-void start_matrix_operations(TriangleMatrix<T>&, TriangleMatrix<T>&, 
+void initialize_matrix_C(TriangleMatrix<T>& matrixA, TriangleMatrix<T>& matrixB,
+    TriangleMatrix<T>& matrixC);
+template <class T>
+void process_matrix_operations(Matrix<T>&, Matrix<T>&,
+    Matrix<T>&);
+template <class T>
+void process_matrix_operations(TriangleMatrix<T>&, TriangleMatrix<T>&,
     TriangleMatrix<T>&);
 int enter_matrix_type();
 int* enter_matrix_size(int);
@@ -112,7 +123,7 @@ int select_matrix_operations();
 char* select_matrices();
 char select_matrix(bool);
 template <class T>
-Matrix<T> start_operation_on_matrices(int, const Matrix<T>&, 
+Matrix<T> start_bynary_operation_on_matrices(int, const Matrix<T>&,
     const Matrix<T>&);
 template <class T>
 TriangleMatrix<T> start_operation_on_matrices(int, 
@@ -148,11 +159,9 @@ void handle_matrices() {
     enter_matrix(matrixB, MATRIX_B);
     system("cls");
 
-    print_matrix(matrixA, MATRIX_A);
-    print_matrix(matrixB, MATRIX_B);
-
     Matrix<int> matrixC;
-    start_matrix_operations(matrixA, matrixB, matrixC);
+    initialize_matrix_C(matrixA, matrixB, matrixC);
+    process_matrix_operations(matrixA, matrixB, matrixC);
 }
 
 void handle_triangle_matrices() {
@@ -165,11 +174,9 @@ void handle_triangle_matrices() {
     enter_matrix(matrixB, MATRIX_B);
     system("cls");
 
-    print_matrix(matrixA, MATRIX_A);
-    print_matrix(matrixB, MATRIX_B);
-
     TriangleMatrix<int> matrixC;
-    start_matrix_operations(matrixA, matrixB, matrixC);
+    initialize_matrix_C(matrixA, matrixB, matrixC);
+    process_matrix_operations(matrixA, matrixB, matrixC);
 }
 
 template <class T>
@@ -265,69 +272,60 @@ void save_result(char matrix_char, TriangleMatrix<T>& matrixA, TriangleMatrix<T>
 }
 
 template <class T>
-void start_matrix_operations(Matrix<T>& matrixA, Matrix<T>& matrixB, Matrix<T>& matrixC) {
-    int operation = select_matrix_operations();
+void initialize_matrix_C(Matrix<T>& matrixA, Matrix<T>& matrixB, Matrix<T>& matrixC) {
+    while (true) {
+        print_matrix(matrixA, MATRIX_A);
+        print_matrix(matrixB, MATRIX_B);
 
-    if (operation >= ADD && operation <= MULT) {
-        matrixC = start_operation_on_matrices(operation, matrixA, matrixB);
-    }
-    else if (operation == MULT_SCALAR) {
-        int scalar = select_scalar();
-        char matrix_char = select_matrix(false);
-
-        matrixC = start_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
-    }
-    else if (operation == EXIT) return;
-    print_result(matrixA, matrixB, matrixC, matrixC);
-
-    Matrix<T> matrix;
-    while (1) {
         int operation = select_matrix_operations();
 
         if (operation >= ADD && operation <= MULT) {
-            char* mass3 = select_matrices();
-            matrix = start_binary_operation(operation, mass3[0], mass3[1], matrixA, matrixB, matrixC);
-            delete mass3;
+            try {
+                matrixC = start_binary_operation(operation, matrixA, matrixB);
+                break;
+            }
+            catch (const std::invalid_argument& e) {
+                std::cerr << "Matrix operation error: " << e.what() << std::endl;
+                system("pause");
+                system("cls");
+                continue;
+            }
         }
         else if (operation == MULT_SCALAR) {
             int scalar = select_scalar();
-            char matrix_char = select_matrix(true);
+            char matrix_char = select_matrix(false);
 
-            matrix = start_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
+            matrixC = start_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
+            print_result(matrixA, matrixB, matrixC, matrixC);
+            break;
         }
         else if (operation == EXIT) return;
-        print_result(matrixA, matrixB, matrixC, matrix);
-        std::cout << "\nSAVE\n";
-        std::cout << "Select which matrix to save the result\n";
-        char matrix_char = select_matrix(true);
-        save_result(matrix_char, matrixA, matrixB, matrixC, matrix);
     }
 }
 
 template <class T>
-void start_matrix_operations(TriangleMatrix<T>& matrixA, TriangleMatrix<T>& matrixB, 
-    TriangleMatrix<T>& matrixC) {
-    int operation = select_matrix_operations();
+void process_matrix_operations(Matrix<T>& matrixA, Matrix<T>& matrixB, Matrix<T>& matrixC) {
+    Matrix<T> matrix;
+    while (true) {
+        system("cls");
+        print_matrix(matrixA, MATRIX_A);
+        print_matrix(matrixB, MATRIX_B);
+        print_matrix(matrixC, MATRIX_C);
 
-    if (operation >= ADD && operation <= MULT) {
-        matrixC = start_operation_on_matrices(operation, matrixA, matrixB);
-    }
-    else if (operation == MULT_SCALAR) {
-        int scalar = select_scalar();
-        char matrix_char = select_matrix(false);
-
-        matrixC = start_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
-    }
-    else if (operation == EXIT) return;
-    print_result(matrixA, matrixB, matrixC, matrixC);
-
-    TriangleMatrix<T> matrix;
-    while (1) {
         int operation = select_matrix_operations();
 
         if (operation >= ADD && operation <= MULT) {
             char* mass3 = select_matrices();
-            matrix = start_binary_operation(operation, mass3[0], mass3[1], matrixA, matrixB, matrixC);
+            try {
+                matrix = select_and_apply(operation, mass3[0], mass3[1], matrixA, matrixB, matrixC);
+            }
+            catch (const std::invalid_argument& e) {
+                std::cerr << "Matrix operation error: " << e.what() << std::endl;
+                system("pause");
+                system("cls");
+                delete mass3;
+                continue;
+            }
             delete mass3;
         }
         else if (operation == MULT_SCALAR) {
@@ -344,6 +342,223 @@ void start_matrix_operations(TriangleMatrix<T>& matrixA, TriangleMatrix<T>& matr
         save_result(matrix_char, matrixA, matrixB, matrixC, matrix);
     }
 }
+
+/*
+template <class T>
+void start_matrix_operations(Matrix<T>& matrixA, Matrix<T>& matrixB, Matrix<T>& matrixC) {
+    while (true) {
+        print_matrix(matrixA, MATRIX_A);
+        print_matrix(matrixB, MATRIX_B);
+
+        int operation = select_matrix_operations();
+
+        if (operation >= ADD && operation <= MULT) {
+            try {
+                matrixC = start_binary_operation(operation, matrixA, matrixB);
+                break;
+            }
+            catch (const std::invalid_argument& e) {
+                std::cerr << "Matrix operation error: " << e.what() << std::endl;
+                system("pause");
+                system("cls");
+                continue;
+            }
+        }
+        else if (operation == MULT_SCALAR) {
+            int scalar = select_scalar();
+            char matrix_char = select_matrix(false);
+
+            matrixC = start_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
+            print_result(matrixA, matrixB, matrixC, matrixC);
+            break;
+        }
+        else if (operation == EXIT) return;
+    }
+
+    Matrix<T> matrix;
+    while (true) {
+        system("cls");
+        print_matrix(matrixA, MATRIX_A);
+        print_matrix(matrixB, MATRIX_B);
+        print_matrix(matrixC, MATRIX_C);
+
+        int operation = select_matrix_operations();
+
+        if (operation >= ADD && operation <= MULT) {
+            char* mass3 = select_matrices();
+            try {
+                matrix = select_and_apply(operation, mass3[0], mass3[1], matrixA, matrixB, matrixC);
+            }
+            catch (const std::invalid_argument& e) {
+                std::cerr << "Matrix operation error: " << e.what() << std::endl;
+                system("pause");
+                system("cls");
+                delete mass3;
+                continue;
+            }
+            delete mass3;
+        }
+        else if (operation == MULT_SCALAR) {
+            int scalar = select_scalar();
+            char matrix_char = select_matrix(true);
+
+            matrix = start_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
+        }
+        else if (operation == EXIT) return;
+        print_result(matrixA, matrixB, matrixC, matrix);
+        std::cout << "\nSAVE\n";
+        std::cout << "Select which matrix to save the result\n";
+        char matrix_char = select_matrix(true);
+        save_result(matrix_char, matrixA, matrixB, matrixC, matrix);
+    }
+}
+*/
+
+template <class T>
+void initialize_matrix_C(TriangleMatrix<T>& matrixA, TriangleMatrix<T>& matrixB,
+    TriangleMatrix<T>& matrixC) {
+    while (true) {
+        print_matrix(matrixA, MATRIX_A);
+        print_matrix(matrixB, MATRIX_B);
+
+        int operation = select_matrix_operations();
+
+        if (operation >= ADD && operation <= MULT) {
+            try {
+                matrixC = start_binary_operation(operation, matrixA, matrixB);
+                //matrixC = select_and_apply(operation, 'A', 'B', matrixA, matrixB, matrixC);
+                break;
+            }
+            catch (const std::invalid_argument& e) {
+                std::cerr << "Matrix operation error: " << e.what() << std::endl;
+                system("pause");
+                system("cls");
+                continue;
+            }
+        }
+        else if (operation == MULT_SCALAR) {
+            int scalar = select_scalar();
+            char matrix_char = select_matrix(false);
+
+            matrixC = start_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
+            print_result(matrixA, matrixB, matrixC, matrixC);
+            break;
+        }
+        else if (operation == EXIT) return;
+    }
+}
+
+template <class T>
+void process_matrix_operations(TriangleMatrix<T>& matrixA, TriangleMatrix<T>& matrixB,
+    TriangleMatrix<T>& matrixC) {
+    TriangleMatrix<T> matrix;
+    while (true) {
+        system("cls");
+        print_matrix(matrixA, MATRIX_A);
+        print_matrix(matrixB, MATRIX_B);
+        print_matrix(matrixC, MATRIX_C);
+        int operation = select_matrix_operations();
+
+        if (operation >= ADD && operation <= MULT) {
+            char* mass3 = select_matrices();
+            try {
+                matrix = select_and_apply(operation, mass3[0], mass3[1], matrixA, matrixB, matrixC);
+            }
+            catch (const std::invalid_argument& e) {
+                std::cerr << "Matrix operation error: " << e.what() << std::endl;
+                system("pause");
+                system("cls");
+                delete mass3;
+                continue;
+            }
+            delete mass3;
+        }
+        else if (operation == MULT_SCALAR) {
+            int scalar = select_scalar();
+            char matrix_char = select_matrix(true);
+
+            matrix = start_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
+        }
+        else if (operation == EXIT) return;
+        print_result(matrixA, matrixB, matrixC, matrix);
+        std::cout << "\nSAVE\n";
+        std::cout << "Select which matrix to save the result\n";
+        char matrix_char = select_matrix(true);
+        save_result(matrix_char, matrixA, matrixB, matrixC, matrix);
+    }
+}
+
+/*
+template <class T>
+void start_matrix_operations(TriangleMatrix<T>& matrixA, TriangleMatrix<T>& matrixB, 
+    TriangleMatrix<T>& matrixC) {
+    while (true) {
+        print_matrix(matrixA, MATRIX_A);
+        print_matrix(matrixB, MATRIX_B);
+
+        int operation = select_matrix_operations();
+
+        if (operation >= ADD && operation <= MULT) {
+            try {
+                matrixC = start_binary_operation(operation, matrixA, matrixB);
+                //matrixC = select_and_apply(operation, 'A', 'B', matrixA, matrixB, matrixC);
+                break;
+            }
+            catch (const std::invalid_argument& e) {
+                std::cerr << "Matrix operation error: " << e.what() << std::endl;
+                system("pause");
+                system("cls");
+                continue;
+            }
+        }
+        else if (operation == MULT_SCALAR) {
+            int scalar = select_scalar();
+            char matrix_char = select_matrix(false);
+
+            matrixC = start_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
+            print_result(matrixA, matrixB, matrixC, matrixC);
+            break;
+        }
+        else if (operation == EXIT) return;
+    }
+
+    TriangleMatrix<T> matrix;
+    while (true) {
+        system("cls");
+        print_matrix(matrixA, MATRIX_A);
+        print_matrix(matrixB, MATRIX_B);
+        print_matrix(matrixC, MATRIX_C);
+        int operation = select_matrix_operations();
+
+        if (operation >= ADD && operation <= MULT) {
+            char* mass3 = select_matrices();
+            try {
+                matrix = select_and_apply(operation, mass3[0], mass3[1], matrixA, matrixB, matrixC);
+            }
+            catch (const std::invalid_argument& e) {
+                std::cerr << "Matrix operation error: " << e.what() << std::endl;
+                system("pause");
+                system("cls");
+                delete mass3;
+                continue;
+            }
+            delete mass3;
+        }
+        else if (operation == MULT_SCALAR) {
+            int scalar = select_scalar();
+            char matrix_char = select_matrix(true);
+
+            matrix = start_scalar_operation(scalar, matrix_char, matrixA, matrixB, matrixC);
+        }
+        else if (operation == EXIT) return;
+        print_result(matrixA, matrixB, matrixC, matrix);
+        std::cout << "\nSAVE\n";
+        std::cout << "Select which matrix to save the result\n";
+        char matrix_char = select_matrix(true);
+        save_result(matrix_char, matrixA, matrixB, matrixC, matrix);
+    }
+}
+*/
 
 template <class T>
 TriangleMatrix<T> start_scalar_operation(int scalar, char matrix_char, const TriangleMatrix<T>& matrixA,
@@ -517,7 +732,7 @@ int select_matrix_operations() {
 }
 
 template <class T>
-Matrix<T> start_operation_on_matrices(int operation, const Matrix<T>& matrix1, const Matrix<T>& matrix2) {
+Matrix<T> start_binary_operation(int operation, const Matrix<T>& matrix1, const Matrix<T>& matrix2) {
     Matrix<T> matrix;
 
     switch (operation) {
@@ -526,7 +741,7 @@ Matrix<T> start_operation_on_matrices(int operation, const Matrix<T>& matrix1, c
             matrix = matrix1 + matrix2;
         }
         catch (const std::invalid_argument& e) {
-            std::cerr << "Matrix addition error: " << e.what() << std::endl;
+            throw;
         }
 
     } break;
@@ -535,7 +750,7 @@ Matrix<T> start_operation_on_matrices(int operation, const Matrix<T>& matrix1, c
             matrix = matrix1 - matrix2;
         }
         catch (const std::invalid_argument& e) {
-            std::cerr << "Matrix subtraction error: " << e.what() << std::endl;
+            throw;
         }
 
     } break;
@@ -544,7 +759,7 @@ Matrix<T> start_operation_on_matrices(int operation, const Matrix<T>& matrix1, c
             matrix = matrix1 * matrix2;
         }
         catch (const std::invalid_argument& e) {
-            std::cerr << "Matrix multiplication error: " << e.what() << std::endl;
+            throw;
         }
     }
     }
@@ -552,7 +767,7 @@ Matrix<T> start_operation_on_matrices(int operation, const Matrix<T>& matrix1, c
 }
 
 template <class T>
-TriangleMatrix<T> start_operation_on_matrices(int operation, const TriangleMatrix<T>& matrix1, 
+TriangleMatrix<T> start_binary_operation(int operation, const TriangleMatrix<T>& matrix1,
     const TriangleMatrix<T>& matrix2) {
     TriangleMatrix<T> matrix;
 
@@ -562,7 +777,7 @@ TriangleMatrix<T> start_operation_on_matrices(int operation, const TriangleMatri
             matrix = matrix1 + matrix2;
         }
         catch (const std::invalid_argument& e) {
-            std::cerr << "Matrix addition error: " << e.what() << std::endl;
+            throw;
         }
 
     } break;
@@ -571,7 +786,7 @@ TriangleMatrix<T> start_operation_on_matrices(int operation, const TriangleMatri
             matrix = matrix1 - matrix2;
         }
         catch (const std::invalid_argument& e) {
-            std::cerr << "Matrix subtraction error: " << e.what() << std::endl;
+            throw;
         }
 
     } break;
@@ -580,7 +795,7 @@ TriangleMatrix<T> start_operation_on_matrices(int operation, const TriangleMatri
             matrix = matrix1 * matrix2;
         }
         catch (const std::invalid_argument& e) {
-            std::cerr << "Matrix multiplication error: " << e.what() << std::endl;
+            throw;
         }
     }
     }
@@ -588,42 +803,42 @@ TriangleMatrix<T> start_operation_on_matrices(int operation, const TriangleMatri
 }
 
 template <class T>
-Matrix<T> start_binary_operation(int operation, char matrix1, char matrix2, const Matrix<T>& matrixA, 
+Matrix<T> select_and_apply(int operation, char matrix1, char matrix2, const Matrix<T>& matrixA,
     const Matrix<T>& matrixB, const Matrix<T>& matrixC) {
     if (matrix1 == 'A') {
-        if (matrix2 == 'A') return start_operation_on_matrices(operation, matrixA, matrixA);
-        else if (matrix2 == 'B') return start_operation_on_matrices(operation, matrixA, matrixB);
-        else if (matrix2 == 'C') return start_operation_on_matrices(operation, matrixA, matrixC);
+        if (matrix2 == 'A') return start_binary_operation(operation, matrixA, matrixA);
+        else if (matrix2 == 'B') return start_binary_operation(operation, matrixA, matrixB);
+        else if (matrix2 == 'C') return start_binary_operation(operation, matrixA, matrixC);
     }
     else if (matrix1 == 'B') {
-        if (matrix2 == 'A') return start_operation_on_matrices(operation, matrixB, matrixA);
-        else if (matrix2 == 'B') return start_operation_on_matrices(operation, matrixB, matrixB);
-        else if (matrix2 == 'C') return start_operation_on_matrices(operation, matrixB, matrixC);
+        if (matrix2 == 'A') return start_binary_operation(operation, matrixB, matrixA);
+        else if (matrix2 == 'B') return start_binary_operation(operation, matrixB, matrixB);
+        else if (matrix2 == 'C') return start_binary_operation(operation, matrixB, matrixC);
     }
     else if (matrix1 == 'C') {
-        if (matrix2 == 'A') return start_operation_on_matrices(operation, matrixC, matrixA);
-        else if (matrix2 == 'B') return start_operation_on_matrices(operation, matrixC, matrixB);
-        else if (matrix2 == 'C') return start_operation_on_matrices(operation, matrixC, matrixC);
+        if (matrix2 == 'A') return start_binary_operation(operation, matrixC, matrixA);
+        else if (matrix2 == 'B') return start_binary_operation(operation, matrixC, matrixB);
+        else if (matrix2 == 'C') return start_binary_operation(operation, matrixC, matrixC);
     }
 }
 
 template <class T>
-TriangleMatrix<T> start_binary_operation(int operation, char matrix1, char matrix2, const TriangleMatrix<T>& matrixA,
+TriangleMatrix<T> select_and_apply(int operation, char matrix1, char matrix2, const TriangleMatrix<T>& matrixA,
     const TriangleMatrix<T>& matrixB, const TriangleMatrix<T>& matrixC) {
     if (matrix1 == 'A') {
-        if (matrix2 == 'A') return start_operation_on_matrices(operation, matrixA, matrixA);
-        else if (matrix2 == 'B') return start_operation_on_matrices(operation, matrixA, matrixB);
-        else if (matrix2 == 'C') return start_operation_on_matrices(operation, matrixA, matrixC);
+        if (matrix2 == 'A') return start_binary_operation(operation, matrixA, matrixA);
+        else if (matrix2 == 'B') return start_binary_operation(operation, matrixA, matrixB);
+        else if (matrix2 == 'C') return start_binary_operation(operation, matrixA, matrixC);
     }
     else if (matrix1 == 'B') {
-        if (matrix2 == 'A') return start_operation_on_matrices(operation, matrixB, matrixA);
-        else if (matrix2 == 'B') return start_operation_on_matrices(operation, matrixB, matrixB);
-        else if (matrix2 == 'C') return start_operation_on_matrices(operation, matrixB, matrixC);
+        if (matrix2 == 'A') return start_binary_operation(operation, matrixB, matrixA);
+        else if (matrix2 == 'B') return start_binary_operation(operation, matrixB, matrixB);
+        else if (matrix2 == 'C') return start_binary_operation(operation, matrixB, matrixC);
     }
     else if (matrix1 == 'C') {
-        if (matrix2 == 'A') return start_operation_on_matrices(operation, matrixC, matrixA);
-        else if (matrix2 == 'B') return start_operation_on_matrices(operation, matrixC, matrixB);
-        else if (matrix2 == 'C') return start_operation_on_matrices(operation, matrixC, matrixC);
+        if (matrix2 == 'A') return start_binary_operation(operation, matrixC, matrixA);
+        else if (matrix2 == 'B') return start_binary_operation(operation, matrixC, matrixB);
+        else if (matrix2 == 'C') return start_binary_operation(operation, matrixC, matrixC);
     }
 }
 
