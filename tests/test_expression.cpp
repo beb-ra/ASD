@@ -141,7 +141,6 @@ TEST(TestExpressionLib, correct_create) {
 
 TEST(TestExpressionLib, correct_calculate_expressions) {
 	Expression e("2 * (3 + 4) - 5 / 2");
-	e.print();
 	ASSERT_DOUBLE_EQ(e.calculate(), 11.5);
 
 	Expression e2("sin(0) + cos(0) * 2");
@@ -189,7 +188,6 @@ TEST(TestExpressionLib, throw_uncorrect_calculate) {
 
 TEST(TestExpressionLib, correct_calculate) {
 	Expression e("a * b + c");
-
 	e.set_variables("a", 2);
 	e.set_variables("b", 3);
 	e.set_variables("c", 4);
@@ -203,7 +201,6 @@ TEST(TestExpressionLib, correct_calculate) {
 
 TEST(TestExpressionLib, correct_calculate_2) {
 	Expression e("2 ^ 3 + 3 ^ 2 - 4 * 5 / 2");
-	e.print();
 	ASSERT_DOUBLE_EQ(e.calculate(), 7);
 
 	Expression e2("|x - y| * (a + b) / c");

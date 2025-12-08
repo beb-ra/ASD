@@ -1,15 +1,17 @@
 #pragma once
 #include <iostream>
 #include <map>
+#include "../lib_tvector/tvector.h"
 #include "../lib_list/list.h"
 #include "../lib_lexem/lexem.h"
 #include "../lib_parser/parser.h"
+#include <set>
 //#include "../lib_algorithms/algorithms.h"
 
 class Expression {
     List<Lexem> _lexems;
     List<Lexem> _polish_record;
-    std::map<std::string, double> variables;
+    //std::map<std::string, double> variables;
 
 public:
     Expression() = default;
@@ -24,7 +26,36 @@ public:
     }
 
     void set_variables(const std::string& name, double value) {
-        variables[name] = value;
+        bool is_found = false;
+        for (auto& lexem : _polish_record) {
+            if (lexem.name == name) {
+                lexem.value = value;
+                is_found = true;
+            }
+        }
+
+        if (!is_found)
+            throw std::invalid_argument("No matching variables found\n");
+    }
+
+    TVector<Lexem> get_variables() const {
+        TVector<Lexem> variables;
+
+        for (List<Lexem>::ConstIterator it = _polish_record.begin(); 
+            it != _polish_record.end(); it++) {
+            const Lexem& lexem = *it;
+
+            if (lexem.type == TypeLexem::Variable) {
+                if (find_first_elem(variables, lexem) == -1) {
+                    variables.push_back(lexem);
+                }
+            }
+        }
+        return variables;
+    }
+
+    List<Lexem> get_lexems() const {
+        return _lexems;
     }
 
     double calculate() {
@@ -41,12 +72,10 @@ public:
             case Constant:
                 stack.push(lexem.value);
                 break;
-
             case Variable:
-                if (variables.find(name) == variables.end()) {
-                    throw std::logic_error("Undefined variable: " + name);
-                }
-                stack.push(variables[name]);
+                if (lexem.value == DBL_MAX)
+                    throw std::logic_error("The variable has no value set: " + name);
+                stack.push(lexem.value);
                 break;
 
             case Operator: {
@@ -173,7 +202,7 @@ public:
         return stack.top();
     }
     */
-    void print() {
+    void print() const {
         std::cout << "lexems: ";
 
         auto* node = _lexems.head();
@@ -190,6 +219,15 @@ public:
             node = node->next;
         }
         std::cout << std::endl;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Expression& expression) {
+        auto* node = expression._lexems.head();
+        for (size_t i = 0; i < expression._lexems.size(); i++) {
+            std::cout << node->value.name << " ";
+            node = node->next;
+        }
+        return os;
     }
 private:
     /*
