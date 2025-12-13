@@ -1,88 +1,65 @@
 #include <gtest/gtest.h>
-#include <iostream>
 #include "../lib_algorithms/algorithms.h"
 
-TEST(TestAlgorithmsLib, test_check_brackets_1) {
-    EXPECT_TRUE(check_brackets("()()"));
+#define EPSILON 0.1
+#define PI 3.14
+
+TEST(TestAlgorithmsLib, correct_abs) {
+    EXPECT_EQ(123, my_abs(123));
+    EXPECT_EQ(123, my_abs(-123));
+    EXPECT_NEAR(1.23, my_abs(-1.23), EPSILON);
 }
 
-TEST(TestAlgorithmsLib, test_check_brackets_2) {
-    EXPECT_TRUE(check_brackets("[(()())({})]"));
+TEST(TestAlgorithmsLib, correct_convert_to_radians) {
+    EXPECT_NEAR(0.0, convert_to_radians(0), EPSILON);
+    EXPECT_NEAR(PI, convert_to_radians(180), EPSILON);
+    EXPECT_NEAR(2 * PI, convert_to_radians(360), EPSILON);
+    EXPECT_NEAR(PI / 2, convert_to_radians(90), EPSILON);
+    EXPECT_NEAR(-PI, convert_to_radians(-180), EPSILON);
+    EXPECT_NEAR(PI / 4, convert_to_radians(45), EPSILON);
+    EXPECT_NEAR(-PI / 4, convert_to_radians(-45), EPSILON);
 }
 
-TEST(TestAlgorithmsLib, test_check_brackets_3) {
-    EXPECT_FALSE(check_brackets("(()()"));
+TEST(TestAlgorithmsLib, correct_sin) {
+    EXPECT_NEAR(0.0, my_sin(0), EPSILON);
+    EXPECT_NEAR(0.5, my_sin(30), EPSILON);
+    EXPECT_NEAR(1.0, my_sin(90), EPSILON);
+    EXPECT_NEAR(0.0, my_sin(180), EPSILON);
+    EXPECT_NEAR(-1.0, my_sin(270), EPSILON);
+    EXPECT_NEAR(0.0, my_sin(360), EPSILON);
+    EXPECT_NEAR(-0.5, my_sin(-30), EPSILON);
+    EXPECT_NEAR(-1.0, my_sin(-90), EPSILON);
+    EXPECT_NEAR(1.0, my_sin(450), EPSILON);
+    EXPECT_NEAR(0.0, my_sin(720), EPSILON);
 }
 
-TEST(TestAlgorithmsLib, test_check_brackets_4) {
-    EXPECT_FALSE(check_brackets("())(())"));
+TEST(TestAlgorithmsLib, correct_cos) {
+    EXPECT_NEAR(1.0, my_cos(0), EPSILON);
+    EXPECT_NEAR(0.5, my_cos(60), EPSILON);
+    EXPECT_NEAR(0.0, my_cos(90), EPSILON);
+    EXPECT_NEAR(-1.0, my_cos(180), EPSILON);
+    EXPECT_NEAR(0.0, my_cos(270), EPSILON);
+    EXPECT_NEAR(1.0, my_cos(360), EPSILON);
+    EXPECT_NEAR(0.5, my_cos(-60), EPSILON);
+    EXPECT_NEAR(0.0, my_cos(-90), EPSILON);
+    EXPECT_NEAR(-1.0, my_cos(-180), EPSILON);
+    EXPECT_NEAR(0.5, my_cos(420), EPSILON);
+    EXPECT_NEAR(0.5, my_cos(-300), EPSILON);
 }
 
-TEST(TestAlgorithmsLib, test_check_brackets_5) {
-    EXPECT_FALSE(check_brackets("((()()(())}"));
+TEST(TestAlgorithmsLib, correct_tg) {
+    EXPECT_NEAR(0.0, my_tg(0), EPSILON);
+    EXPECT_NEAR(1.0, my_tg(45), EPSILON);
+    EXPECT_NEAR(-1.0, my_tg(-45), EPSILON);
+    EXPECT_NEAR(0.0, my_tg(180), EPSILON);
+    EXPECT_NEAR(0.0, my_tg(360), EPSILON);
 }
 
-TEST(TestAlgorithmsLib, test_check_brackets_6) {
-    EXPECT_TRUE(check_brackets("{(()())(())}"));
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_1) {
-    EXPECT_NO_THROW(read_expression("3 *(15 + (x + y)*(2*x - 7*y^2))"));
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_2) {
-    EXPECT_THROW(read_expression("3 *(15 + (x y)*(2x - 7*y^2))"), std::logic_error);
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_3) {
-    EXPECT_THROW(read_expression("3 *(15 + (x + y)*(2*x - 7*y^))"), std::logic_error);
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_4) {
-    EXPECT_THROW(read_expression("((x + y)*(x - y)"), std::logic_error);
-    EXPECT_THROW(read_expression("(13 + 52"), std::logic_error);
-    EXPECT_THROW(read_expression("13 + )52"), std::logic_error);
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_5) {
-    EXPECT_NO_THROW(read_expression("-y * {[342 * (x + 16)] - 27}"));
-    EXPECT_NO_THROW(read_expression("-x + 543 * y - (100 + 200)"));
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_6) {
-    EXPECT_THROW(read_expression("3 + $5"), std::logic_error);
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_7) {
-    EXPECT_THROW(read_expression(""), std::logic_error);
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_8) {
-    EXPECT_NO_THROW(read_expression("42"));
-    EXPECT_NO_THROW(read_expression("x"));
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_9) {
-    EXPECT_THROW(read_expression("--x"), std::logic_error);
-    EXPECT_THROW(read_expression("x ++ y"), std::logic_error);
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_10) {
-    EXPECT_THROW(read_expression("x * -y + 5"), std::logic_error);
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_11) {
-    EXPECT_NO_THROW(read_expression("x * (-y) + 5"));
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_12) {
-    EXPECT_THROW(read_expression("* 3 + 5"), std::logic_error);
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_13) {
-    EXPECT_NO_THROW(read_expression("  -  y   +  58   *   x  -  ( 200  /  3  ) "));
-}
-
-TEST(TestAlgorithmsLib, test_read_expression_14) {
-    EXPECT_THROW(read_expression("3x + 5"), std::logic_error);
+TEST(TestAlgorithmsLib, correct_throw_tg) {
+    EXPECT_THROW(my_tg(90), std::invalid_argument);
+    EXPECT_THROW(my_tg(270), std::invalid_argument);
+    EXPECT_THROW(my_tg(-90), std::invalid_argument);
+    EXPECT_THROW(my_tg(90 + 360), std::invalid_argument);
+    EXPECT_NO_THROW(my_tg(89.9));
+    EXPECT_NO_THROW(my_tg(90.1));
 }

@@ -2,8 +2,8 @@
 #include <iostream>
 #include "../lib_stack/stack.h"
 
-bool check_brackets(std::string str);
-void read_expression(std::string expression);
-bool is_math_operation(char item);
-bool is_number(char item);
-bool is_variable(char item);
+double my_sin(double);
+double my_cos(double);
+double my_tg(double);
+double my_abs(double);
+double convert_to_radians(double x);

@@ -15,35 +15,11 @@ struct Lexem {
     double (*function)(double);
 
     Lexem(std::string _name = "", TypeLexem _type = None, double _value = DBL_MAX,
-        int _priority = -1, double(*_function)(double) = nullptr)
-        : name(_name), type(_type), value(_value), priority(_priority), function(_function)
-    {
-        if (type == Constant && value == DBL_MAX && !name.empty()) {
-            try {
-                value = std::stod(name);
-            }
-            catch (...) {
-                value = 0.0;
-            }
-        }
-    }
+        int _priority = -1, double(*_function)(double) = nullptr);
 
-    bool operator==(const Lexem& other) const {
-        if (type != other.type || name != other.name) {
-            return false;
-        }
-        if (type == Constant && std::abs(value - other.value) > 1e-10) {
-            return false;
-        }
-        if (type == Function && function != other.function) {
-            return false;
-        }
-        return true;
-    }
+    bool operator==(const Lexem& other) const;
 
-    bool operator!=(const Lexem& other) const {
-        return !(*this == other);
-    }
+    bool operator!=(const Lexem& other) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Lexem& lexem) {
         os << lexem.name;

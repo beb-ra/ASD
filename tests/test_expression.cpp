@@ -19,10 +19,10 @@ TEST(TestParserLib, correct_parsing_2) {
 	ASSERT_NO_THROW(Parser::parse(s));
 	List<Lexem> list = Parser::parse(s);
 
-	List<Lexem> result = { Lexem("x_1", Variable), Lexem("*", Operator), Lexem("sin", Function, DBL_MAX, -1, std::sin),
+	List<Lexem> result = { Lexem("x_1", Variable), Lexem("*", Operator), Lexem("sin", Function, DBL_MAX, -1, my_sin),
 		Lexem("(", OpenBracket), Lexem("y", Variable), Lexem("+", Operator), Lexem("7", Constant, 7), 
 		Lexem(")", ClosedBracket), Lexem("+", Operator), Lexem("y", Variable), Lexem("*", Operator), 
-		Lexem("(", OpenBracket), Lexem("~", UnOperator), Lexem("abs", Function, DBL_MAX, -1, std::abs), Lexem("(", OpenBracket),
+		Lexem("(", OpenBracket), Lexem("~", UnOperator), Lexem("abs", Function, DBL_MAX, -1, my_abs), Lexem("(", OpenBracket),
 		Lexem("x_2", Variable), Lexem("-", Operator), Lexem("17", Constant, 17), Lexem(")", ClosedBracket),
 		Lexem("+", Operator), Lexem("23", Constant, 23), Lexem(")", ClosedBracket) };
 	ASSERT_EQ(list, result);
@@ -34,9 +34,9 @@ TEST(TestParserLib, correct_parsing_3) {
 	ASSERT_NO_THROW(Parser::parse(s));
 	List<Lexem> list = Parser::parse(s);
 
-	List<Lexem> result = { Lexem("abs", Function, DBL_MAX, -1, std::abs), Lexem("(", OpenBracket), 
-		Lexem("abs", Function, DBL_MAX, -1, std::abs), Lexem("(", OpenBracket), Lexem("x", Variable), 
-		Lexem(")", ClosedBracket), Lexem("-", Operator), Lexem("abs", Function, DBL_MAX, -1, std::abs), 
+	List<Lexem> result = { Lexem("abs", Function, DBL_MAX, -1, my_abs), Lexem("(", OpenBracket), 
+		Lexem("abs", Function, DBL_MAX, -1, my_abs), Lexem("(", OpenBracket), Lexem("x", Variable), 
+		Lexem(")", ClosedBracket), Lexem("-", Operator), Lexem("abs", Function, DBL_MAX, -1, my_abs), 
 		Lexem("(", OpenBracket), Lexem("y", Variable), Lexem(")", ClosedBracket), Lexem(")", ClosedBracket) };
 	ASSERT_EQ(list, result);
 }
@@ -109,7 +109,7 @@ TEST(TestParserLib, correct_parsing_brackets) {
 		Lexem("x", Variable), Lexem("+", Operator), Lexem("y", Variable), Lexem(")", ClosedBracket),
 		Lexem("*", Operator), Lexem("(", OpenBracket), Lexem("x", Variable), Lexem("-", Operator),
 		Lexem("y", Variable), Lexem(")", ClosedBracket), Lexem("}", ClosedBracket), Lexem("-", Operator),
-		Lexem("abs", Function, DBL_MAX, -1, std::abs), Lexem("(", OpenBracket), Lexem("x", Variable), 
+		Lexem("abs", Function, DBL_MAX, -1, my_abs), Lexem("(", OpenBracket), Lexem("x", Variable), 
 		Lexem("+", Operator), Lexem("z_2", Variable), Lexem(")", ClosedBracket), Lexem("]", ClosedBracket)
 	};
 	ASSERT_EQ(list, result);
@@ -122,8 +122,8 @@ TEST(TestParserLib, function_with_abs) {
 	List<Lexem> list = Parser::parse(s);
 
 	List<Lexem> result = {
-		Lexem("sin", Function, DBL_MAX, -1, std::sin), Lexem("(", OpenBracket), 
-		Lexem("abs", Function, DBL_MAX, -1, std::abs), Lexem("(", OpenBracket),
+		Lexem("sin", Function, DBL_MAX, -1, my_sin), Lexem("(", OpenBracket), 
+		Lexem("abs", Function, DBL_MAX, -1, my_abs), Lexem("(", OpenBracket),
 		Lexem("x", Variable), Lexem(")", ClosedBracket), Lexem(")", ClosedBracket)
 	};
 	ASSERT_EQ(list, result);
@@ -132,11 +132,6 @@ TEST(TestParserLib, function_with_abs) {
 TEST(TestExpressionLib, try_create) {
 	std::string s = "21 * (x + 33 * y)";
 	ASSERT_NO_THROW(Expression e(s));
-}
-
-TEST(TestExpressionLib, correct_create) {
-	std::string s = "21 * (x + 33 * y)";
-	Expression e(s);
 }
 
 TEST(TestExpressionLib, correct_calculate_expressions) {
