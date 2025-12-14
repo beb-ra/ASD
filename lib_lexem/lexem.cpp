@@ -8,7 +8,7 @@ Lexem::Lexem(std::string _name, TypeLexem _type, double _value,
         try {
             value = std::stod(name);
         }
-        catch (...) {
+        catch (const std::exception& e) {
             value = 0.0;
         }
     }

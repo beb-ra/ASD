@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include "../lib_stack/stack.h"
 
 double my_sin(double);
 double my_cos(double);
