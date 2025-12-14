@@ -46,10 +46,12 @@ std::string format_variables(const TVector<Lexem>& variables) {
             result += variables[i].name + " = " + ss.str();
         }
 
+        /*
         if (result.length() > 25) {
             result = result.substr(0, 22) + "...";
             break;
         }
+        */
     }
 
     if (variables.size() == 0) {
@@ -89,7 +91,7 @@ void print_menu(const TVector<Expression>& exs) {
         std::cout << vars << "\n";
     }
 
-    std::cout << "-----------------------------------------------------------------------------\n\n";
+    std::cout << "--------------------------------------------------------------------------\n\n";
 
     std::cout << "Меню:\n";
     std::cout << "1: Добавить новое выражение\n";
@@ -130,42 +132,40 @@ size_t select_index(size_t n) {
     return answer;
 }
 
-void set_variables(TVector<Expression>& expressions) {
-    /*
-    if (expressions.size() == 0) {
-        std::cout << "Ошибка: не введено ни одного выражения";
-        return;
-    }
-    size_t ind;
-    if (expressions.size() == 1) {
-        ind = 0;
-    } else {
-        std::cout << "Введите ID выражения: ";
-        ind = select_index(expressions.size()) - 1;
-    }
-
-    TVector<Lexem> variables = expressions[ind].get_variables();
-    for (int i = 0; i < variables.size(); i++) {
+void set_variable(TVector<Expression>& expressions, size_t ind) {
+    std::string var, value;
+    while (true) {
         std::cout << "Введите переменную: ";
-        std::string var = get_string();
+        var = get_string();
         std::cout << "Введите значение: ";
-        std::string value = get_string();
-        std::cout << "ОТЛАДКА: СТРОКА:" << value;
+        value = get_string();
         try {
-            double num = std::stod(value);
-            std::cout << "ОТЛАДКА: NUM:" << num;
+            double num;
+            std::stringstream ss(value);
+            if (!(ss >> num)) {
+                std::cout << "Ошибка: не удалось преобразовать в число\n";
+                std::cout << "Попробуйте еще раз\n";
+                continue;
+            }
+            char remaining;
+            if (ss >> remaining) {
+                std::cout << "Ошибка: в строке есть лишние символы\n";
+                std::cout << "Попробуйте еще раз\n";
+                continue;
+            }
             expressions[ind].set_variables(var, num);
+            break;
         }
-        catch (const std::invalid_argument& e) {
-            std::cout << "Ошибка: введено не число" << std::endl;
-        }
-        catch (const std::logic_error& e) {
-            std::cerr << e.what() << std::endl;
+        catch (const std::exception& e) {
+            std::cout << "Ошибка: " << e.what();
+            std::cout << "Попробуйте еще раз\n";
         }
     }
-    */
+}
+
+void start_set_variables(TVector<Expression>& expressions) {
     if (expressions.size() == 0) {
-        std::cout << "Ошибка: не введено ни одного выражения";
+        std::cout << "Ошибка: не введено ни одного выражения\n";
         system("pause");
         return;
     }
@@ -179,33 +179,12 @@ void set_variables(TVector<Expression>& expressions) {
     }
     TVector<Lexem> variables = expressions[ind].get_variables();
     if (variables.size() == 0) {
-        std::cout << "Ошибка: в выражении нет переменных";
+        std::cout << "Ошибка: в выражении нет переменных\n";
+        system("pause");
         return;
     }
     for (int i = 0; i < variables.size(); i++) {
-        std::cout << "Введите переменную: ";
-        std::string var = get_string();
-        std::cout << "Введите значение: ";
-        std::string value = get_string();
-
-        try {
-            double num;
-            std::stringstream ss(value);
-            if (!(ss >> num)) {
-                throw std::invalid_argument("Не удалось преобразовать в число");
-            }
-            char remaining;
-            if (ss >> remaining) {
-                throw std::invalid_argument("В строке есть лишние символы");
-            }
-            expressions[ind].set_variables(var, num);
-        }
-        catch (const std::invalid_argument& e) {
-            std::cout << "Ошибка: " << e.what() << std::endl;
-        }
-        catch (const std::logic_error& e) {
-            std::cerr << e.what() << std::endl;
-        }
+        set_variable(expressions, ind);
     }
 }
 
@@ -236,6 +215,11 @@ void start_calculate(TVector<Expression>& expressions) {
 
 void start_delete(TVector<Expression>& expressions) {
     size_t ind;
+    if (expressions.size() == 0) {
+        std::cout << "Ошибка: не введено ни одного выражения\n";
+        system("pause");
+        return;
+    }
     if (expressions.size() == 1) {
         ind = 0;
     }
@@ -299,7 +283,7 @@ int main() {
             start_delete(expressions);
             break;
         case SET_VARS: 
-            set_variables(expressions);
+            start_set_variables(expressions);
             break;
         case CALCULATE: 
             start_calculate(expressions);
