@@ -85,10 +85,10 @@ TriangleMatrix<T> start_scalar_operation(int, char,
 //template <class T>
 //void start_matrix_operations(TriangleMatrix<T>&, TriangleMatrix<T>&, TriangleMatrix<T>&);
 template <class T>
-void initialize_matrix_C(Matrix<T>& matrixA, Matrix<T>& matrixB,
+bool initialize_matrix_C(Matrix<T>& matrixA, Matrix<T>& matrixB,
     Matrix<T>& matrixC);
 template <class T>
-void initialize_matrix_C(TriangleMatrix<T>& matrixA, TriangleMatrix<T>& matrixB,
+bool initialize_matrix_C(TriangleMatrix<T>& matrixA, TriangleMatrix<T>& matrixB,
     TriangleMatrix<T>& matrixC);
 template <class T>
 void process_matrix_operations(Matrix<T>&, Matrix<T>&,
@@ -160,7 +160,8 @@ void handle_matrices() {
     system("cls");
 
     Matrix<int> matrixC;
-    initialize_matrix_C(matrixA, matrixB, matrixC);
+    bool is_exit = initialize_matrix_C(matrixA, matrixB, matrixC);
+    if (is_exit) return;
     process_matrix_operations(matrixA, matrixB, matrixC);
 }
 
@@ -175,7 +176,8 @@ void handle_triangle_matrices() {
     system("cls");
 
     TriangleMatrix<int> matrixC;
-    initialize_matrix_C(matrixA, matrixB, matrixC);
+    bool is_exit = initialize_matrix_C(matrixA, matrixB, matrixC);
+    if (is_exit) return;
     process_matrix_operations(matrixA, matrixB, matrixC);
 }
 
@@ -272,7 +274,7 @@ void save_result(char matrix_char, TriangleMatrix<T>& matrixA, TriangleMatrix<T>
 }
 
 template <class T>
-void initialize_matrix_C(Matrix<T>& matrixA, Matrix<T>& matrixB, Matrix<T>& matrixC) {
+bool initialize_matrix_C(Matrix<T>& matrixA, Matrix<T>& matrixB, Matrix<T>& matrixC) {
     while (true) {
         print_matrix(matrixA, MATRIX_A);
         print_matrix(matrixB, MATRIX_B);
@@ -299,8 +301,9 @@ void initialize_matrix_C(Matrix<T>& matrixA, Matrix<T>& matrixB, Matrix<T>& matr
             print_result(matrixA, matrixB, matrixC, matrixC);
             break;
         }
-        else if (operation == EXIT) return;
+        else if (operation == EXIT) return true;
     }
+    return false;
 }
 
 template <class T>
@@ -415,7 +418,7 @@ void start_matrix_operations(Matrix<T>& matrixA, Matrix<T>& matrixB, Matrix<T>& 
 */
 
 template <class T>
-void initialize_matrix_C(TriangleMatrix<T>& matrixA, TriangleMatrix<T>& matrixB,
+bool initialize_matrix_C(TriangleMatrix<T>& matrixA, TriangleMatrix<T>& matrixB,
     TriangleMatrix<T>& matrixC) {
     while (true) {
         print_matrix(matrixA, MATRIX_A);
@@ -444,8 +447,9 @@ void initialize_matrix_C(TriangleMatrix<T>& matrixA, TriangleMatrix<T>& matrixB,
             print_result(matrixA, matrixB, matrixC, matrixC);
             break;
         }
-        else if (operation == EXIT) return;
+        else if (operation == EXIT) return true;
     }
+    return false;
 }
 
 template <class T>
@@ -619,6 +623,8 @@ int* enter_matrix_size(int num) {
     mass[0] = size_n;
     mass[1] = size_m;
 
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
     return mass;
 }
 
@@ -634,6 +640,9 @@ int enter_tmatrix_size(int num) {
         if (size_n > 0) break;
         std::cout << "Incorrect input, please try again: ";
     }
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
     return size_n;
 }
 
@@ -650,6 +659,7 @@ void enter_matrix(Matrix<T>& matr, int num) {
 #else
     std::cin >> matr;
 #endif
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 template <class T>
@@ -665,6 +675,7 @@ void enter_matrix(TriangleMatrix<T>& matr, int num) {
 #else
     std::cin >> matr;
 #endif
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 char* select_matrices() {
