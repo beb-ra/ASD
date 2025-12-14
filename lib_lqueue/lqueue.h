@@ -14,7 +14,9 @@ public:
 
 	inline T head() const;
 	inline T tail() const;
+
 	inline size_t size() const noexcept;
+	inline size_t capacity() const noexcept;
 
 	inline bool is_empty() const noexcept;
 	inline bool is_full() const noexcept;
@@ -49,19 +51,24 @@ template <class T>
 T LQueue<T>::head() const {
 	if (is_empty())
 		return T();
-	return _list.dhead()->value;
+	return _list.head()->value;
 }
 
 template <class T>
 T LQueue<T>::tail() const {
 	if (is_empty())
 		return T();
-	return _list.dtail()->value;
+	return _list.tail()->value;
 }
 
 template <class T>
 size_t LQueue<T>::size() const noexcept {
-	return _size != -1 ? _size : _list.size();
+	return _list.size();
+}
+
+template <class T>
+size_t LQueue<T>::capacity() const noexcept {
+	return _size;
 }
 
 template <class T>

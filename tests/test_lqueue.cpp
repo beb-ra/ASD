@@ -13,7 +13,8 @@ TEST(TestLQueueLib, try_create_object_2) {
 TEST(TestLQueueLib, correct_create_object) {
     LQueue<int> object(10);
 
-    EXPECT_EQ(10, object.size());
+    EXPECT_EQ(0, object.size());
+    EXPECT_EQ(10, object.capacity());
     EXPECT_EQ(0, object.head());
 }
 
@@ -28,7 +29,8 @@ TEST(TestLQueueLib, correct_create_object_with_copy) {
     LQueue<int> object(10);
     LQueue<int> object2(object);
 
-    EXPECT_EQ(10, object2.size());
+    EXPECT_EQ(0, object2.size());
+    EXPECT_EQ(10, object2.capacity());
     EXPECT_EQ(0, object.head());
 }
 
@@ -45,7 +47,8 @@ TEST(TestLQueueLib, correct_create_object_with_copy_3) {
     object.push(222);
     LQueue<int> object2(object);
 
-    EXPECT_EQ(5, object2.size());
+    EXPECT_EQ(1, object2.size());
+    EXPECT_EQ(5, object2.capacity());
     EXPECT_EQ(222, object2.tail());
     EXPECT_EQ(222, object2.head());
 }
@@ -87,7 +90,8 @@ TEST(TestLQueueLib, correct_clear) {
     object.clear();
 
     EXPECT_EQ(0, object.head());
-    EXPECT_EQ(10, object.size());
+    EXPECT_EQ(0, object.size());
+    EXPECT_EQ(10, object.capacity());
 
     ASSERT_NO_THROW(object.push(22));
 }
