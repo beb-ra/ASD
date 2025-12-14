@@ -91,12 +91,26 @@ TEST(TestDSULib, correct_path_compression) {
     dsu.unite(5, 6);
     dsu.unite(4, 5);
 
-    dsu.unite(2, 6);
-
     EXPECT_EQ(3, dsu.find(4));
     EXPECT_EQ(3, dsu.find(5));
     EXPECT_EQ(3, dsu.find(6));
 
-    EXPECT_EQ(1, dsu.find(2));
-    EXPECT_EQ(1, dsu.find(3));
+    dsu.unite(2, 6);
+
+    EXPECT_EQ(3, dsu.find(2));
+}
+
+TEST(TestDSULib, correct_path_compression_2) {
+    DSU dsu(8);
+
+    dsu.unite(1, 2);
+    dsu.unite(2, 3);
+
+    dsu.unite(4, 5);
+
+    dsu.unite(3, 5);
+
+    EXPECT_EQ(dsu.find(5), 1);
+    EXPECT_EQ(dsu.find(4), 1);
+    EXPECT_EQ(dsu.find(3), 1);
 }
