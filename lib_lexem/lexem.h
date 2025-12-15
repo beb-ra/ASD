@@ -20,9 +20,4 @@ struct Lexem {
     bool operator==(const Lexem& other) const;
 
     bool operator!=(const Lexem& other) const;
-
-    friend std::ostream& operator<<(std::ostream& os, const Lexem& lexem) {
-        os << lexem.name;
-        return os;
-    }
 };

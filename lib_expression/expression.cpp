@@ -150,8 +150,7 @@ void Expression::convert_to_postfix() {
         case UnOperator:
         case Operator:
             while (!stack.is_empty() &&
-                (stack.top().type == Function ||
-                    get_precedence(stack.top()) >= get_precedence(lexem))) {
+                get_precedence(stack.top()) >= get_precedence(lexem)) {
                 _polish_record.push_back(stack.top());
                 stack.pop();
             }
@@ -195,21 +194,43 @@ bool Expression::is_closing_bracket(Lexem lexem) const {
     return lexem.type == ClosedBracket;
 }
 
-void Expression::print() const {
-    std::cout << "lexems: ";
+std::string Expression::to_string() const {
+    std::string result;
+    TypeLexem prev_type = None;
 
-    auto* node = _lexems.head();
-    for (size_t i = 0; i < _lexems.size(); i++) {
-        std::cout << node->value.name << " ";
-        node = node->next;
-    }
-    std::cout << std::endl;
+    for (auto it = _lexems.begin(); it != _lexems.end(); ++it) {
+        const Lexem& current = *it;
 
-    std::cout << "polish record: ";
-    node = _polish_record.head();
-    for (size_t i = 0; i < _polish_record.size(); i++) {
-        std::cout << node->value.name << " ";
-        node = node->next;
+        bool need_space = true;
+
+        if (it == _lexems.begin()) {
+            need_space = false;
+        }
+        else if (current.type == ClosedBracket) {
+            need_space = false;
+        }
+        else if (prev_type == UnOperator) {
+            need_space = false;
+        }
+        else if (current.type == OpenBracket) {
+            if (prev_type == Function) {
+                need_space = false;
+            }
+        }
+        else if (current.type == UnOperator) {
+            need_space = false;
+        }
+        else if (prev_type == OpenBracket) {
+            need_space = false;
+        }
+
+        if (need_space && !result.empty()) {
+            result += " ";
+        }
+
+        result += (current.name == "~") ? "-" : current.name;
+        prev_type = current.type;
     }
-    std::cout << std::endl;
+
+    return result;
 }

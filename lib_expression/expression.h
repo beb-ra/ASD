@@ -21,19 +21,11 @@ public:
 
     double calculate();
 
-    friend std::ostream& operator<<(std::ostream& os, const Expression& expression) {
-        auto* node = expression._lexems.head();
-        for (size_t i = 0; i < expression._lexems.size(); i++) {
-            std::cout << node->value.name << " ";
-            node = node->next;
-        }
-        return os;
-    }
+    std::string to_string() const;
 private:
     void convert_to_postfix();
     bool brackets_match(const Lexem& open, const Lexem& close) const;
     int get_precedence(const Lexem& lexem) const;
     bool is_opening_bracket(Lexem lexem) const;
     bool is_closing_bracket(Lexem lexem) const;
-    void print() const;
 };

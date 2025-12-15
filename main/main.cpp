@@ -16,21 +16,6 @@ void print_start() {
     std::cout << "\nÂâåäèòå ïåðâîå âûðàæåíèå: ";
 }
 
-std::string lexems_to_string(const List<Lexem>& lexems) {
-    std::string result;
-
-    for (auto it = lexems.begin(); it != lexems.end(); ++it) {
-        result += (*it).name;
-        auto next_it = it;
-        ++next_it;
-        if (next_it != lexems.end()) {
-            result += " ";
-        }
-    }
-
-    return result;
-}
-
 std::string format_variables(const TVector<Lexem>& variables) {
     std::string result;
 
@@ -65,8 +50,8 @@ void print_menu(const TVector<Expression>& exs) {
     system("cls");
 
     std::cout << "\t\t\tÊÀËÜÊÓËßÒÎÐ ÀÐÈÔÌÅÒÈ×ÅÑÊÈÕ ÂÛÐÀÆÅÍÈÉ\n\n";
-    std::cout << " ID  | ÂÛÐÀÆÅÍÈÅ                              | ÏÅÐÅÌÅÍÍÛÅ\n";
-    std::cout << "-----+----------------------------------------+---------------------------\n";
+    std::cout << " ID  | ÂÛÐÀÆÅÍÈÅ                                    | ÏÅÐÅÌÅÍÍÛÅ\n";
+    std::cout << "-----+----------------------------------------------+---------------------------\n";
 
     if (exs.size() == 0) {
         std::cout << "\t\tÂûðàæåíèÿ ïîêà íå äîáàâëåíû\n";
@@ -76,13 +61,15 @@ void print_menu(const TVector<Expression>& exs) {
         if (i + 1 < 10) std::cout << " ";
         std::cout << i + 1 << "  | ";
 
-        std::string expr = lexems_to_string(exs[i].get_lexems());
+        std::string expr = exs[i].to_string();
+        /*
         if (expr.length() > 38) {
             expr = expr.substr(0, 35) + "...";
         }
+        */
         std::cout << expr;
 
-        int spaces = 38 - expr.length();
+        int spaces = 44 - expr.length();
         for (int j = 0; j < spaces; j++) std::cout << " ";
 
         std::cout << " | ";
@@ -91,7 +78,7 @@ void print_menu(const TVector<Expression>& exs) {
         std::cout << vars << "\n";
     }
 
-    std::cout << "--------------------------------------------------------------------------\n\n";
+    std::cout << "--------------------------------------------------------------------------------\n\n";
 
     std::cout << "Ìåíþ:\n";
     std::cout << "1: Äîáàâèòü íîâîå âûðàæåíèå\n";
