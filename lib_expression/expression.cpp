@@ -43,10 +43,6 @@ List<Lexem> Expression::get_lexems() const {
 }
 
 double Expression::calculate() {
-    if (_polish_record.is_empty()) {
-        convert_to_postfix();
-    }
-
     LStack<double> stack;
     for (const auto& lexem : _polish_record) {
         TypeLexem type = lexem.type;

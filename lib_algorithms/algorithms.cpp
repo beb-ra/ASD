@@ -39,6 +39,7 @@ double my_cos(double x) {
 double my_tg(double x) {
     x = fmod(x, 360.0);
     if (x < 0) x += 360.0;
+
     if (my_abs(x - 90.0) < 1e-4 || my_abs(x - 270.0) < 1e-4)
         throw std::invalid_argument("Division by zero");
     return my_sin(x) / my_cos(x);
