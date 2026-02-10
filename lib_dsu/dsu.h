@@ -8,6 +8,7 @@ class DSU {
 public:
 	DSU(size_t size);
 	~DSU();
+	// конструктор копирования
 
 	void unite(int x, int y);
 	int find(int x);

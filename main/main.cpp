@@ -3,8 +3,9 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
+#include "algorithms.h"
 
 int main() {
-
-    return 0;
+	generate(0, 11, 3, 4);
+	return 0;
 }
