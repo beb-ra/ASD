@@ -7,4 +7,6 @@
 
 int island_counting(Matrix<int>& matrix);
 
-void generate(int x, int y, int n, int m);
+Matrix<bool> generate(int x, int y, int n, int m);
+
+void print_lab(Matrix<bool> walls, int n, int m);

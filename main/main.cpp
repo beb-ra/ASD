@@ -6,6 +6,7 @@
 #include "algorithms.h"
 
 int main() {
-	generate(0, 11, 3, 4);
+	Matrix<bool> answer = generate(0, 11, 3, 4);
+	print_lab(answer, 3, 4);
 	return 0;
 }
