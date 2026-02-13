@@ -9,25 +9,23 @@ public:
 	Monom(double coeff = 0);
 	Monom(double, const int powers[VARS_COUNT]);
 
-	bool operator==(const Monom&);
-	bool operator!=(const Monom&);
-	bool operator<(const Monom&);
-	bool operator>(const Monom&);
+	bool operator==(const Monom&) const noexcept;
+	bool operator!=(const Monom&) const noexcept;
+	bool operator<(const Monom&) const noexcept;
+	bool operator>(const Monom&) const noexcept;
 
-	/*
-	Monom operator+(const Monom&);
-	Monom operator-(const Monom&);
-	Monom operator*(const Monom&);
-	Monom operator/(const Monom&);
+	Monom operator+(const Monom&) const;
+	Monom operator-(const Monom&) const;
+	Monom operator*(const Monom&) const noexcept;
+	Monom operator/(const Monom&) const;
 
 	Monom& operator+=(const Monom&);
 	Monom& operator-=(const Monom&);
-	Monom& operator*=(const Monom&);
-	Monom& operator/=(const Monom&); //?
-	*/
+	Monom& operator*=(const Monom&) noexcept;
+	Monom& operator/=(const Monom&);
 
-	double coeff();
-	int power_x();
-	int power_y();
-	int power_z();
+	double coeff() const;
+	int power_x() const;
+	int power_y() const;
+	int power_z() const;
 };
