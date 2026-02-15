@@ -150,3 +150,47 @@ TEST(TestMonomLib, correct_operator_div) {
 	m1 /= m2;
 	EXPECT_EQ(m1, m3);
 }
+
+TEST(TestMonomLib, correct_mult_on_number) {
+	int m_powers1[3] = { 1, 3, 4 };
+	Monom m1(2, m_powers1);
+	Monom m2(6, m_powers1);
+
+	EXPECT_EQ(m1 * 3, m2);
+	EXPECT_EQ(3 * m1, m2);
+	m1 *= 3;
+	EXPECT_EQ(m1, m2);
+}
+
+TEST(TestMonomLib, correct_div_on_number) {
+	int m_powers1[3] = { 1, 3, 4 };
+	Monom m1(8, m_powers1);
+	Monom m2(2, m_powers1);
+
+	EXPECT_EQ(m1 / 4, m2);
+	EXPECT_EQ(16 / m1, m2);
+	m1 /= 4;
+	EXPECT_EQ(m1, m2);
+}
+
+TEST(TestMonomLib, throw_add_on_number) {
+	int m_powers1[3] = { 1, 3, 4 };
+	Monom m1(8, m_powers1);
+
+	EXPECT_THROW(m1 + 4, std::invalid_argument);
+}
+
+TEST(TestMonomLib, throw_sub_on_number) {
+	int m_powers1[3] = { 1, 3, 4 };
+	Monom m1(8, m_powers1);
+
+	EXPECT_THROW(m1 - 4, std::invalid_argument);
+}
+
+TEST(TestMonomLib, correct_unary_minus) {
+	int m_powers1[3] = { 1, 3, 4 };
+	Monom m1(8.2, m_powers1);
+	Monom m2(-8.2, m_powers1);
+
+	EXPECT_EQ(-m1, m2);
+}

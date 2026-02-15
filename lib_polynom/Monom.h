@@ -8,6 +8,8 @@ class Monom {
 public:
 	Monom(double coeff = 0);
 	Monom(double, const int powers[VARS_COUNT]);
+	Monom(const Monom& other);
+	Monom& operator=(const Monom& other);
 
 	bool operator==(const Monom&) const noexcept;
 	bool operator!=(const Monom&) const noexcept;
@@ -19,6 +21,11 @@ public:
 	Monom operator*(const Monom&) const noexcept;
 	Monom operator/(const Monom&) const;
 
+	Monom operator-() const noexcept;
+
+	friend Monom operator*(double, const Monom&) noexcept;
+	friend Monom operator/(double, const Monom&) noexcept;
+
 	Monom& operator+=(const Monom&);
 	Monom& operator-=(const Monom&);
 	Monom& operator*=(const Monom&) noexcept;
@@ -28,4 +35,9 @@ public:
 	int power_x() const;
 	int power_y() const;
 	int power_z() const;
+
+	double calculate(double, double, double) const;
+
+	//friend std::ostream& operator>>(std::ostream&, const Monom&);
+	friend std::ostream& operator<<(std::ostream& os, const Monom& monom);
 };
