@@ -86,7 +86,7 @@ Matrix<bool> generate(int x, int y, int n, int m) {
         }
     }
     int count_extra_walls = n * m / 3;
-    for (int i = 0; i < count_extra_walls * 2; i++) {
+    for (int i = 0; i < count_extra_walls;) {
         int cell = rand() % (n * m);
         int wall_num = rand() % 4;
 
@@ -94,21 +94,25 @@ Matrix<bool> generate(int x, int y, int n, int m) {
             && labyrinth.find(cell) != labyrinth.find(cell + 1)) { // вправо
             labyrinth.unite(cell, cell + 1);
             walls[cell / m][cell % m] = 0;
+            i++;
         }
         else if (wall_num == 1 && cell / m < n - 1 
             && labyrinth.find(cell) != labyrinth.find(cell + m)) { // вниз
             labyrinth.unite(cell, cell + m);
             walls[cell / m + n][cell % m] = 0;
+            i++;
         }
         else if (wall_num == 2 && cell % m != 0 
             && labyrinth.find(cell) != labyrinth.find(cell - 1)) { // влево
             labyrinth.unite(cell, cell - 1);
             walls[(cell - 1) / m][(cell - 1) % m] = 0;
+            i++;
         }
         else if (wall_num == 3 && cell >= m 
             && labyrinth.find(cell) != labyrinth.find(cell - m)) { // вверх
             labyrinth.unite(cell, cell - m);
             walls[(cell - m) / m + n][cell % m] = 0;
+            i++;
         }
     }
 
