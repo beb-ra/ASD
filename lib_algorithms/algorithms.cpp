@@ -1,5 +1,5 @@
 #include "algorithms.h"
-#define DEBUG
+//#define DEBUG
 
 int island_counting(Matrix<int>& matrix) {
     int N = matrix.get_n();
@@ -37,7 +37,11 @@ int island_counting(Matrix<int>& matrix) {
 }
 
 Matrix<bool> generate(int x, int y, int n, int m) {
-    //if (x == y) throw...
+    if (x == y) std::invalid_argument("¬ход и выход должны быть в разных клетках");
+    if (!((x / m == 0 || x / m == n - 1 || x % m == 0 || x % m == m - 1) &&
+        (y / m == 0 || y / m == n - 1 || y % m == 0 || y % m == m - 1))) {
+        throw std::invalid_argument("¬ход и выход должны быть на границе лабиринта");
+    }
     DSU labyrinth(n * m);
     Matrix<bool> walls(2 * n - 1, m);
     for (int i = 0; i < 2 * n - 1; i++) {
@@ -50,24 +54,25 @@ Matrix<bool> generate(int x, int y, int n, int m) {
     int current = x, finish = y;
     while (current != finish) {
         if (current < finish) {
-            rand_int = rand() % 2;
-            if (rand_int && current % m != m-1) {  // вправо
+            rand_int = rand() % 4;
+            if (rand_int == 0 && current % m != m-1 
+                && labyrinth.find(current) != labyrinth.find(current + 1)) {  // вправо
                 labyrinth.unite(current, current +1);
                 walls[current / m][current % m] = 0;
                 current += 1;
             }
-            else if (current / m < n - 1) {  // вниз
+            if (rand_int == 1 && current / m < n - 1
+                && labyrinth.find(current) != labyrinth.find(current + m)) {  // вниз
                 labyrinth.unite(current, current + m);
                 walls[current / m + n][current % m] = 0;
                 current += m;
             }
-            rand_int = rand() % 3;
-            if (rand_int == 0 && current % m != 0 
+            if (rand_int == 2 && current % m != 0 
                 && labyrinth.find(current) != labyrinth.find(current - 1)) {  // влево
                 labyrinth.unite(current, current - 1);
                 walls[(current - 1) / m][(current - 1) % m] = 0;
             }
-            if (rand_int == 1 && current > m 
+            if (rand_int == 3 && current > m 
                 && labyrinth.find(current) != labyrinth.find(current - m)) {  // вверх
                 labyrinth.unite(current, current - m);
                 walls[(current - m) / m + n][current % m] = 0;
@@ -131,30 +136,86 @@ Matrix<bool> generate(int x, int y, int n, int m) {
     return walls;
 }
 
-void print_lab(Matrix<bool> walls, int n, int m) {
+void print_lab(Matrix<bool> walls, int n, int m, int ent, int exit) {
+    std::cout << "+";
     for (int j = 0; j < m; j++) {
-        std::cout << "+---";
+        if (ent == j && ent / m == 0) {
+            std::cout << "   +";
+        }
+        else {
+            std::cout << "---+";
+        }
     }
-    std::cout << "+\n";
+    std::cout << "\n";
+
     for (int i = 0; i < n; i++) {
-        std::cout << "|";
+        // лево
+        if (ent == i * m && ent % m == 0 && ent / m != 0 ||
+            exit == i * m && exit % m == 0 && exit / m != 0) {
+            std::cout << " ";
+        }
+        else if (ent == i * m && ent / m == 0 && ent % m == 0 ||
+            exit == i * m && exit / m == 0 && exit % m == 0) {
+            std::cout << "|";
+        }
+        else if (ent == i * m || exit == i * m) {
+            std::cout << " ";
+        }
+        else {
+            std::cout << "|";
+        }
+
         for (int j = 0; j < m; j++) {
-            std::cout << "   ";
-            if (walls[i][j]) std::cout << "|";
-            else std::cout << " ";
+            if (i * m + j < 10) std::cout << " " << i * m + j << " ";
+            else std::cout << i * m + j << " ";
+
+            if (j < m - 1) {
+                if (walls[i][j]) std::cout << "|";
+                else std::cout << " ";
+            }
+            else {
+                // право
+                if (exit == i * m + j && exit % m == m - 1 && exit / m != n - 1 ||
+                    ent == i * m + j && ent % m == m - 1 && ent / m != n - 1) {
+                    std::cout << " ";
+                }
+                else if (exit == i * m + j && exit % m == m - 1 && exit / m == n - 1 ||
+                    ent == i * m + j && ent % m == m - 1 && ent / m == n - 1) {
+                    std::cout << "|";
+                }
+                else {
+                    std::cout << "|";
+                }
+            }
         }
         std::cout << "\n";
+
+        // снизу
         if (i < n - 1) {
             std::cout << "+";
             for (int j = 0; j < m; j++) {
-                if (walls[i + n][j]) std::cout << "---+";
-                else std::cout << "   +";
+                if (exit == i * m + j + m && exit / m == i + 1 ||
+                    ent == i * m + j + m && ent / m == i + 1) {
+                    std::cout << "   +";
+                }
+                else {
+                    if (walls[n + i][j]) std::cout << "---+";
+                    else std::cout << "   +";
+                }
             }
             std::cout << "\n";
         }
     }
+
+    std::cout << "+";
     for (int j = 0; j < m; j++) {
-        std::cout << "+---";
+        if (exit == (n - 1) * m + j && exit / m == n - 1 ||
+            ent == (n - 1) * m + j && ent / m == n - 1) {
+            std::cout << "   +";
+        }
+        else {
+            std::cout << "---+";
+        }
     }
-    std::cout << "+\n";
+    std::cout << "\n";
 }
