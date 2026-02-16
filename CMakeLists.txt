@@ -13,6 +13,7 @@ include(cmake/function.cmake)         # подхватываем функции,
                                       # для простоты мы объединили наборы команд для создания статической библиотеки
 				      # и для создания исполняемого проекта в отдельные функции
 
+add_subdirectory(lib_list)
 add_subdirectory(lib_skiplist)
 add_subdirectory(main)                # подключаем дополнительный CMakeLists.txt из подкаталога с именем main
 
