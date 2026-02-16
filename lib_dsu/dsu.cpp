@@ -43,3 +43,10 @@ int DSU::find_rec(int x) {
 	if (_parent[x] == x) return x;
 	return _parent[x] = find_rec(_parent[x]);
 }
+
+void DSU::clear() {
+	for (int i = 0; i < _size; i++) {
+		_parent[i] = i;
+		_rank[i] = 0;
+	}
+}

@@ -1,5 +1,6 @@
 #include "algorithms.h"
 //#define DEBUG
+#define MAX_ITERATIONS 1000
 
 int island_counting(Matrix<int>& matrix) {
     int N = matrix.get_n();
@@ -42,6 +43,9 @@ Matrix<bool> generate(int x, int y, int n, int m) {
         (y / m == 0 || y / m == n - 1 || y % m == 0 || y % m == m - 1))) {
         throw std::invalid_argument("¬ход и выход должны быть на границе лабиринта");
     }
+    if (x < 0 || y < 0 || x >= n * m || y >= n * m) {
+        std::invalid_argument("¬ход и выход не должны быть за пределами лабиринта");
+    }
     DSU labyrinth(n * m);
     Matrix<bool> walls(2 * n - 1, m);
     for (int i = 0; i < 2 * n - 1; i++) {
@@ -49,44 +53,58 @@ Matrix<bool> generate(int x, int y, int n, int m) {
             walls[i][j] = 1;
         }
     }
-    int rand_int;
+    float rand_val;
     srand(static_cast<unsigned int>(time(0)));
     int current = x, finish = y;
-    while (current != finish) {
+    for (int i = 0; current != finish; i++) {
         if (current < finish) {
-            rand_int = rand() % 4;
-            if (rand_int == 0 && current % m != m-1 
+            rand_val = (float)rand() / RAND_MAX;
+            float prob_right = 0.35; 
+            float prob_down = 0.35;
+            float prob_left = 0.15;
+            float prob_up = 0.15;
+
+            if (rand_val < prob_right && current % m != m-1
                 && labyrinth.find(current) != labyrinth.find(current + 1)) {  // вправо
-                labyrinth.unite(current, current +1);
+                labyrinth.unite(current, current + 1);
                 walls[current / m][current % m] = 0;
                 current += 1;
             }
-            if (rand_int == 1 && current / m < n - 1
+            else if (rand_val < prob_right + prob_down && current / m < n - 1
                 && labyrinth.find(current) != labyrinth.find(current + m)) {  // вниз
                 labyrinth.unite(current, current + m);
                 walls[current / m + n][current % m] = 0;
                 current += m;
             }
-            if (rand_int == 2 && current % m != 0 
+            else if (rand_val < prob_right + prob_down + prob_left && current % m != 0
                 && labyrinth.find(current) != labyrinth.find(current - 1)) {  // влево
                 labyrinth.unite(current, current - 1);
                 walls[(current - 1) / m][(current - 1) % m] = 0;
             }
-            if (rand_int == 3 && current > m 
+            else if (rand_val > 1 - prob_up && current > m 
                 && labyrinth.find(current) != labyrinth.find(current - m)) {  // вверх
                 labyrinth.unite(current, current - m);
                 walls[(current - m) / m + n][current % m] = 0;
             }
         }
         if (current > y) {
-            //???
             int c = current;
             current = finish;
             finish = c;
         }
+        if (i > MAX_ITERATIONS) {
+            current = x, finish = y;
+            for (int i = 0; i < 2 * n - 1; i++) {
+                for (int j = 0; j < m; j++) {
+                    walls[i][j] = 1;
+                }
+            }
+            labyrinth.clear();
+            i = 0;
+        }
     }
-    int count_extra_walls = n * m / 3;
-    for (int i = 0; i < count_extra_walls;) {
+    int count_extra_walls = n * m / 2.5;
+    for (int i = 0, j = 0; i < count_extra_walls; j++) {
         int cell = rand() % (n * m);
         int wall_num = rand() % 4;
 
@@ -114,6 +132,7 @@ Matrix<bool> generate(int x, int y, int n, int m) {
             walls[(cell - m) / m + n][cell % m] = 0;
             i++;
         }
+        if (j > MAX_ITERATIONS) break;
     }
 
 #ifdef DEBUG
@@ -141,10 +160,17 @@ Matrix<bool> generate(int x, int y, int n, int m) {
 }
 
 void print_lab(Matrix<bool> walls, int n, int m, int ent, int exit) {
+    bool is_ent = false;
+    bool is_exit = false;
     std::cout << "+";
     for (int j = 0; j < m; j++) {
         if (ent == j && ent / m == 0) {
             std::cout << "   +";
+            is_ent = true;
+        }
+        else if (exit == j && exit / m == 0) {
+            std::cout << "   +";
+            is_exit = true;
         }
         else {
             std::cout << "---+";
@@ -152,17 +178,17 @@ void print_lab(Matrix<bool> walls, int n, int m, int ent, int exit) {
     }
     std::cout << "\n";
 
+    if (exit / m == n - 1) {
+        is_exit = true;
+    }
+    if (ent / m == n - 1) {
+        is_ent = true;
+    }
+
     for (int i = 0; i < n; i++) {
         // лево
-        if (ent == i * m && ent % m == 0 && ent / m != 0 ||
-            exit == i * m && exit % m == 0 && exit / m != 0) {
-            std::cout << " ";
-        }
-        else if (ent == i * m && ent / m == 0 && ent % m == 0 ||
-            exit == i * m && exit / m == 0 && exit % m == 0) {
-            std::cout << "|";
-        }
-        else if (ent == i * m || exit == i * m) {
+        if (ent == i * m && ent % m == 0 && ent / m != 0 && !is_ent ||
+            exit == i * m && exit % m == 0 && exit / m != 0 && !is_exit) {
             std::cout << " ";
         }
         else {
@@ -179,13 +205,9 @@ void print_lab(Matrix<bool> walls, int n, int m, int ent, int exit) {
             }
             else {
                 // право
-                if (exit == i * m + j && exit % m == m - 1 && exit / m != n - 1 ||
-                    ent == i * m + j && ent % m == m - 1 && ent / m != n - 1) {
+                if (exit == i * m + j && exit % m == m - 1 && exit / m != n - 1 && !is_exit 
+                    || ent == i * m + j && ent % m == m - 1 && ent / m != n - 1 && !is_ent) {
                     std::cout << " ";
-                }
-                else if (exit == i * m + j && exit % m == m - 1 && exit / m == n - 1 ||
-                    ent == i * m + j && ent % m == m - 1 && ent / m == n - 1) {
-                    std::cout << "|";
                 }
                 else {
                     std::cout << "|";
@@ -198,13 +220,15 @@ void print_lab(Matrix<bool> walls, int n, int m, int ent, int exit) {
         if (i < n - 1) {
             std::cout << "+";
             for (int j = 0; j < m; j++) {
-                if (exit == i * m + j + m && exit / m == i + 1 ||
-                    ent == i * m + j + m && ent / m == i + 1) {
+                if (exit == i * m + j + m && exit / m == i + 1 && !is_exit ||
+                    ent == i * m + j + m && ent / m == i + 1 && !is_ent) {
                     std::cout << "   +";
                 }
                 else {
-                    if (walls[n + i][j]) std::cout << "---+";
-                    else std::cout << "   +";
+                    if (walls[n + i][j]) 
+                        std::cout << "---+";
+                    else 
+                        std::cout << "   +";
                 }
             }
             std::cout << "\n";

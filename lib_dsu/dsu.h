@@ -12,6 +12,7 @@ public:
 
 	void unite(int x, int y);
 	int find(int x);
+	void clear();
 private:
 	int find_rec(int x);
 };
