@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <string>
 #define VARS_COUNT 3
 
 class Monom {
@@ -41,3 +42,5 @@ public:
 	//friend std::ostream& operator>>(std::ostream&, const Monom&);
 	friend std::ostream& operator<<(std::ostream& os, const Monom& monom);
 };
+
+Monom parse(const std::string&, size_t&);

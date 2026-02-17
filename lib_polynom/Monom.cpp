@@ -150,6 +150,146 @@ double Monom::calculate(double x, double y, double z) const {
 	return _coeff * pow(x, power_x()) * pow(y, power_y()) * pow(z, power_z());
 }
 
+bool is_value(char c) {
+	return c == 'x' || c == 'y' || c == 'z';
+}
+
+void set_power(int powers[], char var, int value) {
+	switch (var) {
+	case 'x': powers[0] = value; break;
+	case 'y': powers[1] = value; break;
+	case 'z': powers[2] = value; break;
+	}
+}
+
+double read_coeff(const std::string& str, size_t& i) {
+	std::string num_str;
+	bool has_decimal_point = false;
+
+	for (; i < str.size(); i++) {
+		if (str[i] == ' ') continue;
+
+		if (std::isdigit(str[i])) {
+			num_str += str[i];
+		}
+
+		else if (str[i] == '.' && !has_decimal_point) {
+			num_str += str[i];
+			has_decimal_point = true;
+			i++;
+		}
+		else {
+			break;
+		}
+	}
+
+	try {
+		double coeff = std::stod(num_str);
+		return coeff;
+	}
+	catch (const std::exception& e) {
+		throw std::invalid_argument("Failed to parse coefficient: " + std::string(e.what()));
+	}
+}
+
+int read_num(const std::string& str, size_t& i) {
+	std::string num_str;
+
+	for (; i < str.size(); i++) {
+		if (str[i] == ' ') continue;
+
+		if (std::isdigit(str[i])) {
+			num_str += str[i];
+		}
+		else {
+			break;
+		}
+	}
+	int num = std::stoi(num_str);
+	return num;
+}
+
+Monom parse(const std::string& str, size_t& pos) {
+	bool is_positive = true;
+	double coeff = 1;
+	int powers[3] = { 0, 0, 0 };
+	size_t i;
+	for (i = pos; i < str.size(); i++) { // sign
+		if (str[i] == ' ') continue;
+		if (str[i] == '-') {
+			is_positive = false;
+			break;
+		}
+		else if (str[i] == '+') break;
+		else { // добавлять вручную + перед полиномом
+			throw std::invalid_argument("Uncorrect symbol");
+		}
+	}
+	for (; i < str.size(); i++) { 	// coeff
+		if (str[i] == ' ') continue;
+
+		if (std::isdigit(str[i])) {
+			coeff = read_coeff(str, i);
+			break;
+		}
+		else if (is_value(str[i])) break; // coeff = 1
+		else {
+			throw std::invalid_argument("Uncorrect symbol after operation");
+		}
+	}
+
+	while (str[i] == ' ') i++; //?
+	if (str[i] == '+' || str[i] == '-') {
+		// функция конца обработки?
+		pos = i;
+		Monom res(coeff, powers);
+		return res;
+	}
+
+	for (; i < str.size(); i++) { // variable
+		// в отдельную функцию
+		int power;
+		char var;
+		if (is_value(str[i])) {
+			int pow = 1;
+			var = str[i];
+			i++;
+			while (str[i] == ' ') i++;
+			if (str[i] == '^') {
+				i++;
+				while (str[i] == ' ') i++;
+				if (std::isdigit(str[i])) {
+					pow = read_num(str, i);
+					set_power(powers, var, pow);
+					while (str[i] == ' ') i++;
+					if (str[i] == '*') continue;
+				}
+				else {
+					throw std::invalid_argument("Uncorrect symbol after ^");
+				}
+			}
+			else if (is_value(str[i])) {
+				i--;
+				set_power(powers, var, pow);
+				continue;
+			}
+			else if (str[i] == '*') {
+				set_power(powers, var, pow);
+				continue;
+			}
+			else {
+				throw std::invalid_argument("Uncorrect symbol after variable " + var);
+			}
+		}
+		else {
+			break;
+		}
+	}
+	pos = i;
+	Monom res(coeff, powers);
+	return res;
+}
+
 std::ostream& operator<<(std::ostream& os, const Monom& monom) {
 	if (monom._coeff != 1 && monom._coeff != -1) {
 		os << monom._coeff;
