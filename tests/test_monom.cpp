@@ -2,7 +2,7 @@
 #include "../lib_polynom/monom.h"
 
 TEST(TestMonomLib, try_create) {
-	ASSERT_NO_THROW(Monom m());
+	ASSERT_NO_THROW(Monom m);
 }
 
 TEST(TestMonomLib, try_create_2) {
@@ -207,6 +207,16 @@ TEST(TestMonomLib, correct_calculate) {
 }
 
 TEST(TestMonomLib, correct_parse) {
+	size_t pos = 0;
+	Monom m = MonomParser::parse("+8xyz", pos);
+
+	EXPECT_EQ(8, m.coeff());
+	EXPECT_EQ(1, m.power_x());
+	EXPECT_EQ(1, m.power_y());
+	EXPECT_EQ(1, m.power_z());
+}
+
+TEST(TestMonomLib, correct_parse_1) {
 	size_t pos = 0;
 	Monom m = MonomParser::parse("-8x^2 y * z^3", pos);
 

@@ -244,39 +244,45 @@ double MonomParser::parse_coeff(const std::string& str, size_t& i) {
 	return coeff;
 }
 
-void MonomParser::parse_variables(const std::string& str, size_t& i, int powers[]) {
+void MonomParser::parse_variables(const std::string& str, size_t& i, int powers[]) { // еще поделить на функции
 	while (i < str.size()) {
-		while (str[i] == ' ') i++;
+		while (i < str.size() && str[i] == ' ') i++;
+		if (i >= str.size()) return;
 		char var;
 		if (is_value(str[i])) {
 			int pow = 1;
 			var = str[i];
 			i++;
-			while (str[i] == ' ') i++;
-			if (str[i] == '^') {
+			while (i < str.size() && str[i] == ' ') i++;
+			if (i < str.size() && str[i] == '^') {
 				i++;
-				while (str[i] == ' ') i++;
-				if (std::isdigit(str[i])) {
+				while (i < str.size() && str[i] == ' ') i++;
+				if (i < str.size() && std::isdigit(str[i])) {
 					pow = read_num(str, i);
 					set_power(powers, var, pow);
-					while (str[i] == ' ') i++;
-					if (str[i] == '*') i++;
+					while (i < str.size() && str[i] == ' ') i++;
+					if (i < str.size() && str[i] == '*') i++;
 				}
 				else {
-					throw std::invalid_argument("Uncorrect symbol after ^");
+					throw std::invalid_argument("Expected digit after ^");
 				}
 			}
-			else if (is_value(str[i])) {
-				set_power(powers, var, pow);
-				continue;
-			}
-			else if (str[i] == '*') {
-				set_power(powers, var, pow);
-				i++;
-				continue;
-			}
 			else {
-				throw std::invalid_argument("Uncorrect symbol after variable " + var);
+				set_power(powers, var, pow);
+
+				if (i < str.size() && str[i] == '*') {
+					i++;
+					continue;
+				}
+				else if (is_value(str[i])) {
+					continue;
+				}
+				else if (i >= str.size()) {
+					return;
+				}
+				else {
+					throw std::invalid_argument("Unexpected symbol after variable: " + var);
+				}
 			}
 		}
 		else {

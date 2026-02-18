@@ -40,7 +40,7 @@ public:
 	double calculate(double, double, double) const;
 
 	//friend std::ostream& operator>>(std::ostream&, const Monom&);
-	friend std::ostream& operator<<(std::ostream& os, const Monom& monom);
+	friend std::ostream& operator<<(std::ostream& os, const Monom&);
 };
 
 namespace MonomParser {
