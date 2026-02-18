@@ -194,3 +194,74 @@ TEST(TestMonomLib, correct_unary_minus) {
 
 	EXPECT_EQ(-m1, m2);
 }
+
+TEST(TestMonomLib, correct_calculate) {
+	int m_powers1[3] = { 1, 3, 4 };
+	int m_powers2[3] = { -1, -2, 0 };
+	Monom m1(8.2, m_powers1);
+	Monom m2(5.5, m_powers2);
+
+	EXPECT_DOUBLE_EQ(m1.calculate(4, 3, 2), 14169.6);
+	EXPECT_DOUBLE_EQ(m1.calculate(2, -2, 2), -2099.2);
+	EXPECT_DOUBLE_EQ(m2.calculate(1, 2, 2), 1.375);
+}
+
+TEST(TestMonomLib, correct_parse) {
+	size_t pos = 0;
+	Monom m = MonomParser::parse("-8x^2 y * z^3", pos);
+
+	EXPECT_EQ(-8, m.coeff());
+	EXPECT_EQ(2, m.power_x());
+	EXPECT_EQ(1, m.power_y());
+	EXPECT_EQ(3, m.power_z());
+}
+
+TEST(TestMonomLib, correct_parse_2) {
+	size_t pos = 0;
+	Monom m = MonomParser::parse("-8 x  ^  2  y  *  z ^  3", pos);
+
+	EXPECT_EQ(-8, m.coeff());
+	EXPECT_EQ(2, m.power_x());
+	EXPECT_EQ(1, m.power_y());
+	EXPECT_EQ(3, m.power_z());
+}
+
+TEST(TestMonomLib, correct_parse_3) {
+	size_t pos = 0;
+	Monom m = MonomParser::parse("+6.376*x^231*y^888z^0", pos);
+
+	EXPECT_EQ(6.376, m.coeff());
+	EXPECT_EQ(231, m.power_x());
+	EXPECT_EQ(888, m.power_y());
+	EXPECT_EQ(0, m.power_z());
+}
+
+TEST(TestMonomLib, correct_parse_4) {
+	size_t pos = 0;
+	Monom m = MonomParser::parse("-6.376*z^231", pos);
+
+	EXPECT_EQ(-6.376, m.coeff());
+	EXPECT_EQ(0, m.power_x());
+	EXPECT_EQ(0, m.power_y());
+	EXPECT_EQ(231, m.power_z());
+}
+
+TEST(TestMonomLib, correct_parse_5) {
+	size_t pos = 0;
+	Monom m = MonomParser::parse("-6.376", pos);
+
+	EXPECT_EQ(-6.376, m.coeff());
+	EXPECT_EQ(0, m.power_x());
+	EXPECT_EQ(0, m.power_y());
+	EXPECT_EQ(0, m.power_z());
+}
+
+TEST(TestMonomLib, throw_uncorrect_parse) {
+	size_t pos = 0;
+
+	EXPECT_THROW(MonomParser::parse("+ ", pos); , std::invalid_argument);
+	EXPECT_THROW(MonomParser::parse("- +", pos);, std::invalid_argument);
+	EXPECT_THROW(MonomParser::parse("-8x & y", pos); , std::invalid_argument);
+	EXPECT_THROW(MonomParser::parse("- * 8", pos);, std::invalid_argument);
+	EXPECT_THROW(MonomParser::parse("* 8xy", pos); , std::invalid_argument);
+}

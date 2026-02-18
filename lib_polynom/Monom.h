@@ -43,4 +43,13 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const Monom& monom);
 };
 
-Monom parse(const std::string&, size_t&);
+namespace MonomParser {
+	Monom parse(const std::string& str, size_t& pos);
+	bool is_value(char c);
+	void set_power(int powers[], char var, int value);
+	double read_coeff(const std::string& str, size_t& i);
+	int read_num(const std::string& str, size_t& i);
+	bool parse_sign(const std::string& str, size_t& i);
+	double parse_coeff(const std::string& str, size_t& i);
+	void parse_variables(const std::string& str, size_t& i, int powers[]);
+}
