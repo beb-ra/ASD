@@ -280,6 +280,9 @@ void MonomParser::parse_variables(const std::string& str, size_t& i, int powers[
 				else if (i >= str.size()) {
 					return;
 				}
+				else if (str[i] == '+' || str[i] == '-') {
+					return;
+				}
 				else {
 					throw std::invalid_argument("Unexpected symbol after variable: " + var);
 				}
@@ -325,12 +328,15 @@ std::ostream& operator<<(std::ostream& os, const Monom& monom) {
 	char chars[VARS_COUNT] = { 'x', 'y', 'z' };
 	for (int i = 0; i < VARS_COUNT; i++) {
 		if (monom._powers[i] != 0) {
-			os << chars[i] << "^";
-			if (monom._powers[i] > 0 && monom._powers[i] != 1) {
-				os << monom._powers[i];
-			}
-			else if (monom._powers[i] < 0 && monom._powers[i] != -1) {
-				os << "(" << monom._powers[i] << ")";
+			os << chars[i];
+			if (monom._powers[i] != 1) {
+				os << "^";
+				if (monom._powers[i] > 0 && monom._powers[i] != 1) {
+					os << monom._powers[i];
+				}
+				else if (monom._powers[i] < 0 && monom._powers[i] != -1) {
+					os << "(" << monom._powers[i] << ")";
+				}
 			}
 		}
 	}

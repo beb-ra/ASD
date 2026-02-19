@@ -10,14 +10,13 @@ public:
 	Polynom(const Monom& monom); // мб сделать приватным
 	Polynom(std::string name, std::string str);
 
-	//операции
 	Polynom& operator=(const Polynom& other);
 
-	//Polynom operator+(const Polynom&) const;
+	Polynom operator+(const Polynom&) const;
 	//Polynom operator-(const Polynom&) const;
-	//Polynom operator*(const Polynom&) const noexcept;
+	Polynom operator*(const Polynom&) const noexcept;
 
-	//Polynom& operator+=(const Polynom&);
+	Polynom& operator+=(const Polynom&);
 	//Polynom& operator-=(const Polynom&);
 	//Polynom& operator*=(const Polynom&) noexcept;
 
@@ -40,10 +39,11 @@ public:
 	//friend std::ostream& operator<<(std::ostream& os, const Polynom&);
 
 	std::string name();
-	List<Monom> monoms();
+	List<Monom>& monoms();
 	void set_name(const std::string&);
 };
 
 namespace PolynomParser {
 	List<Monom> parse(const std::string& str);
+	void ordered_insert_monom(List<Monom>& result, const Monom& monom);
 }

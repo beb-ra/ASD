@@ -20,7 +20,12 @@ Polynom& Polynom::operator=(const Polynom& other) {
 	return *this;
 }
 
-/*
+Polynom Polynom::operator+(const Polynom& other) const {
+	Polynom res;
+	res += other;
+	return res;
+}
+
 Polynom Polynom::operator*(const Polynom& other) const noexcept {
 	Polynom res;
 	for (auto it1 = _polynom.begin(); it1 != _polynom.end(); it1++) {
@@ -30,7 +35,80 @@ Polynom Polynom::operator*(const Polynom& other) const noexcept {
 	}
 	return res;
 }
-*/
+
+Polynom& Polynom::operator+=(const Polynom& other) {
+	auto it1 = _polynom.begin();
+	auto it2 = other._polynom.begin();
+	List<Monom>::Iterator prev = nullptr;
+
+	while (it1 != _polynom.end() && it2 != other._polynom.end()) {
+		if (*it1 == *it2) {
+			*it1 = *it1 + *it2;
+
+			if (std::abs((*it1).coeff()) < 1e-10) { // delete if coeff = 0
+				auto to_delete = it1;
+				++it1;
+				_polynom.erase(to_delete.current());
+			}
+			else {
+				prev = it1;
+				++it1;
+			}
+			++it2;
+		}
+		else if (*it1 > *it2) {
+			prev = it1;
+			++it1;
+		}
+		else { 
+			if (prev == nullptr) {
+				_polynom.push_front(*it2);
+				prev = _polynom.begin();
+			}
+			else {
+				_polynom.insert(prev.current(), *it2);
+				++prev;
+			}
+			++it2;
+		}
+	}
+
+	while (it2 != other._polynom.end()) {
+		_polynom.push_back(*it2);
+		++it2;
+	}
+
+	return *this;
+}
+
+void PolynomParser::ordered_insert_monom(List<Monom>& result, const Monom& monom) {
+	if (result.is_empty()) {
+		result.push_back(monom);
+		return;
+	}
+	if (monom > *result.begin()) {
+		result.push_front(monom);
+		return;
+	}
+
+	for (auto it = result.begin(); it != result.end(); ++it) {
+		auto next = it;
+		++next;
+
+		if (monom == *it) {
+			*it = (*it) + monom;
+			return;
+		}
+		if (next == result.end()) {
+			result.push_back(monom);
+			return;
+		}
+		if (monom > *next && monom < *it) {
+			result.insert(it.current(), monom);
+			return;
+		}
+	}
+}
 
 List<Monom> PolynomParser::parse(const std::string& str) {
 	bool is_sign_at_begin = false;
@@ -45,10 +123,10 @@ List<Monom> PolynomParser::parse(const std::string& str) {
 
 	List<Monom> result;
 	std::string new_str = is_sign_at_begin ? str : "+" + str;
-	for (size_t i = 0; i < new_str.size(); i++) {
+	for (size_t i = 0; i < new_str.size(); ) {
 		try {
-			Monom monom = MonomParser::parse(str, i);
-			result.push_back(monom); // надо попа рядку
+			Monom monom = MonomParser::parse(new_str, i);
+			ordered_insert_monom(result, monom); // надо попа рядку
 		}
 		catch (const std::exception& e) {
 			throw std::invalid_argument("Failed to parse monom: " + std::string(e.what()));
@@ -60,7 +138,7 @@ List<Monom> PolynomParser::parse(const std::string& str) {
 std::string Polynom::name() {
 	return _name;
 }
-List<Monom> Polynom::monoms() {
+List<Monom>& Polynom::monoms() {
 	return _polynom;
 }
 void Polynom::set_name(const std::string& name) {

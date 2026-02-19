@@ -85,6 +85,9 @@ public:
 		const Node* current() const noexcept {
 			return _current;
 		}
+		Node* current() { 
+			return _current;
+		}
 
 	};
 	Iterator begin() {
