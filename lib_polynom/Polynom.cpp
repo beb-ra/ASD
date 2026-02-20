@@ -1,8 +1,8 @@
 #include "Polynom.h"
 
 Polynom::Polynom(std::string name) : _name(name) {
-	Monom zero;
-	_polynom.push_back(zero);
+	//Monom zero;
+	//_polynom.push_back(zero);
 }
 Polynom::Polynom(const Monom& monom) : _name("default") {
 	_polynom.push_back(monom);
@@ -21,8 +21,14 @@ Polynom& Polynom::operator=(const Polynom& other) {
 }
 
 Polynom Polynom::operator+(const Polynom& other) const {
-	Polynom res;
+	Polynom res(*this);
 	res += other;
+	return res;
+}
+
+Polynom Polynom::operator-(const Polynom& other) const {
+	Polynom res(*this);
+	res -= other;
 	return res;
 }
 
@@ -36,49 +42,101 @@ Polynom Polynom::operator*(const Polynom& other) const noexcept {
 	return res;
 }
 
+Polynom& Polynom::operator*=(const Polynom& other) noexcept {
+	Polynom res;
+	for (auto it1 = _polynom.begin(); it1 != _polynom.end(); it1++) {
+		for (auto it2 = other._polynom.begin(); it2 != other._polynom.end(); it2++) {
+			res += (*it1) * (*it2);
+		}
+	}
+
+	_polynom = res._polynom;
+	//_polynom = std::move(res._polynom);
+	return *this;
+}
+
 Polynom& Polynom::operator+=(const Polynom& other) {
+	List<Monom> result;
 	auto it1 = _polynom.begin();
 	auto it2 = other._polynom.begin();
-	List<Monom>::Iterator prev = nullptr;
 
 	while (it1 != _polynom.end() && it2 != other._polynom.end()) {
 		if (*it1 == *it2) {
-			*it1 = *it1 + *it2;
-
-			if (std::abs((*it1).coeff()) < 1e-10) { // delete if coeff = 0
-				auto to_delete = it1;
-				++it1;
-				_polynom.erase(to_delete.current());
+			Monom sum = *it1 + *it2;
+			if (std::abs(sum.coeff()) >= 1e-10) {
+				result.push_back(sum);
 			}
-			else {
-				prev = it1;
-				++it1;
-			}
-			++it2;
+			it1++;
+			it2++;
 		}
 		else if (*it1 > *it2) {
-			prev = it1;
-			++it1;
+			result.push_back(*it1);
+			it1++;
 		}
-		else { 
-			if (prev == nullptr) {
-				_polynom.push_front(*it2);
-				prev = _polynom.begin();
-			}
-			else {
-				_polynom.insert(prev.current(), *it2);
-				++prev;
-			}
-			++it2;
+		else {
+			result.push_back(*it2);
+			it2++;
 		}
 	}
 
+	while (it1 != _polynom.end()) {
+		result.push_back(*it1);
+		it1++;
+	}
 	while (it2 != other._polynom.end()) {
-		_polynom.push_back(*it2);
-		++it2;
+		result.push_back(*it2);
+		it2++;
 	}
 
+	_polynom = result;
+	//_polynom = std::move(result);
 	return *this;
+}
+
+Polynom& Polynom::operator-=(const Polynom& other) {
+	List<Monom> result;
+	auto it1 = _polynom.begin();
+	auto it2 = other._polynom.begin();
+
+	while (it1 != _polynom.end() && it2 != other._polynom.end()) {
+		if (*it1 == *it2) {
+			Monom sum = *it1 - *it2;
+			if (std::abs(sum.coeff()) >= 1e-10) {
+				result.push_back(sum);
+			}
+			it1++;
+			it2++;
+		}
+		else if (*it1 > *it2) {
+			result.push_back(*it1);
+			it1++;
+		}
+		else {
+			result.push_back(-(*it2));
+			it2++;
+		}
+	}
+
+	while (it1 != _polynom.end()) {
+		result.push_back(*it1);
+		it1++;
+	}
+	while (it2 != other._polynom.end()) {
+		result.push_back(-(*it2));
+		it2++;
+	}
+
+	_polynom = result;
+	//_polynom = std::move(result);
+	return *this;
+}
+
+Polynom Polynom::operator-() const noexcept {
+	Polynom res(*this);
+	for (auto it = res._polynom.begin(); it != res._polynom.end(); it++) {
+		(*it) = -(*it);
+	}
+	return res;
 }
 
 void PolynomParser::ordered_insert_monom(List<Monom>& result, const Monom& monom) {

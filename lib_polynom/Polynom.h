@@ -13,22 +13,14 @@ public:
 	Polynom& operator=(const Polynom& other);
 
 	Polynom operator+(const Polynom&) const;
-	//Polynom operator-(const Polynom&) const;
+	Polynom operator-(const Polynom&) const;
 	Polynom operator*(const Polynom&) const noexcept;
 
 	Polynom& operator+=(const Polynom&);
-	//Polynom& operator-=(const Polynom&);
-	//Polynom& operator*=(const Polynom&) noexcept;
+	Polynom& operator-=(const Polynom&);
+	Polynom& operator*=(const Polynom&) noexcept;
 
-	/*
-	Polynom operator+(const Monom&) const;
-	Polynom operator-(const Monom&) const;
-	Polynom operator*(const Monom&) const noexcept;
-
-	Polynom& operator+=(const Monom&);
-	Polynom& operator-=(const Monom&);
-	Polynom& operator*=(const Monom&) noexcept;
-	*/
+	Polynom operator-() const noexcept;
 
 	//?
 	//friend Polynom operator+(const Monom&, const Polynom&);
