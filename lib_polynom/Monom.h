@@ -9,6 +9,7 @@ class Monom {
 public:
 	Monom(double coeff = 0);
 	Monom(double, const int powers[VARS_COUNT]);
+	Monom(double, std::initializer_list<int>);
 	Monom(const Monom& other);
 	Monom& operator=(const Monom& other);
 

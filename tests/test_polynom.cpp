@@ -175,11 +175,69 @@ TEST(TestPolynomLib, correct_operator_add) {
 	EXPECT_EQ(expected, p1.monoms());
 }
 
+TEST(TestPolynomLib, correct_add_2) {
+	Monom m_x3(1, { 3, 0, 0 });
+	Monom m_x4(1, { 4, 0, 0 });
+	Monom m_x2(1, { 2, 0, 0 });
+
+	// x^4 + x^3 + x^2 + 2x + 8
+	List<Monom> expected;
+	expected.push_back(m_x4);
+	expected.push_back(m_x3);
+	expected.push_back(m_x2);
+	expected.push_back(Monom(2, { 1, 0, 0 }));
+	expected.push_back(Monom(8, { 0, 0, 0 }));
+
+	Polynom p1("p1", "x^3 + x + 5");
+	Polynom p2("p2", "x^4 + x^2 + x + 3");
+
+	Polynom p3 = p1 + p2;
+	EXPECT_EQ(expected, p3.monoms());
+	p1 += p2;
+	EXPECT_EQ(expected, p1.monoms());
+}
+
+TEST(TestPolynomLib, correct_add_empty_polynom) {
+	int powers_x2[3] = { 2, 0, 0 };
+	Monom m_x2(3, powers_x2);
+	int powers_x[3] = { 1, 0, 0 };
+	Monom m_x(2, powers_x);
+
+	List<Monom> expected;
+	expected.push_back(m_x2);
+	expected.push_back(m_x);
+
+	Polynom p1("p1", "3x^2 + 2x");
+	Polynom p2("p2", "");
+
+	Polynom p3 = p1 + p2;
+	EXPECT_EQ(expected, p3.monoms());
+	p2 += p1;
+	EXPECT_EQ(expected, p2.monoms());
+}
+
+TEST(TestPolynomLib, correct_add_with_complete_cancel) {
+	Monom m_x2(5, { 2, 0, 0 });
+	Monom m_y(3, { 0, 1, 0 });
+
+	Polynom p1("p1", "5x^2 + 3y");
+	Polynom p2("p2", "-5x^2 - 3y");
+
+	List<Monom> expected;
+
+	p1 += p2;
+
+	for (auto it = p1.monoms().begin(); it != p1.monoms().end(); it++) {
+		std::cout << (*it) << std::endl;
+	}
+
+	EXPECT_EQ(expected, p1.monoms());
+	EXPECT_TRUE(p1.monoms().is_empty());
+}
+
 TEST(TestPolynomLib, correct_operator_sub) {
-	int powers_x3[3] = { 3, 0, 0 };
-	Monom m_x3(-1, powers_x3);
-	int powers_x2y1[3] = { 2, 1, 0 };
-	Monom m_x2y1(1, powers_x2y1);
+	Monom m_x3(-1, { 3, 0, 0 });
+	Monom m_x2y1(1, { 2, 1, 0 });
 	int powers_x1y1z1[3] = { 1, 1, 1 };
 	Monom m_xyz(-1, powers_x1y1z1);
 	int powers_y2[3] = { 0, 2, 0 };
@@ -204,6 +262,71 @@ TEST(TestPolynomLib, correct_operator_sub) {
 	EXPECT_EQ(expected, p3.monoms());
 	p1 -= p2;
 	EXPECT_EQ(expected, p1.monoms());
+}
+
+TEST(TestPolynomLib, correct_sub_2) {
+	Monom m_x2(1, { 2, 0, 0 });
+	Monom m_x(1, { 1, 0, 0 });
+	Monom m_1(1, { 0, 0, 0 });
+
+	// (x^2 + x + 1) - (2x^2 + 3x + 5) = -x^2 - 2x - 4
+	List<Monom> expected;
+	expected.push_back(Monom(-1, { 2, 0, 0 }));
+	expected.push_back(Monom(-2, { 1, 0, 0 }));
+	expected.push_back(Monom(-4, { 0, 0, 0 }));
+
+	Polynom p1("p1", "x^2 + x + 1");
+	Polynom p2("p2", "2x^2 + 3x + 5");
+
+	Polynom p3 = p1 - p2;
+	EXPECT_EQ(expected, p3.monoms());
+	p1 -= p2;
+	EXPECT_EQ(expected, p1.monoms());
+}
+
+TEST(TestPolynomLib, correct_sub_empty_polynom) {
+	int powers_x2[3] = { 2, 0, 0 };
+	Monom m_x2(3, powers_x2);
+	int powers_x[3] = { 1, 0, 0 };
+	Monom m_x(2, powers_x);
+
+	List<Monom> expected;
+	expected.push_back(m_x2);
+	expected.push_back(m_x);
+
+	Polynom p1("p1", "3x^2 + 2x");
+	Polynom p2("p2", "");
+
+	Polynom p3 = p1 - p2;
+	EXPECT_EQ(expected, p3.monoms());
+	p2 -= p1;
+	EXPECT_EQ(expected, p2.monoms());
+}
+
+TEST(TestPolynomLib, correct_sub_with_complete_cancel) {
+	Monom m_x2(5, { 2, 0, 0 });
+	Monom m_y(3, { 0, 1, 0 });
+
+	Polynom p1("p1", "5x^2 + 3y");
+	Polynom p2("p2", "5x^2 + 3y");
+
+	List<Monom> expected;
+
+	p1 -= p2;
+	EXPECT_EQ(expected, p1.monoms());
+	EXPECT_TRUE(p1.monoms().is_empty());
+}
+
+TEST(TestPolynomLib, correct_sub_itself) {
+	Monom m_x2(5, { 2, 0, 0 });
+
+	Polynom p1("p1", "5x^2 + 3y");
+
+	List<Monom> expected;
+
+	p1 -= p1;
+	EXPECT_EQ(expected, p1.monoms());
+	EXPECT_TRUE(p1.monoms().is_empty());
 }
 
 TEST(TestPolynomLib, correct_operator_mult) {
@@ -246,4 +369,123 @@ TEST(TestPolynomLib, correct_operator_mult_2) {
 
 	Polynom p3 = p1 * p2;
 	EXPECT_EQ(expected, p3.monoms());
+	p1 *= p2;
+	EXPECT_EQ(expected, p1.monoms());
+}
+
+TEST(TestPolynomLib, correct_mult_3) {
+	// (x^2 + xy + y^2)(x - y) = x^3 - y^3
+	int powers_x3[3] = { 3, 0, 0 };
+	Monom m_x3(1, powers_x3);
+	int powers_y3[3] = { 0, 3, 0 };
+	Monom m_y3(-1, powers_y3);
+
+	List<Monom> expected;
+	expected.push_back(m_x3);
+	expected.push_back(m_y3);
+
+	Polynom p1("p1", "x^2 + xy + y^2");
+	Polynom p2("p2", "x - y");
+
+	Polynom p3 = p1 * p2;
+	EXPECT_EQ(expected, p3.monoms());
+	p1 *= p2;
+	EXPECT_EQ(expected, p1.monoms());
+}
+
+TEST(TestPolynomLib, correct_mult_by_zero) {
+	int powers_x[3] = { 1, 0, 0 };
+	Monom m_x(5, powers_x);
+
+	List<Monom> expected;
+
+	Polynom p1("p1", "5x + 3");
+	Polynom p2("p2", "0");
+
+	Polynom p3 = p1 * p2;
+	EXPECT_EQ(expected, p3.monoms());
+	p1 *= p2;
+	EXPECT_EQ(expected, p1.monoms());
+	EXPECT_TRUE(p1.monoms().is_empty());
+}
+
+TEST(TestPolynomLib, multiply_by_one) {
+	int powers_x2[3] = { 2, 0, 0 };
+	Monom m_x2(3, powers_x2);
+	int powers_x[3] = { 1, 0, 0 };
+	Monom m_x(2, powers_x);
+	int powers_0[3] = { 0, 0, 0 };
+	Monom m_1(1, powers_0);
+
+	List<Monom> expected;
+	expected.push_back(m_x2);
+	expected.push_back(m_x);
+	expected.push_back(m_1);
+
+	Polynom p1("p1", "3x^2 + 2x + 1");
+	Polynom p2("p2", "1");
+
+	p1 *= p2;
+	EXPECT_EQ(expected, p1.monoms());
+}
+
+TEST(TestPolynomLib, correct_operator_add_by_monom) {
+	Monom m_x3(1, { 3, 0, 0 });
+	Monom m_xyz(1, { 1, 1, 1 });
+	Monom m_y2(2, { 0, 2, 0 });
+	Monom m_0(5, { 0, 0, 0 });
+	Monom m(-1, {1, 1, 0});
+
+	List<Monom> expected;
+	expected.push_back(m_x3);
+	expected.push_back(m_xyz);
+	expected.push_back(m_y2);
+	expected.push_back(m_0);
+
+	Polynom p1("p", "5 + y^2 + xyz + x^3 + xy");
+
+	Polynom p3 = m + p1;
+	EXPECT_EQ(expected, p3.monoms());
+	p1 += m;
+	EXPECT_EQ(expected, p1.monoms());
+}
+
+TEST(TestPolynomLib, correct_operator_sub_by_monom) {
+	Monom m_x3(1, { 3, 0, 0 });
+	Monom m_xyz(1, { 1, 1, 1 });
+	Monom m_y2(2, { 0, 2, 0 });
+	Monom m_0(5, { 0, 0, 0 });
+	Monom m(1, { 1, 1, 0 });
+
+	List<Monom> expected;
+	expected.push_back(m_x3);
+	expected.push_back(m_xyz);
+	expected.push_back(m_y2);
+	expected.push_back(m_0);
+
+	Polynom p1("p", "-5 - y^2 - xyz - x^3 + xy");
+
+	Polynom p3 = m - p1;
+	EXPECT_EQ(expected, p3.monoms());
+	p1 -= m;
+	EXPECT_EQ(expected, p1.monoms());
+}
+
+TEST(TestPolynomLib, correct_operator_mult_by_monom) {
+	Monom m_x3(3, { 3, 0, 0 });
+	Monom m_x2(6, { 2, 0, 0 });
+	Monom m_x(3, { 1, 0, 0 });
+	Monom m(3, { 1, 0, 0 });
+
+	List<Monom> expected;
+	expected.push_back(m_x3);
+	expected.push_back(m_x2);
+	expected.push_back(m_x);
+
+	Polynom p1("p1", "x^2 + 2x + 1");
+
+	Polynom p3 = m * p1;
+	EXPECT_EQ(expected, p3.monoms());
+	p1 *= m;
+	EXPECT_EQ(expected, p1.monoms());
 }

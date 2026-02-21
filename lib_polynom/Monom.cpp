@@ -12,6 +12,14 @@ Monom::Monom(double coeff, const int powers[VARS_COUNT]) : _coeff(coeff) {
 	}
 }
 
+Monom::Monom(double coeff, std::initializer_list<int> powers) : _coeff(coeff) {
+	auto it = powers.begin();
+	int i = 0;
+	for (auto it = powers.begin(); it < powers.end(), i < VARS_COUNT; it++, i++) {
+		_powers[i] = *it;
+	}
+}
+
 Monom::Monom(const Monom& other) : _coeff(other._coeff) {
 	for (int i = 0; i < VARS_COUNT; ++i) {
 		_powers[i] = other._powers[i];
