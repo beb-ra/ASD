@@ -166,11 +166,21 @@ TEST(TestMonomLib, correct_div_on_number) {
 	int m_powers1[3] = { 1, 3, 4 };
 	Monom m1(8, m_powers1);
 	Monom m2(2, m_powers1);
+	Monom m3(2, {-1, -3, -4});
 
 	EXPECT_EQ(m1 / 4, m2);
-	EXPECT_EQ(16 / m1, m2);
+	EXPECT_EQ(16 / m1, m3);
 	m1 /= 4;
 	EXPECT_EQ(m1, m2);
+}
+
+TEST(TestMonomLib, correct_div_itself) {
+	Monom m(2.72, { 2, 1, 3 });
+	Monom res(1, { 0, 0, 0 });
+
+	EXPECT_EQ(m / m, res);
+	m /= m;
+	EXPECT_EQ(m, res);
 }
 
 TEST(TestMonomLib, throw_add_on_number) {

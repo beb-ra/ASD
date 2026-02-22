@@ -22,9 +22,26 @@ public:
 
 	Polynom operator-() const noexcept;
 
+	Polynom operator/(const Monom&) const;
+	Polynom& operator/=(const Monom&);
+
+	Polynom& operator+=(double);
+	Polynom& operator-=(double);
+	Polynom& operator*=(double) noexcept;
+	Polynom& operator/=(double);
+
 	friend Polynom operator+(const Monom&, const Polynom&);
 	friend Polynom operator-(const Monom&, const Polynom&);
 	friend Polynom operator*(const Monom&, const Polynom&);
+
+	friend Polynom operator+(double, const Polynom&);
+	friend Polynom operator-(double, const Polynom&);
+	friend Polynom operator*(double, const Polynom&) noexcept;
+
+	friend Polynom operator+(const Polynom&, double);
+	friend Polynom operator-(const Polynom&, double);
+	friend Polynom operator*(const Polynom&, double) noexcept;
+	friend Polynom operator/(const Polynom&, double);
 
 	//friend std::ostream& operator>>(std::ostream&, const Polynom&);
 	//friend std::ostream& operator<<(std::ostream& os, const Polynom&);

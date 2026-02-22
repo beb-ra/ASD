@@ -176,6 +176,40 @@ Polynom Polynom::operator-() const noexcept {
 	return res;
 }
 
+Polynom Polynom::operator/(const Monom& monom) const {
+	Polynom res(*this);
+	res /= monom;
+	return res;
+}
+
+Polynom& Polynom::operator/=(const Monom& monom) {
+	for (auto it = _polynom.begin(); it != _polynom.end(); it++) {
+		try {
+			(*it) /= monom;
+		} catch (const std::exception& e) {
+			throw std::invalid_argument(e.what());
+		}
+	}
+	return *this;
+}
+
+Polynom& Polynom::operator+=(double num) {
+	*this += static_cast <Monom>(num);
+	return *this;
+}
+Polynom& Polynom::operator-=(double num) {
+	*this -= static_cast <Monom>(num);
+	return *this;
+}
+Polynom& Polynom::operator*=(double num) noexcept {
+	*this *= static_cast <Monom>(num);
+	return *this;
+}
+Polynom& Polynom::operator/=(double num) {
+	*this /= static_cast <Monom>(num);
+	return *this;
+}
+
 void PolynomParser::ordered_insert_monom(List<Monom>& result, const Monom& monom) {
 	if (result.is_empty()) {
 		result.push_back(monom);
@@ -238,6 +272,29 @@ Polynom operator-(const Monom& monom, const Polynom& polynom) {
 }
 Polynom operator*(const Monom& monom, const Polynom& polynom) {
 	return polynom * monom;
+}
+
+Polynom operator+(double num, const Polynom& polynom) {
+	return static_cast <Monom>(num) + polynom;
+}
+Polynom operator-(double num, const Polynom& polynom) {
+	return static_cast <Monom>(num) - polynom;
+}
+Polynom operator*(double num, const Polynom& polynom) noexcept {
+	return static_cast <Monom>(num) * polynom;
+}
+
+Polynom operator+(const Polynom& polynom, double num) {
+	return polynom + static_cast <Monom>(num);
+}
+Polynom operator-(const Polynom& polynom, double num) {
+	return polynom - static_cast <Monom>(num);
+}
+Polynom operator*(const Polynom& polynom, double num) noexcept {
+	return polynom * static_cast <Monom>(num);
+}
+Polynom operator/(const Polynom& polynom, double num) {
+	return polynom / static_cast <Monom>(num);
 }
 
 std::string Polynom::name() {

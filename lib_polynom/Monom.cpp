@@ -15,7 +15,7 @@ Monom::Monom(double coeff, const int powers[VARS_COUNT]) : _coeff(coeff) {
 Monom::Monom(double coeff, std::initializer_list<int> powers) : _coeff(coeff) {
 	auto it = powers.begin();
 	int i = 0;
-	for (auto it = powers.begin(); it < powers.end(), i < VARS_COUNT; it++, i++) {
+	for (auto it = powers.begin(); it != powers.end(), i < VARS_COUNT; it++, i++) {
 		_powers[i] = *it;
 	}
 }
@@ -105,6 +105,9 @@ Monom Monom::operator*(const Monom& other) const noexcept {
 	return res;
 }
 Monom Monom::operator/(const Monom& other) const {
+	if (other._coeff < 10e-10) {
+		throw std::invalid_argument("Can't division by zero");
+	}
 	Monom res(*this);
 	res /= other;
 	return res;
@@ -137,7 +140,7 @@ Monom& Monom::operator*=(const Monom& other) noexcept {
 	return *this;
 }
 Monom& Monom::operator/=(const Monom& other) {
-	if (other._coeff == 0) {
+	if (other._coeff < 10e-10) {
 		throw std::invalid_argument("Can't division by zero");
 	}
 	_coeff /= other._coeff;
@@ -150,8 +153,12 @@ Monom& Monom::operator/=(const Monom& other) {
 Monom operator*(double num, const Monom& monom) noexcept {
 	return monom * num;
 }
-Monom operator/(double num, const Monom& monom) noexcept {
-	return monom / num;
+Monom operator/(double num, const Monom& monom) {
+	if (monom._coeff < 10e-10) {
+		throw std::invalid_argument("Can't division by zero");
+	}
+	Monom monom1(num, { 0, 0, 0 });
+	return monom1 / monom;
 }
 
 double Monom::calculate(double x, double y, double z) const {
@@ -342,7 +349,7 @@ std::ostream& operator<<(std::ostream& os, const Monom& monom) {
 				if (monom._powers[i] > 0 && monom._powers[i] != 1) {
 					os << monom._powers[i];
 				}
-				else if (monom._powers[i] < 0 && monom._powers[i] != -1) {
+				else if (monom._powers[i] < 0) {
 					os << "(" << monom._powers[i] << ")";
 				}
 			}

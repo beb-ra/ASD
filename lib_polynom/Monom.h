@@ -26,7 +26,7 @@ public:
 	Monom operator-() const noexcept;
 
 	friend Monom operator*(double, const Monom&) noexcept;
-	friend Monom operator/(double, const Monom&) noexcept;
+	friend Monom operator/(double, const Monom&);
 
 	Monom& operator+=(const Monom&);
 	Monom& operator-=(const Monom&);
