@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include "Polynom.h"
+#include "polynom.h"
 
 int main() {
 	Polynom m;

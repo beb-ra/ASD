@@ -1,4 +1,4 @@
-#include "Monom.h"
+#include "monom.h"
 
 Monom::Monom(double coeff) : _coeff(coeff) {
 	for (int i = 0; i < VARS_COUNT; i++) {

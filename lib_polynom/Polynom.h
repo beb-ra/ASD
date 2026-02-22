@@ -1,6 +1,6 @@
 #pragma once
 #include "../lib_list/list.h"
-#include "../lib_polynom/Monom.h"
+#include "../lib_polynom/monom.h"
 
 class Polynom {
 	List<Monom> _polynom;

@@ -1,4 +1,4 @@
-#include "Polynom.h"
+#include "polynom.h"
 
 Polynom::Polynom(std::string name) : _name(name) {
 	//Monom zero;
