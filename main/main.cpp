@@ -5,9 +5,12 @@
 
 #include <iostream>
 #include <iomanip>
+#include "Polynom.h"
 
 int main() {
-  return 0;
+	Polynom m;
+	std::cin >> m;
+	std::cout << m;
 }
 
 #endif  // EASY_EXAMPLE

@@ -306,3 +306,22 @@ List<Monom>& Polynom::monoms() {
 void Polynom::set_name(const std::string& name) {
 	_name = name;
 }
+
+std::ostream& operator<<(std::ostream& os, const Polynom& polynom) {
+	for (auto it = polynom._polynom.begin(); it != polynom._polynom.end(); it++) {
+		os << *it;
+	}
+	return os;
+}
+std::istream& operator>>(std::istream& is, Polynom& polynom) {
+	std::string str;
+	is >> str;
+	size_t pos = 0;
+	try {
+		polynom._polynom = PolynomParser::parse(str);
+	}
+	catch (const std::exception& e) {
+		throw std::invalid_argument(e.what());
+	}
+	return is;
+}

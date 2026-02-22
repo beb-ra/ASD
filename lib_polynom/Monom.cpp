@@ -236,6 +236,9 @@ bool MonomParser::parse_sign(const std::string& str, size_t& i) {
 			i++;
 			return true;
 		}
+		else if (std::isalnum(str[i])) {
+			return true;
+		}
 		else {
 			throw std::invalid_argument("Uncorrect symbol");
 		}
@@ -338,7 +341,12 @@ Monom MonomParser::parse(const std::string& str, size_t& pos) {
 
 std::ostream& operator<<(std::ostream& os, const Monom& monom) {
 	if (monom._coeff != 1 && monom._coeff != -1) {
-		os << monom._coeff;
+		if (monom._coeff > 0) {
+			os << "+" << " " << monom._coeff;
+		}
+		else {
+			os << "-" << " " << abs(monom._coeff);
+		}
 	}
 	char chars[VARS_COUNT] = { 'x', 'y', 'z' };
 	for (int i = 0; i < VARS_COUNT; i++) {
@@ -355,13 +363,19 @@ std::ostream& operator<<(std::ostream& os, const Monom& monom) {
 			}
 		}
 	}
+	os << " ";
 	return os;
 }
 
-/*
-std::ostream& operator>>(std::ostream& os, const Monom& monom) {
+std::istream& operator>>(std::istream& is, Monom& monom) {
 	std::string str;
-	os >> str;
-	// не парсер а просто обработка наверн
+	is >> str;
+	size_t pos = 0;
+	try {
+		monom = MonomParser::parse(str, pos);
+	}
+	catch (const std::exception& e) {
+		throw std::invalid_argument(e.what());
+	}
+	return is;
 }
-*/

@@ -43,8 +43,8 @@ public:
 	friend Polynom operator*(const Polynom&, double) noexcept;
 	friend Polynom operator/(const Polynom&, double);
 
-	//friend std::ostream& operator>>(std::ostream&, const Polynom&);
-	//friend std::ostream& operator<<(std::ostream& os, const Polynom&);
+	friend std::ostream& operator<<(std::ostream&, const Polynom&);
+	friend std::istream& operator>>(std::istream& is, Polynom&);
 
 	std::string name();
 	List<Monom>& monoms();
