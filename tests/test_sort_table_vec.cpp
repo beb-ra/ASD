@@ -25,3 +25,4 @@ TEST(TestSortTableVecLib, correct) {
 	EXPECT_TRUE(t.rows().is_empty());
 	EXPECT_THROW(t.erase(5), std::logic_error);
 }
+

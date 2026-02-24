@@ -13,7 +13,6 @@ public:
     void insert(const TKey&, const TValue&) override;
     void erase(const TKey&) override;
     TValue* found(const TKey&) override;
-    int found_for_insert(const TKey& key); // private?
 
     bool is_empty() const noexcept override;
     void print() const noexcept;
@@ -29,65 +28,66 @@ SortedTableV<TKey, TValue>::SortedTableV(TVector<TPair<TKey, TValue>> rows)
 
 template <class TKey, class TValue>
 void SortedTableV<TKey, TValue>::insert(const TKey& key, const TValue& value) {
-    int found_index = found_for_insert(key);
+    int left = 0, right = _rows.size() - 1, mid;
+    int insert_pos = 0;
 
-    if (found_index != -1) {
-        _rows[found_index].value = value;
-    }
-    else {
-        TPair<TKey, TValue> pair(key, value);
-        _rows.push_back(pair);
-    }
-}
-
-template <class TKey, class TValue>
-int SortedTableV<TKey, TValue>::found_for_insert(const TKey& key) {
-    int i = 0, j = _rows.size() - 1, c;
-
-    while (i <= j) {
-        c = i + j / 2;
-        if (_rows[c].key == key) {
-            return c;
+    while (left <= right) {
+        mid = (right + left) / 2;
+        if (_rows[mid].key == key) {
+            _rows[mid].value = value;
+            return;
         }
-        else if (_rows[c].key < key) {
-            i = c + 1;
+        else if (_rows[mid].key < key) {
+            left = mid + 1;
+            insert_pos = mid + 1;
         }
         else {
-            j = c - 1;
+            right = mid - 1;
+            insert_pos = mid;
         }
     }
-    return -1;
+
+    TPair<TKey, TValue> pair(key, value);
+    _rows.insert(insert_pos, pair);
 }
 
 template <class TKey, class TValue>
 TValue* SortedTableV<TKey, TValue>::found(const TKey& key) {
-    int i = 0, j = _rows.size() - 1, c;
+    int left = 0, right = _rows.size() - 1, mid;
 
-    while (i <= j) {
-        c = i + j / 2;
-        if (_rows[c].key == key) {
-            return &_rows[c].value;
+    while (left <= right) {
+        mid = (left + right) / 2;
+        if (_rows[mid].key == key) {
+            return &_rows[mid].value;
         }
-        else if (_rows[c].key < key) {
-            i = c + 1;
+        else if (_rows[mid].key < key) {
+            left = mid + 1;
         }
         else {
-            j = c - 1;
+            right = mid - 1;
         }
     }
     return nullptr;
 }
 
 template <class TKey, class TValue>
-void SortedTableV<TKey, TValue>::erase(const TKey& key) { ////
-    int found_index = found_for_insert(key);
+void SortedTableV<TKey, TValue>::erase(const TKey& key) {
+    int left = 0, right = _rows.size() - 1, mid;
 
-    if (found_index != -1) {
-        _rows.erase(found_index);
+    while (left <= right) {
+        mid = (left + right) / 2;
+        if (_rows[mid].key == key) {
+            _rows.erase(mid);
+            return;
+        }
+        else if (_rows[mid].key < key) {
+            left = mid + 1;
+        }
+        else {
+            right = mid - 1;
+        }
     }
-    else {
-        throw std::logic_error("Key not found");
-    }
+    throw std::logic_error("Key not found");
 }
 
 template <class TKey, class TValue>

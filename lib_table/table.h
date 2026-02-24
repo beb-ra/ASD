@@ -5,15 +5,16 @@
 template <class TKey, class TValue>
 class Table : public ITable<TKey, TValue> {
 public:
-	~Table() override {}
-	void insert(const TKey&, const TValue&) override {}
-	void erase(const TKey&) override {}
-	TValue* found(const TKey&) override { return nullptr; }
-	bool is_empty() const noexcept override { return true; }
-	virtual void print() const noexcept {}
-
-	friend std::ostream& operator <<(std::ostream& out, const ITable& table) {
-		table.print();
-		return out;
-	}
+	~Table() override = default;
+    
+    virtual void insert(const TKey&, const TValue&) = 0;
+    virtual void erase(const TKey&) = 0;
+    virtual TValue* found(const TKey&) = 0;
+    virtual bool is_empty() const noexcept = 0;
+    virtual void print() const noexcept = 0;
+    
+    friend std::ostream& operator <<(std::ostream& out, const Table& table) {
+        table.print();
+        return out;
+    }
 };
