@@ -56,6 +56,8 @@ Matrix<bool> generate(int x, int y, int n, int m) {
     float rand_val;
     srand(static_cast<unsigned int>(time(0)));
     int current = x, finish = y;
+    int walls_removed = 0;
+
     for (int i = 0; current != finish; i++) {
         if (current < finish) {
             rand_val = (float)rand() / RAND_MAX;
@@ -64,27 +66,35 @@ Matrix<bool> generate(int x, int y, int n, int m) {
             float prob_left = 0.15;
             float prob_up = 0.15;
 
-            if (rand_val < prob_right && current % m != m-1
-                && labyrinth.find(current) != labyrinth.find(current + 1)) {  // вправо
-                labyrinth.unite(current, current + 1);
-                walls[current / m][current % m] = 0;
+            if (rand_val < prob_right && current % m != m - 1) {  // вправо
+                if (labyrinth.find(current) != labyrinth.find(current + 1)) {
+                    labyrinth.unite(current, current + 1);
+                    walls[current / m][current % m] = 0;
+                    walls_removed++;
+                }
                 current += 1;
             }
-            else if (rand_val < prob_right + prob_down && current / m < n - 1
-                && labyrinth.find(current) != labyrinth.find(current + m)) {  // вниз
-                labyrinth.unite(current, current + m);
-                walls[current / m + n][current % m] = 0;
+            else if (rand_val < prob_right + prob_down && current / m < n - 1) {  // вниз
+                if (labyrinth.find(current) != labyrinth.find(current + m)) {
+                    labyrinth.unite(current, current + m);
+                    walls[current / m + n][current % m] = 0;
+                    walls_removed++;
+                }
                 current += m;
             }
-            else if (rand_val < prob_right + prob_down + prob_left && current % m != 0
-                && labyrinth.find(current) != labyrinth.find(current - 1)) {  // влево
-                labyrinth.unite(current, current - 1);
-                walls[(current - 1) / m][(current - 1) % m] = 0;
+            else if (rand_val < prob_right + prob_down + prob_left && current % m != 0) {  // влево
+                if (labyrinth.find(current) != labyrinth.find(current - 1)) {
+                    labyrinth.unite(current, current - 1);
+                    walls[(current - 1) / m][(current - 1) % m] = 0;
+                    walls_removed++;
+                }
             }
-            else if (rand_val > 1 - prob_up && current > m 
-                && labyrinth.find(current) != labyrinth.find(current - m)) {  // вверх
-                labyrinth.unite(current, current - m);
-                walls[(current - m) / m + n][current % m] = 0;
+            else if (rand_val > 1 - prob_up && current > m) {  // вверх
+                if (labyrinth.find(current) != labyrinth.find(current - m)) {
+                    labyrinth.unite(current, current - m);
+                    walls[(current - m) / m + n][current % m] = 0;
+                    walls_removed++;
+                }
             }
         }
         if (current > y) {
@@ -94,17 +104,11 @@ Matrix<bool> generate(int x, int y, int n, int m) {
         }
         if (i > MAX_ITERATIONS) {
             current = x, finish = y;
-            for (int i = 0; i < 2 * n - 1; i++) {
-                for (int j = 0; j < m; j++) {
-                    walls[i][j] = 1;
-                }
-            }
-            labyrinth.clear();
             i = 0;
         }
     }
-    int count_extra_walls = n * m / 2.5;
-    for (int i = 0, j = 0; i < count_extra_walls; j++) {
+    int count_extra_walls = n * m;
+    for (int i = 0; walls_removed < count_extra_walls; i++) {
         int cell = rand() % (n * m);
         int wall_num = rand() % 4;
 
@@ -112,27 +116,27 @@ Matrix<bool> generate(int x, int y, int n, int m) {
             && labyrinth.find(cell) != labyrinth.find(cell + 1)) { // вправо
             labyrinth.unite(cell, cell + 1);
             walls[cell / m][cell % m] = 0;
-            i++;
+            walls_removed++;
         }
         else if (wall_num == 1 && cell / m < n - 1 
             && labyrinth.find(cell) != labyrinth.find(cell + m)) { // вниз
             labyrinth.unite(cell, cell + m);
             walls[cell / m + n][cell % m] = 0;
-            i++;
+            walls_removed++;
         }
         else if (wall_num == 2 && cell % m != 0 
             && labyrinth.find(cell) != labyrinth.find(cell - 1)) { // влево
             labyrinth.unite(cell, cell - 1);
             walls[(cell - 1) / m][(cell - 1) % m] = 0;
-            i++;
+            walls_removed++;
         }
         else if (wall_num == 3 && cell >= m 
             && labyrinth.find(cell) != labyrinth.find(cell - m)) { // вверх
             labyrinth.unite(cell, cell - m);
             walls[(cell - m) / m + n][cell % m] = 0;
-            i++;
+            walls_removed++;
         }
-        if (j > MAX_ITERATIONS) break;
+        if (i > MAX_ITERATIONS) break;
     }
 
 #ifdef DEBUG
