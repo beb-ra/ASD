@@ -292,7 +292,7 @@ List<Monom> PolynomParser::parse(const std::string& str) {
 	for (size_t i = 0; i < new_str.size(); ) {
 		try {
 			Monom monom = MonomParser::parse(new_str, i);
-			ordered_insert_monom(result, monom); // надо попа рядку
+			ordered_insert_monom(result, monom);
 		}
 		catch (const std::exception& e) {
 			throw std::invalid_argument("Failed to parse monom: " + std::string(e.what()));
