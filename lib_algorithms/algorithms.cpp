@@ -37,31 +37,13 @@ int island_counting(Matrix<int>& matrix) {
     return count;
 }
 
-Matrix<bool> generate(int x, int y, int n, int m) {
-    if (x == y) std::invalid_argument("¬ход и выход должны быть в разных клетках");
-    if (!((x / m == 0 || x / m == n - 1 || x % m == 0 || x % m == m - 1) &&
-        (y / m == 0 || y / m == n - 1 || y % m == 0 || y % m == m - 1))) {
-        throw std::invalid_argument("¬ход и выход должны быть на границе лабиринта");
-    }
-    if (x < 0 || y < 0 || x >= n * m || y >= n * m) {
-        std::invalid_argument("¬ход и выход не должны быть за пределами лабиринта");
-    }
-    DSU labyrinth(n * m);
-    Matrix<bool> walls(2 * n - 1, m);
-    for (int i = 0; i < 2 * n - 1; i++) {
-        for (int j = 0; j < m; j++) {
-            walls[i][j] = 1;
-        }
-    }
-    float rand_val;
-    srand(static_cast<unsigned int>(time(0)));
+void create_path(int& walls_removed, int x, int y, int n, int m, DSU& labyrinth, Matrix<bool>& walls) {
     int current = x, finish = y;
-    int walls_removed = 0;
-
+    float rand_val;
     for (int i = 0; current != finish; i++) {
         if (current < finish) {
             rand_val = (float)rand() / RAND_MAX;
-            float prob_right = 0.35; 
+            float prob_right = 0.35;
             float prob_down = 0.35;
             float prob_left = 0.15;
             float prob_up = 0.15;
@@ -107,30 +89,32 @@ Matrix<bool> generate(int x, int y, int n, int m) {
             i = 0;
         }
     }
-    int count_extra_walls = n * m;
+}
+
+void remove_extra_walls(int count_extra_walls, int& walls_removed, int n, int m, DSU& labyrinth, Matrix<bool>& walls) {
     for (int i = 0; walls_removed < count_extra_walls; i++) {
         int cell = rand() % (n * m);
         int wall_num = rand() % 4;
 
-        if (wall_num == 0 && cell % m != m - 1 
+        if (wall_num == 0 && cell % m != m - 1
             && labyrinth.find(cell) != labyrinth.find(cell + 1)) { // вправо
             labyrinth.unite(cell, cell + 1);
             walls[cell / m][cell % m] = 0;
             walls_removed++;
         }
-        else if (wall_num == 1 && cell / m < n - 1 
+        else if (wall_num == 1 && cell / m < n - 1
             && labyrinth.find(cell) != labyrinth.find(cell + m)) { // вниз
             labyrinth.unite(cell, cell + m);
             walls[cell / m + n][cell % m] = 0;
             walls_removed++;
         }
-        else if (wall_num == 2 && cell % m != 0 
+        else if (wall_num == 2 && cell % m != 0
             && labyrinth.find(cell) != labyrinth.find(cell - 1)) { // влево
             labyrinth.unite(cell, cell - 1);
             walls[(cell - 1) / m][(cell - 1) % m] = 0;
             walls_removed++;
         }
-        else if (wall_num == 3 && cell >= m 
+        else if (wall_num == 3 && cell >= m
             && labyrinth.find(cell) != labyrinth.find(cell - m)) { // вверх
             labyrinth.unite(cell, cell - m);
             walls[(cell - m) / m + n][cell % m] = 0;
@@ -138,6 +122,33 @@ Matrix<bool> generate(int x, int y, int n, int m) {
         }
         if (i > MAX_ITERATIONS) break;
     }
+}
+
+Matrix<bool> generate(int x, int y, int n, int m) {
+    if (n <= 2) throw std::invalid_argument("Ўирина лабиринта должна быть больше");
+    if (m <= 2) throw std::invalid_argument("ƒлина лабиринта должна быть больше");
+    if (x == y) throw std::invalid_argument("¬ход и выход должны быть в разных клетках");
+    if (!((x / m == 0 || x / m == n - 1 || x % m == 0 || x % m == m - 1) &&
+        (y / m == 0 || y / m == n - 1 || y % m == 0 || y % m == m - 1))) {
+        throw std::invalid_argument("¬ход и выход должны быть на границе лабиринта");
+    }
+    if (x < 0 || y < 0 || x >= n * m || y >= n * m) {
+        throw std::invalid_argument("¬ход и выход не должны быть за пределами лабиринта");
+    }
+    DSU labyrinth(n * m);
+    Matrix<bool> walls(2 * n - 1, m);
+    for (int i = 0; i < 2 * n - 1; i++) {
+        for (int j = 0; j < m; j++) {
+            walls[i][j] = 1;
+        }
+    }
+    srand(static_cast<unsigned int>(time(0)));
+    int walls_removed = 0;
+
+    create_path(walls_removed, x, y, n, m, labyrinth, walls);
+
+    int count_extra_walls = n * m;
+    remove_extra_walls(count_extra_walls, walls_removed, n, m, labyrinth, walls);
 
 #ifdef DEBUG
     for (int i = 0; i < n * m; i++) {
