@@ -47,7 +47,6 @@ TValue* UnsortedTableV<TKey, TValue>::found(const TKey& key) {
         }
     }
     return nullptr;
-    // мб использовать поиск метод твектора
 }
 
 template <class TKey, class TValue>
@@ -59,7 +58,6 @@ void UnsortedTableV<TKey, TValue>::erase(const TKey& key) {
         }
     }
     throw std::logic_error("Key not found");
-    // мб использовать поиск метод твектора
 }
 
 template <class TKey, class TValue>

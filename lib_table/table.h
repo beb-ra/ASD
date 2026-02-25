@@ -5,7 +5,7 @@
 template <class TKey, class TValue>
 class Table : public ITable<TKey, TValue> {
 public:
-	~Table() override = default;
+    ~Table() override {}
     
     virtual void insert(const TKey&, const TValue&) = 0;
     virtual void erase(const TKey&) = 0;

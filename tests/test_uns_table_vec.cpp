@@ -7,19 +7,43 @@ TEST(TestUnsTableVecLib, correct_create) {
 	EXPECT_TRUE(t.rows().is_empty());
 }
 
-TEST(TestUnsTableVecLib, correct) {
+TEST(TestUnsTableVecLib, correct_insert_found_and_erase) {
 	UnsortedTableV<int, int> t;
 	t.insert(3, 4);
 	t.insert(1, 2);
 	t.insert(3, 111);
 
+	std::cout << t;
+
 	EXPECT_EQ(*(t.found(1)), 2);
 	EXPECT_EQ(*(t.found(3)), 111);
 
+	t.erase(1);
 	std::cout << t;
+	t.erase(3);
+
+	EXPECT_TRUE(t.rows().is_empty());
+	EXPECT_THROW(t.erase(5), std::logic_error);
+}
+
+TEST(TestUnsTableVecLib, correct_erase) {
+	UnsortedTableV<int, int> t;
+	UnsortedTableV<int, int> expected;
+
+	for (int i = 0; i < 5; i++) {
+		t.insert(i + 1, i + 1);
+	}
+	expected.insert(2, 2);
+	expected.insert(4, 4);
 
 	t.erase(1);
 	t.erase(3);
+	t.erase(5);
+
+	std::cout << t;
+
+	t.erase(2);
+	t.erase(4);
+
 	EXPECT_TRUE(t.rows().is_empty());
-	EXPECT_THROW(t.erase(5), std::logic_error);
 }

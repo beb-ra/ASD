@@ -8,7 +8,6 @@ struct TPair {
 	TPair() : key(), value() {}
 	TPair(TKey k, TValue v) : key(k), value(v) {}
 
-	// хз надо ли
 	bool operator==(const TPair& other) const noexcept {
 		return key == other.key;
 	}
