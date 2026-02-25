@@ -292,7 +292,9 @@ List<Monom> PolynomParser::parse(const std::string& str) {
 	for (size_t i = 0; i < new_str.size(); ) {
 		try {
 			Monom monom = MonomParser::parse(new_str, i);
-			ordered_insert_monom(result, monom);
+			if (std::abs(monom.coeff()) > 1e-5) {
+				ordered_insert_monom(result, monom);
+			}
 		}
 		catch (const std::exception& e) {
 			throw std::invalid_argument("Failed to parse monom: " + std::string(e.what()));
@@ -343,6 +345,10 @@ void Polynom::set_name(const std::string& name) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Polynom& polynom) {
+	if (polynom.monoms().is_empty()) {
+		os << "0";
+		return os;
+	}
 	for (auto it = polynom._polynom.begin(); it != polynom._polynom.end(); it++) {
 		os << *it;
 	}

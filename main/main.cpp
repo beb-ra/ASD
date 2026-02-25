@@ -8,8 +8,7 @@
 #include "polynom.h"
 
 int main() {
-	Polynom m;
-	std::cin >> m;
+	Polynom m("p", "x^2yz + 5x - 3z + 2x + 0");
 	std::cout << m;
 }
 

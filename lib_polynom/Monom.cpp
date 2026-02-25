@@ -105,7 +105,7 @@ Monom Monom::operator*(const Monom& other) const noexcept {
 	return res;
 }
 Monom Monom::operator/(const Monom& other) const {
-	if (other._coeff < 10e-10) {
+	if (std::abs(other._coeff) < 1e-10) {
 		throw std::invalid_argument("Can't division by zero");
 	}
 	Monom res(*this);
@@ -140,7 +140,7 @@ Monom& Monom::operator*=(const Monom& other) noexcept {
 	return *this;
 }
 Monom& Monom::operator/=(const Monom& other) {
-	if (other._coeff < 10e-10) {
+	if (std::abs(other._coeff) < 1e-10) {
 		throw std::invalid_argument("Can't division by zero");
 	}
 	_coeff /= other._coeff;
@@ -154,7 +154,7 @@ Monom operator*(double num, const Monom& monom) noexcept {
 	return monom * num;
 }
 Monom operator/(double num, const Monom& monom) {
-	if (monom._coeff < 10e-10) {
+	if (std::abs(monom._coeff) < 1e-10) {
 		throw std::invalid_argument("Can't division by zero");
 	}
 	Monom monom1(num, { 0, 0, 0 });
@@ -358,7 +358,7 @@ std::ostream& operator<<(std::ostream& os, const Monom& monom) {
 			os << "-" << " " << abs(monom._coeff);
 		}
 		else {
-			os << "+ 0 ";
+			os << "0";
 			return os;
 		}
 	}

@@ -100,8 +100,10 @@ TEST(TestMonomLib, correct_operator_add) {
 	Monom m3(15.1, m_powers);
 
 	EXPECT_EQ(m1 + m2, m3);
+	EXPECT_EQ((m1 + m2).coeff(), m3.coeff());
 	m1 += m2;
 	EXPECT_EQ(m1, m3);
+	EXPECT_EQ(m1.coeff(), m3.coeff());
 }
 
 TEST(TestMonomLib, correct_operator_sub) {
@@ -111,8 +113,10 @@ TEST(TestMonomLib, correct_operator_sub) {
 	Monom m3(5.1, m_powers);
 
 	EXPECT_EQ(m1 - m2, m3);
+	EXPECT_EQ((m1 - m2).coeff(), m3.coeff());
 	m1 -= m2;
 	EXPECT_EQ(m1, m3);
+	EXPECT_EQ(m1.coeff(), m3.coeff());
 }
 
 TEST(TestMonomLib, correct_operator_mult) {
@@ -124,8 +128,10 @@ TEST(TestMonomLib, correct_operator_mult) {
 	Monom m3(51, m_powers3);
 
 	EXPECT_EQ(m1 * m2, m3);
+	EXPECT_EQ((m1 * m2).coeff(), m3.coeff());
 	m1 *= m2;
 	EXPECT_EQ(m1, m3);
+	EXPECT_EQ(m1.coeff(), m3.coeff());
 }
 
 TEST(TestMonomLib, throw_operator_div) {
@@ -147,8 +153,10 @@ TEST(TestMonomLib, correct_operator_div) {
 	Monom m3(0.2, m_powers3);
 
 	EXPECT_EQ(m1 / m2, m3);
+	EXPECT_EQ((m1 / m2).coeff(), m3.coeff());
 	m1 /= m2;
 	EXPECT_EQ(m1, m3);
+	EXPECT_EQ(m1.coeff(), m3.coeff());
 }
 
 TEST(TestMonomLib, correct_mult_on_number) {
@@ -157,9 +165,12 @@ TEST(TestMonomLib, correct_mult_on_number) {
 	Monom m2(6, m_powers1);
 
 	EXPECT_EQ(m1 * 3, m2);
+	EXPECT_EQ((m1 * 3).coeff(), m2.coeff());
 	EXPECT_EQ(3 * m1, m2);
+	EXPECT_EQ((3 * m1).coeff(), m2.coeff());
 	m1 *= 3;
 	EXPECT_EQ(m1, m2);
+	EXPECT_EQ(m1.coeff(), m2.coeff());
 }
 
 TEST(TestMonomLib, correct_div_on_number) {
@@ -169,9 +180,12 @@ TEST(TestMonomLib, correct_div_on_number) {
 	Monom m3(2, {-1, -3, -4});
 
 	EXPECT_EQ(m1 / 4, m2);
+	EXPECT_EQ((m1 / 4).coeff(), m2.coeff());
 	EXPECT_EQ(16 / m1, m3);
+	EXPECT_EQ((16 / m1).coeff(), m2.coeff());
 	m1 /= 4;
 	EXPECT_EQ(m1, m2);
+	EXPECT_EQ(m1.coeff(), m3.coeff());
 }
 
 TEST(TestMonomLib, correct_div_itself) {
@@ -203,6 +217,7 @@ TEST(TestMonomLib, correct_unary_minus) {
 	Monom m2(-8.2, m_powers1);
 
 	EXPECT_EQ(-m1, m2);
+	EXPECT_EQ((-m1).coeff(), m2.coeff());
 }
 
 TEST(TestMonomLib, correct_calculate) {
