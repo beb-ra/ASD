@@ -11,19 +11,32 @@ TEST(TestPolynomLib, try_create_2) {
 	ASSERT_NO_THROW(Polynom p(m));
 }
 
+TEST(TestPolynomLib, try_create_3) {
+	Monom m(2.7, { 1, 2, 3 });
+	ASSERT_NO_THROW(Polynom p(m));
+}
+
 TEST(TestPolynomLib, correct_create) {
 	Polynom p;
-	//Monom m;
-	//List<Monom> expected;
-	//expected.push_back(m);
 
 	EXPECT_EQ("default", p.name());
-	//EXPECT_EQ(expected, p.monoms());
+	EXPECT_TRUE(p.monoms().is_empty());
 }
 
 TEST(TestPolynomLib, correct_create_2) {
 	int powers[3] = { 1, 2, 3 };
 	Monom m(2.7, powers);
+	Polynom p(m);
+	List<Monom> expected;
+	expected.push_back(m);
+
+	EXPECT_EQ("default", p.name());
+	EXPECT_EQ(expected, p.monoms());
+}
+
+
+TEST(TestPolynomLib, correct_create_3) {
+	Monom m(2.7, { 1, 2, 3 });
 	Polynom p(m);
 	List<Monom> expected;
 	expected.push_back(m);
@@ -117,19 +130,12 @@ TEST(TestPolynomLib, correct_monom_order) {
 }
 
 TEST(TestPolynomLib, correct_parse_same_powers) {
-	int powers_x2y[3] = { 2, 1, 0 };
-	Monom m_result(4, powers_x2y);
-	int powers_xy[3] = { 1, 1, 0 };
-	Monom m_xy_result(2, powers_xy);
-	int powers_0[3] = { 0, 0, 0 };
-	Monom m_const(5, powers_0);
+	Monom m_const(5);
 
 	List<Monom> expected;
-	expected.push_back(m_result);
-	expected.push_back(m_xy_result);
 	expected.push_back(m_const);
 
-	Polynom p("p", "2x^2y + 3x^2y - x^2y + 4xy - 2xy + 5");
+	Polynom p("p", "2x^2y - 3x^2y + x^2y + 2xy - 2xy + 5");
 
 	EXPECT_EQ(expected, p.monoms());
 }

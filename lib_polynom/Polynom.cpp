@@ -1,12 +1,15 @@
 #include "polynom.h"
 
-Polynom::Polynom(std::string name) : _name(name) {
-	//Monom zero;
-	//_polynom.push_back(zero);
-}
+Polynom::Polynom(std::string name) : _name(name) {}
+
 Polynom::Polynom(const Monom& monom) : _name("default") {
 	_polynom.push_back(monom);
 }
+
+Polynom::Polynom(std::string name, const Monom& monom) : _name(name) {
+	_polynom.push_back(monom);
+}
+
 Polynom::Polynom(std::string name, std::string str) : _name(name) {
 	if (str.size() > 0) {
 		_polynom = PolynomParser::parse(str);
@@ -34,7 +37,7 @@ Polynom Polynom::operator-(const Polynom& other) const {
 	return res;
 }
 
-Polynom Polynom::operator*(const Polynom& other) const noexcept {
+Polynom Polynom::operator*(const Polynom& other) const {
 	Polynom res;
 	for (auto it1 = _polynom.begin(); it1 != _polynom.end(); it1++) {
 		for (auto it2 = other._polynom.begin(); it2 != other._polynom.end(); it2++) {
@@ -46,7 +49,7 @@ Polynom Polynom::operator*(const Polynom& other) const noexcept {
 	return res;
 }
 
-Polynom& Polynom::operator*=(const Polynom& other) noexcept {
+Polynom& Polynom::operator*=(const Polynom& other) {
 	Polynom res;
 	for (auto it1 = _polynom.begin(); it1 != _polynom.end(); it1++) {
 		for (auto it2 = other._polynom.begin(); it2 != other._polynom.end(); it2++) {
@@ -194,20 +197,41 @@ Polynom& Polynom::operator/=(const Monom& monom) {
 }
 
 Polynom& Polynom::operator+=(double num) {
-	*this += static_cast <Monom>(num);
+	*this += Monom(num);
 	return *this;
 }
 Polynom& Polynom::operator-=(double num) {
-	*this -= static_cast <Monom>(num);
+	*this -= Monom(num);
 	return *this;
 }
 Polynom& Polynom::operator*=(double num) noexcept {
-	*this *= static_cast <Monom>(num);
+	*this *= Monom(num);
 	return *this;
 }
 Polynom& Polynom::operator/=(double num) {
-	*this /= static_cast <Monom>(num);
+	*this /= Monom(num);
 	return *this;
+}
+
+Polynom Polynom::operator+(double num) const {
+	Polynom res(*this);
+	res += num;
+	return res;
+}
+Polynom Polynom::operator-(double num) const {
+	Polynom res(*this);
+	res -= num;
+	return res;
+}
+Polynom Polynom::operator*(double num) const noexcept {
+	Polynom res(*this);
+	res *= num;
+	return res;
+}
+Polynom Polynom::operator/(double num) const {
+	Polynom res(*this);
+	res /= num;
+	return res;
 }
 
 void PolynomParser::ordered_insert_monom(List<Monom>& result, const Monom& monom) {
@@ -215,28 +239,41 @@ void PolynomParser::ordered_insert_monom(List<Monom>& result, const Monom& monom
 		result.push_back(monom);
 		return;
 	}
-	if (monom > *result.begin()) {
-		result.push_front(monom);
-		return;
-	}
+	auto it = result.begin();
+	List<Monom>::Iterator prev = nullptr;
 
-	for (auto it = result.begin(); it != result.end(); ++it) {
-		auto next = it;
-		++next;
-
+	while (it != result.end()) {
 		if (monom == *it) {
-			*it = (*it) + monom;
+			Monom sum = (*it) + monom;
+
+			if (std::abs(sum.coeff()) < 1e-10) {
+				if (prev == nullptr) {
+					result.pop_front();
+					it = result.begin();
+				}
+				else {
+					result.erase(prev.current());
+					it = prev++;
+				}
+			}
+			else {
+				*it = sum;
+			}
 			return;
 		}
-		if (next == result.end()) {
-			result.push_back(monom);
+		else if (monom > *it) {
+			if (it == result.begin()) {
+				result.push_front(monom);
+			}
+			else {
+				result.insert(prev.current(), monom);
+			}
 			return;
 		}
-		if (monom > *next && monom < *it) {
-			result.insert(it.current(), monom);
-			return;
-		}
+		prev = it;
+		it++;
 	}
+	result.push_back(monom);
 }
 
 List<Monom> PolynomParser::parse(const std::string& str) {
@@ -275,32 +312,22 @@ Polynom operator*(const Monom& monom, const Polynom& polynom) {
 }
 
 Polynom operator+(double num, const Polynom& polynom) {
-	return static_cast <Monom>(num) + polynom;
+	return polynom + num;
 }
 Polynom operator-(double num, const Polynom& polynom) {
-	return static_cast <Monom>(num) - polynom;
+	return -polynom + num;
 }
 Polynom operator*(double num, const Polynom& polynom) noexcept {
-	return static_cast <Monom>(num) * polynom;
+	return polynom * num;
 }
 
-Polynom operator+(const Polynom& polynom, double num) {
-	return polynom + static_cast <Monom>(num);
-}
-Polynom operator-(const Polynom& polynom, double num) {
-	return polynom - static_cast <Monom>(num);
-}
-Polynom operator*(const Polynom& polynom, double num) noexcept {
-	return polynom * static_cast <Monom>(num);
-}
-Polynom operator/(const Polynom& polynom, double num) {
-	return polynom / static_cast <Monom>(num);
-}
-
-std::string Polynom::name() {
+std::string Polynom::name() const {
 	return _name;
 }
 List<Monom>& Polynom::monoms() {
+	return _polynom;
+}
+const List<Monom>& Polynom::monoms() const {
 	return _polynom;
 }
 void Polynom::set_name(const std::string& name) {

@@ -7,18 +7,19 @@ class Polynom {
 	std::string _name;
 public:
 	Polynom(std::string name = "default");
-	Polynom(const Monom& monom); // мб сделать приватным
+	Polynom(std::string name, const Monom& monom);
 	Polynom(std::string name, std::string str);
+	Polynom(const Monom& monom);
 
 	Polynom& operator=(const Polynom& other);
 
 	Polynom operator+(const Polynom&) const;
 	Polynom operator-(const Polynom&) const;
-	Polynom operator*(const Polynom&) const noexcept;
+	Polynom operator*(const Polynom&) const;
 
 	Polynom& operator+=(const Polynom&);
 	Polynom& operator-=(const Polynom&);
-	Polynom& operator*=(const Polynom&) noexcept;
+	Polynom& operator*=(const Polynom&);
 
 	Polynom operator-() const noexcept;
 
@@ -30,6 +31,11 @@ public:
 	Polynom& operator*=(double) noexcept;
 	Polynom& operator/=(double);
 
+	Polynom operator+(double) const;
+	Polynom operator-(double) const;
+	Polynom operator*(double) const noexcept;
+	Polynom operator/(double) const;
+
 	friend Polynom operator+(const Monom&, const Polynom&);
 	friend Polynom operator-(const Monom&, const Polynom&);
 	friend Polynom operator*(const Monom&, const Polynom&);
@@ -38,15 +44,11 @@ public:
 	friend Polynom operator-(double, const Polynom&);
 	friend Polynom operator*(double, const Polynom&) noexcept;
 
-	friend Polynom operator+(const Polynom&, double);
-	friend Polynom operator-(const Polynom&, double);
-	friend Polynom operator*(const Polynom&, double) noexcept;
-	friend Polynom operator/(const Polynom&, double);
-
 	friend std::ostream& operator<<(std::ostream&, const Polynom&);
 	friend std::istream& operator>>(std::istream& is, Polynom&);
 
-	std::string name();
+	std::string name() const;
+	const List<Monom>& monoms() const;
 	List<Monom>& monoms();
 	void set_name(const std::string&);
 };

@@ -53,4 +53,5 @@ namespace MonomParser {
 	bool parse_sign(const std::string& str, size_t& i);
 	double parse_coeff(const std::string& str, size_t& i);
 	void parse_variables(const std::string& str, size_t& i, int powers[]);
+	int parse_power(const std::string& str, size_t& i);
 }

@@ -284,4 +284,5 @@ TEST(TestMonomLib, throw_uncorrect_parse) {
 	EXPECT_THROW(MonomParser::parse("-8x & y", pos); , std::invalid_argument);
 	EXPECT_THROW(MonomParser::parse("- * 8", pos);, std::invalid_argument);
 	EXPECT_THROW(MonomParser::parse("* 8xy", pos); , std::invalid_argument);
+	EXPECT_THROW(MonomParser::parse("8.56.7xy", pos);, std::invalid_argument);
 }

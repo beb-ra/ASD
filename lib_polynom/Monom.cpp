@@ -189,10 +189,15 @@ double MonomParser::read_coeff(const std::string& str, size_t& i) {
 			i++;
 		}
 
-		else if (str[i] == '.' && !has_decimal_point) {
-			num_str += str[i];
-			has_decimal_point = true;
-			i++;
+		else if (str[i] == '.') {
+			if (!has_decimal_point) {
+				num_str += str[i];
+				has_decimal_point = true;
+				i++;
+			}
+			else {
+				throw std::invalid_argument("The number can contain only one '.'");
+			}
 		}
 		else {
 			break;
@@ -262,7 +267,21 @@ double MonomParser::parse_coeff(const std::string& str, size_t& i) {
 	return coeff;
 }
 
-void MonomParser::parse_variables(const std::string& str, size_t& i, int powers[]) { // еще поделить на функции
+int MonomParser::parse_power(const std::string& str, size_t& i) {
+	int pow = 1;
+	while (i < str.size() && str[i] == ' ') i++;
+	if (i < str.size() && std::isdigit(str[i])) {
+		pow = read_num(str, i);
+		while (i < str.size() && str[i] == ' ') i++;
+		if (i < str.size() && str[i] == '*') i++;
+	}
+	else {
+		throw std::invalid_argument("Expected digit after ^");
+	}
+	return pow;
+}
+
+void MonomParser::parse_variables(const std::string& str, size_t& i, int powers[]) {
 	while (i < str.size()) {
 		while (i < str.size() && str[i] == ' ') i++;
 		if (i >= str.size()) return;
@@ -274,20 +293,11 @@ void MonomParser::parse_variables(const std::string& str, size_t& i, int powers[
 			while (i < str.size() && str[i] == ' ') i++;
 			if (i < str.size() && str[i] == '^') {
 				i++;
-				while (i < str.size() && str[i] == ' ') i++;
-				if (i < str.size() && std::isdigit(str[i])) {
-					pow = read_num(str, i);
-					set_power(powers, var, pow);
-					while (i < str.size() && str[i] == ' ') i++;
-					if (i < str.size() && str[i] == '*') i++;
-				}
-				else {
-					throw std::invalid_argument("Expected digit after ^");
-				}
+				pow = parse_power(str, i);
+				set_power(powers, var, pow);
 			}
 			else {
 				set_power(powers, var, pow);
-
 				if (i < str.size() && str[i] == '*') {
 					i++;
 					continue;
@@ -344,9 +354,16 @@ std::ostream& operator<<(std::ostream& os, const Monom& monom) {
 		if (monom._coeff > 0) {
 			os << "+" << " " << monom._coeff;
 		}
-		else {
+		else if (monom._coeff < 0) {
 			os << "-" << " " << abs(monom._coeff);
 		}
+		else {
+			os << "+ 0 ";
+			return os;
+		}
+	}
+	else {
+		os << "+ ";
 	}
 	char chars[VARS_COUNT] = { 'x', 'y', 'z' };
 	for (int i = 0; i < VARS_COUNT; i++) {
