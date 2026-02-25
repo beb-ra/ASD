@@ -588,3 +588,9 @@ TEST(TestPolynomLib, throw_uncorrect_operator_div_zero) {
 
 	EXPECT_THROW(p1 / m, std::invalid_argument);
 }
+
+TEST(TestPolynomLib, correct_calculate) {
+	Polynom p1("p1", "3.25*x^2yz - 2x + z + 5");
+	// 884,8125 - 11 + 2 + 5
+	EXPECT_EQ(p1.calculate(5.5, 4.5, 2), 880.8125);
+}

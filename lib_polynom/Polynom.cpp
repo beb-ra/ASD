@@ -204,7 +204,7 @@ Polynom& Polynom::operator-=(double num) {
 	*this -= Monom(num);
 	return *this;
 }
-Polynom& Polynom::operator*=(double num) noexcept {
+Polynom& Polynom::operator*=(double num) {
 	*this *= Monom(num);
 	return *this;
 }
@@ -223,7 +223,7 @@ Polynom Polynom::operator-(double num) const {
 	res -= num;
 	return res;
 }
-Polynom Polynom::operator*(double num) const noexcept {
+Polynom Polynom::operator*(double num) const {
 	Polynom res(*this);
 	res *= num;
 	return res;
@@ -317,8 +317,16 @@ Polynom operator+(double num, const Polynom& polynom) {
 Polynom operator-(double num, const Polynom& polynom) {
 	return -polynom + num;
 }
-Polynom operator*(double num, const Polynom& polynom) noexcept {
+Polynom operator*(double num, const Polynom& polynom) {
 	return polynom * num;
+}
+
+double Polynom::calculate(double x, double y, double z) const {
+	double sum = 0;
+	for (auto it = _polynom.begin(); it != _polynom.end(); it++) {
+		sum += (*it).calculate(x, y, z);
+	}
+	return sum;
 }
 
 std::string Polynom::name() const {

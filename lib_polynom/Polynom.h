@@ -28,12 +28,12 @@ public:
 
 	Polynom& operator+=(double);
 	Polynom& operator-=(double);
-	Polynom& operator*=(double) noexcept;
+	Polynom& operator*=(double);
 	Polynom& operator/=(double);
 
 	Polynom operator+(double) const;
 	Polynom operator-(double) const;
-	Polynom operator*(double) const noexcept;
+	Polynom operator*(double) const;
 	Polynom operator/(double) const;
 
 	friend Polynom operator+(const Monom&, const Polynom&);
@@ -42,10 +42,12 @@ public:
 
 	friend Polynom operator+(double, const Polynom&);
 	friend Polynom operator-(double, const Polynom&);
-	friend Polynom operator*(double, const Polynom&) noexcept;
+	friend Polynom operator*(double, const Polynom&);
 
 	friend std::ostream& operator<<(std::ostream&, const Polynom&);
 	friend std::istream& operator>>(std::istream& is, Polynom&);
+
+	double calculate(double, double, double) const;
 
 	std::string name() const;
 	const List<Monom>& monoms() const;
