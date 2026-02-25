@@ -15,6 +15,7 @@ include(cmake/function.cmake)         # подхватываем функции,
 
 add_subdirectory(lib_tvector)
 add_subdirectory(lib_list)
+add_subdirectory(lib_polynom)
 add_subdirectory(lib_itable)
 add_subdirectory(lib_table)
 add_subdirectory(lib_uns_table_list)
