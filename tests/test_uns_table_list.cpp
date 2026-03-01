@@ -22,6 +22,8 @@ TEST(TestUnsTableListLib, correct_insert_found_and_erase) {
 	std::cout << t;
 	t.erase(3);
 
+	EXPECT_THROW(t.erase(3), std::logic_error);
+
 	EXPECT_TRUE(t.rows().is_empty());
 	EXPECT_THROW(t.erase(5), std::logic_error);
 }

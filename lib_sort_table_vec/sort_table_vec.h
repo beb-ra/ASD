@@ -52,7 +52,7 @@ void SortedTableV<TKey, TValue>::insert(const TKey& key, const TValue& value) {
 }
 
 template <class TKey, class TValue>
-TValue* SortedTableV<TKey, TValue>::found(const TKey& key) {
+TValue* SortedTableV<TKey, TValue>::found(const TKey& key) {  // проверка на совпадение по ключу в erase и found
     int left = 0, right = _rows.size() - 1, mid;
 
     while (left <= right) {
