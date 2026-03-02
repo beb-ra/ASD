@@ -3,7 +3,7 @@
 #include <ctime>
 #include "../lib_list/list.h"
 //
-#include <vector>
+#include <string>
 
 template <class TKey, class TValue>
 struct TPair {
@@ -194,6 +194,7 @@ void Skiplist<TKey, TValue>::insert(const TKey& key, const TValue& value) {
 
 template <class TKey, class TValue>
 void Skiplist<TKey, TValue>::print() const noexcept {
+	/*
 	std::cout << "\n------Skip List------" << "\n";
 	for (int i = 0; i <= _lvl; i++)
 	{
@@ -203,6 +204,39 @@ void Skiplist<TKey, TValue>::print() const noexcept {
 		{
 			std::cout << node->data.key << " ";
 			node = node->next[i];
+		}
+		std::cout << "\n";
+	}
+	*/
+
+	List<TKey> keys_zero_lvl;
+	std::cout << "\n------Skip List------" << "\n";
+	for (int i = 0; i <= _lvl; i++)
+	{
+		SNode<TKey, TValue>* node = _head->next[i];
+		std::cout << "Level " << i << ": ";
+		while (node != nullptr)
+		{
+			if (i == 0) {
+				keys_zero_lvl.push_back(node->data.key);
+			    std::cout << "[" << node->data.key << "]" << "--";
+				node = node->next[i];
+			}
+			else {
+				for (auto it = keys_zero_lvl.begin(); it != keys_zero_lvl.end(); it++) {
+					if (node != nullptr && node->data.key == (*it)) {
+						std::cout << "[" << node->data.key << "]" << "--";
+						node = node->next[i];
+					}
+					else {
+						int numLength = std::to_string(*it).length();
+						std::cout << "----";
+						for (int d = 0; d < numLength; d++) {
+							std::cout << "-";
+						}
+					}
+				}
+			}
 		}
 		std::cout << "\n";
 	}
