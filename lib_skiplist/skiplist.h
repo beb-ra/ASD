@@ -2,78 +2,208 @@
 #include <cstdlib>
 #include <ctime>
 #include "../lib_list/list.h"
+//
+#include <vector>
 
-template <class T>
-struct Node {
-	//std::pair<TKey, TValue> _data;
-	T key;
-	Node** next;
-	size_t size;
+template <class TKey, class TValue>
+struct TPair {
+	TKey key;
+	TValue value;
 
-	Node(T val, size_t level) : key(val), size(level) {
-		next = new Node * [size];
-		for (int i = 0; i < size; i++) {
-			next[i] = nullptr;
-		}
-	}
+	TPair() : key(), value() {}
+	TPair(TKey k, TValue v) : key(k), value(v) {}
+
 	/*
-	Node(T val, size_t, level, Node** nxt) : key(val), size(level) {
-		next = new Node*[size];
-		for (int i = 0; i < size; i++) {
-			next[i] = nullptr;
-		}
+	bool operator==(const TPair& other) const noexcept {
+		return key == other.key;
 	}
 	*/
-	Node(const Node& other)
+};
+
+template <class TKey, class TValue>
+struct SNode {
+	TPair<TKey, TValue> data;
+	SNode** next;
+	size_t size;
+
+	SNode(size_t level) : data(), size(level) {
+		next = new SNode*[level];
+		for (int i = 0; i < level; i++) {
+			next[i] = nullptr;
+		}
+	}
+
+	SNode(TPair<TKey, TValue> dat, size_t level) : data(dat), size(level) {
+		next = new SNode*[level];
+		for (int i = 0; i < level; i++) {
+			next[i] = nullptr;
+		}
+	}
+
+	SNode(const SNode& other)
 		: key(other.key), size(other.size) {
 		next = new Node * [size];
 		for (size_t i = 0; i < size; i++) {
 			next[i] = other.next[i];
 		}
 	}
-	~Node() {
-		//delete[] next;
-		for (int i = 0; i < size; i++) {
-			delete next[i];
-		}
+	~SNode() {
 		delete[] next;
 	}
 
-	//Node& operator=(const Node&) = delete;
+	//SNode& operator=(const Node&) = delete;
 };
 
-template <class T>
+template <class TKey, class TValue>
 class Skiplist {
-	size_t _MAX_LVLS;
-	size_t _lvls;
-	List<Node*> _heads;
+	size_t _MAX_LVL;
+	size_t _lvl;
+	//List<SNode<TKey, TValue>*> _head;
+	SNode<TKey, TValue>* _head;
 
-	Skiplist() : _MAX_LVLS(5), _lvls(1), _heads() {
-		for (size_t i = 0; i < _MAX_LVLS; ++i) {
-			_heads.push_back(nullptr);
+public:
+	Skiplist() : _MAX_LVL(5), _lvl(1), _head(nullptr) {
+		srand(static_cast<unsigned int>(time(0)));
+		for (size_t i = 0; i < _MAX_LVL; i++) {
+
+			//TPair<TKey, TValue>* pair = new TPair<TKey, TValue>();
+			_head = new SNode<TKey, TValue>(_MAX_LVL);
+			for (size_t i = 0; i < _MAX_LVL; i++) {
+				_head->next[i] = nullptr;
+			}
+			//SNode<TKey, TValue>* new_node = new SNode<TKey, TValue>(1);
+			//_head.push_back(nullptr);
 		}
 	}
-	Skiplist(size_t MAX, size_t lvl, const List<Node*>& heads)
-		: _MAX_LVLS(MAX), _lvls(lvl), _heads(heads) {
+	/*
+	Skiplist(size_t MAX, size_t lvl, const List<SNode<TKey, TValue>*>& head)
+		: _MAX_LVL(MAX), _lvl(lvl), _head(head) {
+		srand(static_cast<unsigned int>(time(0)));
+	}
+	*/
+
+	~Skiplist() {
+		SNode<TKey, TValue>* current = _head->next[0];
+		while (current != nullptr) {
+			SNode<TKey, TValue>* temp = current;
+			current = current->next[0];
+			delete temp;
+		}
+		delete _head;
 	}
 
-	void insert(const T& key);
+	void insert(const TKey& key, const TValue& value);
 	void print() const noexcept;
 	size_t flip_coin() const noexcept;
-	Node* find_nearest(const T& key) const;
+	List<SNode<TKey, TValue>*> find_nearest(const TKey& key) const;
 };
 
-template <class T>
-size_t Skiplist<T>::flip_coin() const noexcept {
-	srand(static_cast<unsigned int>(time(0)));
-	return rand() % 2;
+template <class TKey, class TValue>
+size_t Skiplist<TKey, TValue>::flip_coin() const noexcept { // переделать чтобы каждый раз на каждый лвл подкидывалась монетка
+	size_t lvl = 0;
+	for (int i = 0; i < _MAX_LVL - 1; i++) {
+		if (rand() % 2 == 1) {
+			lvl++;
+		}
+		else {
+			break;
+		}
+	}
+	return lvl;
 }
 
-template <class T>
-Node<T>* Skiplist<T>::find_nearest(const T& key) const { // Node* ?
+template <class TKey, class TValue>
+List<SNode<TKey, TValue>*> Skiplist<TKey, TValue>::find_nearest(const TKey& key) const { // Node** ?
+	SNode<TKey, TValue>* current = _head.head();
+
+	for (int i = _lvl - 1; i >= 0; i--) {
+		if (current && current->next[i] && current->next[i]->data.key > key) {
+			i--;
+		}
+		while (current && current->next[i] && current->next[i]->data.key < key) {
+			current = current->next[i];
+		}
+		if (current && current->data.key == key) {
+			return current;
+		}
+	}
+	return nullptr;
+	/*
+	auto it = _head.begin();
+	for (; it != _head.tail(); it++) {
+		if ((*it)->next == nullptr) {  //  ќ—“џЋ№
+			it++;
+		}
+		else {
+			std::cout << "Need to do smth in find\n";
+		}
+	}
+	if (it == _heads.tail()) return nullptr;
+	*/
 }
 
-template <class T>
-void Skiplist<T>::insert(const T& key) {
+template <class TKey, class TValue>
+void Skiplist<TKey, TValue>::insert(const TKey& key, const TValue& value) {
+	SNode<TKey, TValue>* current = _head;
 
+	SNode<TKey, TValue>** update = new SNode<TKey, TValue>*[_MAX_LVL];
+	for (size_t i = 0; i < _MAX_LVL; i++) {
+		update[i] = nullptr;
+	}
+
+	for (int i = _lvl; i >= 0; i--)
+	{
+		while (current->next[i] != NULL &&
+			current->next[i]->data.key < key)
+			current = current->next[i];
+			update[i] = current;
+	}
+
+	current = current->next[0];
+
+	if (current == nullptr || current->data.key != key)
+	{
+		int rlevel = flip_coin();
+		if (rlevel > _lvl)
+		{
+			for (int i = _lvl + 1; i <= rlevel; i++)
+				update[i] = _head;
+
+			_lvl = rlevel;
+		}
+
+		TPair<TKey, TValue> pair(key, value);
+		SNode<TKey, TValue>* new_node = new SNode<TKey, TValue>(pair, rlevel + 1);
+
+		for (int i = 0; i <= rlevel; i++)
+		{
+			if (i < _MAX_LVL && update[i] != nullptr) {  // отдельно вынести проверку rlevel <= _MAX_LVL
+				new_node->next[i] = update[i]->next[i];
+				update[i]->next[i] = new_node;
+			}
+		}
+		std::cout << "Successfully Inserted key " << key << "\n";
+	} 
+	else { // обновл€ем
+		current->data.value = value;
+		std::cout << "Updated key " << key << "\n";
+	}
+
+	delete[] update;
+}
+
+template <class TKey, class TValue>
+void Skiplist<TKey, TValue>::print() const noexcept {
+	std::cout << "\n------Skip List------" << "\n";
+	for (int i = 0; i <= _lvl; i++)
+	{
+		SNode<TKey, TValue>* node = _head->next[i];
+		std::cout << "Level " << i << ": ";
+		while (node != nullptr)
+		{
+			std::cout << node->data.key << " ";
+			node = node->next[i];
+		}
+		std::cout << "\n";
+	}
 }

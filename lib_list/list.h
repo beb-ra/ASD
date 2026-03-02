@@ -85,8 +85,86 @@ public:
 		const Node* current() const noexcept {
 			return _current;
 		}
+		Node* current() noexcept {
+			return _current;
+		}
 
 	};
+
+	class ConstIterator {
+		const Node* _current;
+	public:
+		ConstIterator() : _current(nullptr) {}
+		ConstIterator(const Node* node) : _current(node) {}
+
+		ConstIterator(const Iterator& it) : _current(it.current()) {}
+
+		bool operator == (const ConstIterator& other) const noexcept {
+			return this->_current == other._current;
+		}
+		bool operator != (const ConstIterator& other) const noexcept {
+			return !((*this) == other);
+		}
+
+		const T& operator*() const {
+			if (_current == nullptr)
+				throw std::logic_error("Node was nullptr");
+			return _current->value;
+		}
+
+		const T* operator->() const {
+			if (_current == nullptr)
+				throw std::logic_error("Node was nullptr");
+			return &(_current->value);
+		}
+
+		ConstIterator& operator=(const ConstIterator& other) {
+			if (this == &other) {
+				return *this;
+			}
+			this->_current = other._current;
+			return *this;
+		}
+
+		ConstIterator& operator=(const Iterator& other) {
+			this->_current = other.current();
+			return *this;
+		}
+
+		ConstIterator& operator++() {
+			if (_current == nullptr)
+				throw std::logic_error("Node was nullptr");
+			_current = _current->next;
+			return *this;
+		}
+
+		ConstIterator operator++(int) {
+			ConstIterator temp = *this;
+			++(*this);
+			return temp;
+		}
+
+		ConstIterator operator+=(int x) {
+			ConstIterator temp = *this;
+			for (int i = 0; i < x; i++) {
+				++(*this);
+			}
+			return temp;
+		}
+
+		const Node* current() const noexcept {
+			return _current;
+		}
+	};
+
+	ConstIterator begin() const {
+		return ConstIterator(_head);
+	}
+
+	ConstIterator end() const {
+		return ConstIterator(nullptr);
+	}
+
 	Iterator begin() {
 		return Iterator(_head);
 	}
