@@ -2,8 +2,9 @@
 #include <cstdlib>
 #include <ctime>
 #include "../lib_list/list.h"
-//
 #include <string>
+
+//#define DEBUG
 
 template <class TKey, class TValue>
 struct TPair {
@@ -65,8 +66,6 @@ public:
 	Skiplist() : _MAX_LVL(5), _lvl(1), _head(nullptr) {
 		srand(static_cast<unsigned int>(time(0)));
 		for (size_t i = 0; i < _MAX_LVL; i++) {
-
-			//TPair<TKey, TValue>* pair = new TPair<TKey, TValue>();
 			_head = new SNode<TKey, TValue>(_MAX_LVL);
 			for (size_t i = 0; i < _MAX_LVL; i++) {
 				_head->next[i] = nullptr;
@@ -75,12 +74,6 @@ public:
 			//_head.push_back(nullptr);
 		}
 	}
-	/*
-	Skiplist(size_t MAX, size_t lvl, const List<SNode<TKey, TValue>*>& head)
-		: _MAX_LVL(MAX), _lvl(lvl), _head(head) {
-		srand(static_cast<unsigned int>(time(0)));
-	}
-	*/
 
 	~Skiplist() {
 		SNode<TKey, TValue>* current = _head->next[0];
@@ -95,11 +88,11 @@ public:
 	void insert(const TKey& key, const TValue& value);
 	void print() const noexcept;
 	size_t flip_coin() const noexcept;
-	List<SNode<TKey, TValue>*> find_nearest(const TKey& key) const;
+	SNode<TKey, TValue>** find_nearest(const TKey& key) const;
 };
 
 template <class TKey, class TValue>
-size_t Skiplist<TKey, TValue>::flip_coin() const noexcept { // переделать чтобы каждый раз на каждый лвл подкидывалась монетка
+size_t Skiplist<TKey, TValue>::flip_coin() const noexcept {
 	size_t lvl = 0;
 	for (int i = 0; i < _MAX_LVL - 1; i++) {
 		if (rand() % 2 == 1) {
@@ -113,61 +106,40 @@ size_t Skiplist<TKey, TValue>::flip_coin() const noexcept { // переделать чтобы 
 }
 
 template <class TKey, class TValue>
-List<SNode<TKey, TValue>*> Skiplist<TKey, TValue>::find_nearest(const TKey& key) const { // Node** ?
-	SNode<TKey, TValue>* current = _head.head();
-
-	for (int i = _lvl - 1; i >= 0; i--) {
-		if (current && current->next[i] && current->next[i]->data.key > key) {
-			i--;
-		}
-		while (current && current->next[i] && current->next[i]->data.key < key) {
-			current = current->next[i];
-		}
-		if (current && current->data.key == key) {
-			return current;
-		}
-	}
-	return nullptr;
-	/*
-	auto it = _head.begin();
-	for (; it != _head.tail(); it++) {
-		if ((*it)->next == nullptr) {  //  ќ—“џЋ№
-			it++;
-		}
-		else {
-			std::cout << "Need to do smth in find\n";
-		}
-	}
-	if (it == _heads.tail()) return nullptr;
-	*/
-}
-
-template <class TKey, class TValue>
-void Skiplist<TKey, TValue>::insert(const TKey& key, const TValue& value) {
-	SNode<TKey, TValue>* current = _head;
-
+SNode<TKey, TValue>** Skiplist<TKey, TValue>::find_nearest(const TKey& key) const { // Node** ?
 	SNode<TKey, TValue>** update = new SNode<TKey, TValue>*[_MAX_LVL];
 	for (size_t i = 0; i < _MAX_LVL; i++) {
 		update[i] = nullptr;
 	}
 
+	SNode<TKey, TValue>* current = _head;
 	for (int i = _lvl; i >= 0; i--)
 	{
-		while (current->next[i] != NULL &&
-			current->next[i]->data.key < key)
+		while (current->next[i] != nullptr &&
+			current->next[i]->data.key < key) {
 			current = current->next[i];
-			update[i] = current;
+		}
+		update[i] = current;
 	}
 
-	current = current->next[0];
+	return update;
+}
+
+template <class TKey, class TValue>
+void Skiplist<TKey, TValue>::insert(const TKey& key, const TValue& value) {
+	SNode<TKey, TValue>** update = find_nearest(key);
+	SNode<TKey, TValue>* current = update[0]->next[0];
 
 	if (current == nullptr || current->data.key != key)
 	{
 		int rlevel = flip_coin();
 		if (rlevel > _lvl)
 		{
-			for (int i = _lvl + 1; i <= rlevel; i++)
-				update[i] = _head;
+			for (int i = _lvl + 1; i <= rlevel; i++) {
+				if (i < _MAX_LVL) {
+					update[i] = _head;
+				}
+			}
 
 			_lvl = rlevel;
 		}
@@ -177,16 +149,20 @@ void Skiplist<TKey, TValue>::insert(const TKey& key, const TValue& value) {
 
 		for (int i = 0; i <= rlevel; i++)
 		{
-			if (i < _MAX_LVL && update[i] != nullptr) {  // отдельно вынести проверку rlevel <= _MAX_LVL
+			if (i < _MAX_LVL && update[i] != nullptr) {  // отдельно вынести проверку rlevel <= _MAX_LVL ?
 				new_node->next[i] = update[i]->next[i];
 				update[i]->next[i] = new_node;
 			}
 		}
+#ifdef DEBUG
 		std::cout << "Successfully Inserted key " << key << "\n";
-	} 
+#endif
+	}
 	else { // обновл€ем
 		current->data.value = value;
+#ifdef DEBUG
 		std::cout << "Updated key " << key << "\n";
+#endif
 	}
 
 	delete[] update;
@@ -194,23 +170,8 @@ void Skiplist<TKey, TValue>::insert(const TKey& key, const TValue& value) {
 
 template <class TKey, class TValue>
 void Skiplist<TKey, TValue>::print() const noexcept {
-	/*
-	std::cout << "\n------Skip List------" << "\n";
-	for (int i = 0; i <= _lvl; i++)
-	{
-		SNode<TKey, TValue>* node = _head->next[i];
-		std::cout << "Level " << i << ": ";
-		while (node != nullptr)
-		{
-			std::cout << node->data.key << " ";
-			node = node->next[i];
-		}
-		std::cout << "\n";
-	}
-	*/
-
 	List<TKey> keys_zero_lvl;
-	std::cout << "\n------Skip List------" << "\n";
+	std::cout << "+-----------------Skip List-----------------+\n\n";
 	for (int i = 0; i <= _lvl; i++)
 	{
 		SNode<TKey, TValue>* node = _head->next[i];

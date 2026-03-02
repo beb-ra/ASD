@@ -9,16 +9,17 @@
 
 int main() {
 	Skiplist<int, int> slist;
+	slist.insert(1, 1);
 	slist.insert(3, 3);
 	slist.insert(6, 6);
 	slist.insert(7, 7);
-	slist.insert(9, 9);
 	slist.insert(12, 12);
-	slist.insert(19, 19);
-	slist.insert(17, 17);
-	slist.insert(26, 26);
-	slist.insert(21, 21);
+	slist.insert(18, 18);
+	slist.insert(16, 16);
+	slist.insert(24, 24);
+	slist.insert(20, 20);
 	slist.insert(25, 25);
+	slist.insert(19, 20);
 	slist.print();
 }
 
