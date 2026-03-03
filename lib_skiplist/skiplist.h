@@ -66,9 +66,11 @@ public:
 	Skiplist() : _MAX_LVL(5), _lvl(1), _head(nullptr) {
 		srand(static_cast<unsigned int>(time(0)));
 		_head = new SNode<TKey, TValue>(_MAX_LVL);
+		/*
 		for (size_t i = 0; i < _MAX_LVL; i++) {
 			_head->next[i] = nullptr;
 		}
+		*/
 		//SNode<TKey, TValue>* new_node = new SNode<TKey, TValue>(1);
 		//_head.push_back(nullptr);
 	}
@@ -165,7 +167,7 @@ void Skiplist<TKey, TValue>::print() const noexcept {
 	for (int i = 0; i < _lvl; i++)
 	{
 		SNode<TKey, TValue>* node = _head->next[i];
-		std::cout << "Level " << i << ": ";
+		std::cout << "Level " << i + 1 << ": ";
 		while (node != nullptr)
 		{
 			if (i == 0) {
