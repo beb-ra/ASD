@@ -182,9 +182,9 @@ void Skiplist<TKey, TValue>::print() const noexcept {
 						node = node->next[i];
 					}
 					else {
-						int numLength = std::to_string(*it).length();
+						int key_length = std::to_string(*it).length();
 						std::cout << "----";
-						for (int d = 0; d < numLength; d++) {
+						for (int d = 0; d < key_length; d++) {
 							std::cout << "-";
 						}
 					}
@@ -193,4 +193,5 @@ void Skiplist<TKey, TValue>::print() const noexcept {
 		}
 		std::cout << "\n";
 	}
+	std::cout << "\n+-------------------------------------------+";
 }
