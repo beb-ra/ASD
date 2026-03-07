@@ -14,7 +14,46 @@ int main() {
 
 	Tree<int, int> t;
 	t.insert(1, 1);
-	std::cout << t.find(1);
+	t.insert(4, 4);
+	t.insert(1, 2);
+	t.insert(1, 3);
+	std::cout << (*t.find(1)) << " ";
+
+	t.insert(2, 2);
+	t.insert(2, 3);
+	t.insert(2, 4);
+
+	std::cout << (*t.find(2)) << " ";
+
+	std::cout << (*t.find(1)) << " ";
+	std::cout << (*t.find(4)) << " ";
+	std::cout << t.find(5) << "\n";
+
+	t.print_clr();
+	t.print_lcr();
+	t.print_lrc();
+	t.print_w();
+
+	t.erase(4);
+	t.print_w();
+
+	t.erase(1);
+	t.print_w();
+
+	t.erase(2);
+	t.print_w();
+
+	t.erase(2);
+	t.print_w();
+
+	t.erase(2);
+    t.print_w();
+
+	t.erase(1);
+	t.print_w();
+
+	t.erase(1);
+	t.print_w();
 }
 
 #endif  // EASY_EXAMPLE
