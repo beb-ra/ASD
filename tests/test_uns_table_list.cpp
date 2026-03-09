@@ -19,12 +19,13 @@ TEST(TestUnsTableListLib, correct_insert_found_and_erase) {
 	EXPECT_EQ(*(t.found(3)), 111);
 
 	t.erase(1);
-	std::cout << t;
 	t.erase(3);
 
-	EXPECT_THROW(t.erase(3), std::logic_error);
-
+	EXPECT_EQ(t.found(1), nullptr);
+	EXPECT_EQ(t.found(3), nullptr);
 	EXPECT_TRUE(t.rows().is_empty());
+
+	EXPECT_THROW(t.erase(3), std::logic_error);
 	EXPECT_THROW(t.erase(5), std::logic_error);
 }
 

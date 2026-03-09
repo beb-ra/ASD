@@ -241,7 +241,7 @@ void Tree<TKey, TValue>::print_clr_rec(TreeNode<TKey, TValue>* node) const noexc
     if (node == nullptr) return;
 
     std::cout << node->_data.value << " ";
-    print_clr_rec(node->_left);  // можно добавить условие проверки на nullptr и убрать проверку из начала
+    print_clr_rec(node->_left);
     print_clr_rec(node->_right);
 }
 

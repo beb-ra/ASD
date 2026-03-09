@@ -17,8 +17,8 @@ TEST(TestQueueLib, correct_create_object) {
     Queue<int> object(10);
 
     EXPECT_EQ(10, object.size());
-    EXPECT_EQ(0, object.head());
     EXPECT_EQ(0, object.count());
+    EXPECT_THROW(object.head(), std::out_of_range);
 }
 
 TEST(TestQueueLib, correct_create_object_with_copy) {
@@ -26,8 +26,8 @@ TEST(TestQueueLib, correct_create_object_with_copy) {
     Queue<int> object2(object);
 
     EXPECT_EQ(10, object2.size());
-    EXPECT_EQ(0, object.head());
     EXPECT_EQ(0, object.count());
+    EXPECT_THROW(object.head(), std::out_of_range);
 }
 
 TEST(TestQueueLib, correct_create_object_with_copy_2) {
@@ -76,9 +76,9 @@ TEST(TestQueueLib, correct_clear) {
     object.push(22);
     object.clear();
 
-    EXPECT_EQ(0, object.head());
     EXPECT_EQ(0, object.count());
     EXPECT_EQ(10, object.size());
+    EXPECT_THROW(object.head(), std::out_of_range);
 
     ASSERT_NO_THROW(object.push(22));
 }

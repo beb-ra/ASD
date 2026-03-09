@@ -75,7 +75,9 @@ void Queue<T>::pop() {
 
 template <class T>
 inline T Queue<T>::head() const {
-	//if (_count == 0) return _head;
+	if (_count == 0) {
+		throw std::out_of_range("Queue is empty");
+	}
 	return _data[_head];
 }
 
