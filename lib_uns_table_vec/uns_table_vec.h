@@ -17,6 +17,8 @@ public:
 	bool is_empty() const noexcept override;
 	void print() const noexcept;
 	TVector<TPair<TKey, TValue>> rows();
+private:
+    int find(const TKey&) const;
 };
 
 template <class TKey, class TValue>
@@ -41,23 +43,31 @@ void UnsortedTableV<TKey, TValue>::insert(const TKey& key, const TValue& value) 
 
 template <class TKey, class TValue>
 TValue* UnsortedTableV<TKey, TValue>::found(const TKey& key) {
-    for (size_t i = 0; i < _rows.size(); i++) {
-        if (_rows[i].key == key) {
-            return &_rows[i].value;
-        }
+    int pos = find(key);
+    if (pos != -1 && _rows[pos].key == key) {
+        return &_rows[pos].value;
     }
     return nullptr;
 }
 
 template <class TKey, class TValue>
 void UnsortedTableV<TKey, TValue>::erase(const TKey& key) {
-    for (size_t i = 0; i < _rows.size(); i++) {
-        if (_rows[i].key == key) {
-            _rows.erase(i);
-            return;
-        }
+    int pos = find(key);
+    if (pos != -1 && _rows[pos].key == key) {
+        _rows.erase(pos);
+        return;
     }
     throw std::logic_error("Key not found");
+}
+
+template <class TKey, class TValue>
+int UnsortedTableV<TKey, TValue>::find(const TKey& key) const {
+    for (size_t i = 0; i < _rows.size(); i++) {
+        if (_rows[i].key == key) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 template <class TKey, class TValue>

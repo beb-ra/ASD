@@ -17,6 +17,8 @@ public:
     bool is_empty() const noexcept override;
     void print() const noexcept;
     TVector<TPair<TKey, TValue>> rows();
+private:
+    int bin_find(const TKey& key) const;
 };
 
 template <class TKey, class TValue>
@@ -28,57 +30,45 @@ SortedTableV<TKey, TValue>::SortedTableV(TVector<TPair<TKey, TValue>> rows)
 
 template <class TKey, class TValue>
 void SortedTableV<TKey, TValue>::insert(const TKey& key, const TValue& value) {
-    int left = 0, right = _rows.size() - 1, mid;
-    int insert_pos = 0;
-
-    while (left <= right) {
-        mid = (right + left) / 2;
-        if (_rows[mid].key == key) {
-            _rows[mid].value = value;
-            return;
-        }
-        else if (_rows[mid].key < key) {
-            left = mid + 1;
-            insert_pos = mid + 1;
-        }
-        else {
-            right = mid - 1;
-            insert_pos = mid;
-        }
+    int pos = bin_find(key);
+    if (pos < _rows.size() && _rows[pos].key == key) {
+        _rows[pos].value = value;
     }
-
-    TPair<TKey, TValue> pair(key, value);
-    _rows.insert(insert_pos, pair);
+    else {
+        TPair<TKey, TValue> pair(key, value);
+        _rows.insert(pos, pair);
+    }
 }
 
 template <class TKey, class TValue>
 TValue* SortedTableV<TKey, TValue>::found(const TKey& key) {  // проверка на совпадение по ключу в erase и found
-    int left = 0, right = _rows.size() - 1, mid;
-
-    while (left <= right) {
-        mid = (left + right) / 2;
-        if (_rows[mid].key == key) {
-            return &_rows[mid].value;
-        }
-        else if (_rows[mid].key < key) {
-            left = mid + 1;
-        }
-        else {
-            right = mid - 1;
-        }
+    int pos = bin_find(key);
+    if (pos < _rows.size() && _rows[pos].key == key) {
+        return &_rows[pos].value;
     }
     return nullptr;
 }
 
 template <class TKey, class TValue>
 void SortedTableV<TKey, TValue>::erase(const TKey& key) {
+    int pos = bin_find(key);
+
+    if (pos < _rows.size() && _rows[pos].key == key) {
+        _rows.erase(pos);
+    }
+    else {
+        throw std::logic_error("Key not found");
+    }
+}
+
+template <class TKey, class TValue>
+int SortedTableV<TKey, TValue>::bin_find(const TKey& key) const {
     int left = 0, right = _rows.size() - 1, mid;
 
     while (left <= right) {
         mid = (left + right) / 2;
         if (_rows[mid].key == key) {
-            _rows.erase(mid);
-            return;
+            return mid;
         }
         else if (_rows[mid].key < key) {
             left = mid + 1;
@@ -87,7 +77,7 @@ void SortedTableV<TKey, TValue>::erase(const TKey& key) {
             right = mid - 1;
         }
     }
-    throw std::logic_error("Key not found");
+    return left;
 }
 
 template <class TKey, class TValue>
