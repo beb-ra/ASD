@@ -63,7 +63,7 @@ class Skiplist {
 	SNode<TKey, TValue>* _head;
 
 public:
-	Skiplist() : _MAX_LVL(5), _lvl(1), _head(nullptr) {
+	Skiplist() : _MAX_LVL(15), _lvl(1), _head(nullptr) {
 		srand(static_cast<unsigned int>(time(0)));
 		_head = new SNode<TKey, TValue>(_MAX_LVL);
 		/*
