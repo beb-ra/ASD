@@ -34,26 +34,28 @@ int main() {
 	t.print_lrc();
 	t.print_w();
 
+	std::cout << t;
+
 	t.erase(4);
-	t.print_w();
+	std::cout << t;
 
 	t.erase(1);
-	t.print_w();
+	std::cout << t;
 
 	t.erase(2);
-	t.print_w();
+	std::cout << t;
 
 	t.erase(2);
-	t.print_w();
+	std::cout << t;
 
 	t.erase(2);
-    t.print_w();
+	std::cout << t;
 
 	t.erase(1);
-	t.print_w();
+	std::cout << t;
 
 	t.erase(1);
-	t.print_w();
+	std::cout << t;
 }
 
 #endif  // EASY_EXAMPLE

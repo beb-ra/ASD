@@ -49,6 +49,12 @@ public:
     void print_lrc() const noexcept;
     void print_clr() const noexcept;
 
+    friend std::ostream& operator <<(std::ostream& os, const Tree& tree) {
+        tree.print_visual_rec(tree._root, 0);
+        os << "\n\n";
+        return os;
+    }
+
 private:
     void print_lcr_rec(TreeNode<TKey, TValue>*) const noexcept; 
     void print_clr_rec(TreeNode<TKey, TValue>*) const noexcept;
@@ -56,6 +62,7 @@ private:
     void clear_rec(TreeNode<TKey, TValue>* node);
 
     TreeNode<TKey, TValue>* find_last_node_parent();
+    void Tree<TKey, TValue>::print_visual_rec(const TreeNode<TKey, TValue>* node, int level) const;
 };
 
 template <class TKey, class TValue>
@@ -261,4 +268,18 @@ void Tree<TKey, TValue>::print_lrc_rec(TreeNode<TKey, TValue>* node) const noexc
     print_lrc_rec(node->_left);
     print_lrc_rec(node->_right);
     std::cout << node->_data.value << " ";
+}
+
+template <class TKey, class TValue>
+void Tree<TKey, TValue>::print_visual_rec(const TreeNode<TKey, TValue>* node, int level) const {
+    if (!node) return;
+
+    print_visual_rec(node->_right, level + 1);
+
+    for (int i = 0; i < level; i++) {
+        std::cout << "       ";
+    }
+    std::cout << node->_data.key << " : " << node->_data.value << std::endl;
+
+    print_visual_rec(node->_left, level + 1);
 }
