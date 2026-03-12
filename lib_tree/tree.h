@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "../lib_queue/queue.h"
+#include "../lib_lqueue/lqueue.h"
 
 template <class TKey, class TValue>
 struct TPair {
@@ -20,10 +20,7 @@ struct TreeNode {
     TreeNode(TPair<TKey, TValue> data, TreeNode<TKey, TValue>* left = nullptr,
         TreeNode<TKey, TValue>* right = nullptr) : _data(data), _left(left), _right(right) {}
 
-    ~TreeNode() {
-        if (_left) delete _left;
-        if (_right) delete _right;
-    }
+    ~TreeNode() {}
 
     friend std::ostream& operator<<(std::ostream& os, const TreeNode& node) {
         os << node._data.key << " : " << node._data.value;
@@ -61,7 +58,7 @@ private:
     void print_lrc_rec(TreeNode<TKey, TValue>*) const noexcept;
     void clear_rec(TreeNode<TKey, TValue>* node);
 
-    TreeNode<TKey, TValue>* find_last_node_parent();
+    TreeNode<TKey, TValue>* find_last_node_parent() const;
     void print_visual_rec(const TreeNode<TKey, TValue>* node, int level) const;
 };
 
@@ -70,7 +67,24 @@ Tree<TKey, TValue>::Tree(TreeNode<TKey, TValue>* root) : _root(root) {}
 
 template <class TKey, class TValue>
 Tree<TKey, TValue>::~Tree() {
-    if (_root) delete _root;
+    if (!_root) return;
+
+    LQueue<TreeNode<TKey, TValue>*> q;
+    TreeNode<TKey, TValue>* current = nullptr;
+    q.push(_root);
+
+    while (!q.is_empty()) {
+        current = q.head();
+        q.pop();
+        if (current->_left) {
+            q.push(current->_left);
+        }
+        if (current->_right) {
+            q.push(current->_right);
+        }
+        delete current;
+    }
+    _root = nullptr;
 }
 
 template <class TKey, class TValue>
@@ -83,7 +97,7 @@ void Tree<TKey, TValue>::insert(const TKey& key, const TValue& value) {
     }
 
     TreeNode<TKey, TValue>* cur = nullptr;
-    Queue<TreeNode<TKey, TValue>*> q(10000);
+    LQueue<TreeNode<TKey, TValue>*> q;
     q.push(_root);
     while (true) {
         cur = q.head();
@@ -108,7 +122,7 @@ TreeNode<TKey, TValue>* Tree<TKey, TValue>::find(const TKey& key) const noexcept
         return nullptr;
     }
     TreeNode<TKey, TValue>* cur = nullptr;
-    Queue<TreeNode<TKey, TValue>*> q(10000);
+    LQueue<TreeNode<TKey, TValue>*> q;
     q.push(_root);
     while (!q.is_empty()) {
         cur = q.head();
@@ -155,12 +169,12 @@ void Tree<TKey, TValue>::erase(const TKey& key) {
 }
 
 template <class TKey, class TValue>
-TreeNode<TKey, TValue>* Tree<TKey, TValue>::find_last_node_parent() {
+TreeNode<TKey, TValue>* Tree<TKey, TValue>::find_last_node_parent() const {
     if (is_empty()) {
         return nullptr;
     }
 
-    Queue<TreeNode<TKey, TValue>*> q(10000);
+    LQueue<TreeNode<TKey, TValue>*> q;
     q.push(_root);
     TreeNode<TKey, TValue>* parent = nullptr;
 
@@ -184,24 +198,14 @@ template <class TKey, class TValue>
 void Tree<TKey, TValue>::clear() noexcept {
     clear_rec(_root);
     _root = nullptr;
-
-    /*
-    if (_root) {
-        delete _root;
-        _root = nullptr;
-    }
-    */
 }
 
 template <class TKey, class TValue>
 void Tree<TKey, TValue>::clear_rec(TreeNode<TKey, TValue>* node) {
     if (node == nullptr) return;
 
-    if (node->_left != nullptr) clear_rec(node->_left);
-    if (node->_right != nullptr) clear_rec(node->_right);
-
-    node->_left = nullptr;
-    node->_right = nullptr;
+    clear_rec(node->_left);
+    clear_rec(node->_right);
 
     delete node;
 }
@@ -218,7 +222,7 @@ void Tree<TKey, TValue>::print_w() const noexcept {
         return;
     }
     TreeNode<TKey, TValue>* cur = nullptr;
-    Queue<TreeNode<TKey, TValue>*> q(10000);
+    LQueue<TreeNode<TKey, TValue>*> q;
     q.push(_root);
 
     while (!q.is_empty()) {
