@@ -57,3 +57,18 @@ TEST(TestTreeLib, correct_insert_found_and_erase) {
 	EXPECT_EQ(t.find(1), nullptr);
 	EXPECT_TRUE(t.is_empty());
 }
+
+TEST(TestTreeLib, correct_clear) {
+	Tree<int, int> t;
+	t.insert(1, 1);
+	t.insert(4, 4);
+	t.insert(1, 2);
+	t.insert(1, 3);
+
+	t.insert(2, 2);
+	t.insert(2, 3);
+	t.insert(2, 4);
+
+	t.clear();
+	EXPECT_TRUE(t.is_empty());
+}

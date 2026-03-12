@@ -62,7 +62,7 @@ private:
     void clear_rec(TreeNode<TKey, TValue>* node);
 
     TreeNode<TKey, TValue>* find_last_node_parent();
-    void Tree<TKey, TValue>::print_visual_rec(const TreeNode<TKey, TValue>* node, int level) const;
+    void print_visual_rec(const TreeNode<TKey, TValue>* node, int level) const;
 };
 
 template <class TKey, class TValue>
@@ -77,7 +77,6 @@ template <class TKey, class TValue>
 void Tree<TKey, TValue>::insert(const TKey& key, const TValue& value) {
     TPair<TKey, TValue> pair = TPair<TKey, TValue>(key, value);
     TreeNode<TKey, TValue>* node = new TreeNode<TKey, TValue>(pair);
-
     if (is_empty()) {
         _root = node;
         return;
@@ -111,26 +110,24 @@ TreeNode<TKey, TValue>* Tree<TKey, TValue>::find(const TKey& key) const noexcept
     TreeNode<TKey, TValue>* cur = nullptr;
     Queue<TreeNode<TKey, TValue>*> q(10000);
     q.push(_root);
-    while (true) {
+    while (!q.is_empty()) {
         cur = q.head();
+        q.pop();
         if (cur != nullptr && cur->_data.key == key) {
             return cur;
         }
-        if (cur == nullptr) {
-            return nullptr;
-        }
-        q.pop();
 
-        q.push(cur->_left);
-        q.push(cur->_right);
+        if (cur->_left) q.push(cur->_left);
+        if (cur->_right) q.push(cur->_right);
     }
+    return nullptr;
 }
 
 template <class TKey, class TValue>
 void Tree<TKey, TValue>::erase(const TKey& key) {
     TreeNode<TKey, TValue>* node = find(key);
     if (node == nullptr) {
-        throw std::logic_error("The tree is empty");
+        throw std::logic_error("The key not found");
     }
     TreeNode<TKey, TValue>* last_parent = find_last_node_parent();
     TreeNode<TKey, TValue>* last = nullptr;
@@ -146,6 +143,7 @@ void Tree<TKey, TValue>::erase(const TKey& key) {
         }
     }
     else {
+        delete _root;
         _root = nullptr;
         return;
     }
@@ -165,7 +163,6 @@ TreeNode<TKey, TValue>* Tree<TKey, TValue>::find_last_node_parent() {
     Queue<TreeNode<TKey, TValue>*> q(10000);
     q.push(_root);
     TreeNode<TKey, TValue>* parent = nullptr;
-    TreeNode<TKey, TValue>* last = _root;
 
     while (!q.is_empty()) {
         TreeNode<TKey, TValue>* cur = q.head();
@@ -179,8 +176,6 @@ TreeNode<TKey, TValue>* Tree<TKey, TValue>::find_last_node_parent() {
             parent = cur;
             q.push(cur->_right);
         }
-
-        last = cur;
     }
     return parent;
 }
@@ -188,12 +183,25 @@ TreeNode<TKey, TValue>* Tree<TKey, TValue>::find_last_node_parent() {
 template <class TKey, class TValue>
 void Tree<TKey, TValue>::clear() noexcept {
     clear_rec(_root);
+    _root = nullptr;
+
+    /*
+    if (_root) {
+        delete _root;
+        _root = nullptr;
+    }
+    */
 }
 
 template <class TKey, class TValue>
 void Tree<TKey, TValue>::clear_rec(TreeNode<TKey, TValue>* node) {
-    if (node->left != nullptr) clear_rec(node->_left);
-    if (node->right != nullptr) clear_rec(node->_right);
+    if (node == nullptr) return;
+
+    if (node->_left != nullptr) clear_rec(node->_left);
+    if (node->_right != nullptr) clear_rec(node->_right);
+
+    node->_left = nullptr;
+    node->_right = nullptr;
 
     delete node;
 }
