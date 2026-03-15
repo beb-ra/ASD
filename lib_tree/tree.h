@@ -3,21 +3,21 @@
 #include "../lib_lqueue/lqueue.h"
 
 template <class TKey, class TValue>
-struct TPair {
+struct TreePair {
     TKey key;
     TValue value;
 
-    TPair() : key(), value() {}
-    TPair(TKey k, TValue v) : key(k), value(v) {}
+    TreePair() : key(), value() {}
+    TreePair(TKey k, TValue v) : key(k), value(v) {}
 };
 
 template <class TKey, class TValue>
 struct TreeNode {
-    TPair<TKey, TValue> _data;
+    TreePair<TKey, TValue> _data;
     TreeNode<TKey, TValue>* _left;
     TreeNode<TKey, TValue>* _right;
 
-    TreeNode(TPair<TKey, TValue> data, TreeNode<TKey, TValue>* left = nullptr,
+    TreeNode(TreePair<TKey, TValue> data, TreeNode<TKey, TValue>* left = nullptr,
         TreeNode<TKey, TValue>* right = nullptr) : _data(data), _left(left), _right(right) {}
 
     ~TreeNode() {}
@@ -89,7 +89,7 @@ Tree<TKey, TValue>::~Tree() {
 
 template <class TKey, class TValue>
 void Tree<TKey, TValue>::insert(const TKey& key, const TValue& value) {
-    TPair<TKey, TValue> pair = TPair<TKey, TValue>(key, value);
+    TreePair<TKey, TValue> pair = TreePair<TKey, TValue>(key, value);
     TreeNode<TKey, TValue>* node = new TreeNode<TKey, TValue>(pair);
     if (is_empty()) {
         _root = node;
@@ -289,9 +289,16 @@ void Tree<TKey, TValue>::print_visual_rec(const TreeNode<TKey, TValue>* node, in
     print_visual_rec(node->_right, level + 1);
 
     for (int i = 0; i < level; i++) {
-        std::cout << "       ";
+        std::cout << "          ";
     }
-    std::cout << node->_data.key << " : " << node->_data.value << std::endl;
+    std::cout << node->_data.key << " : " << node->_data.value;
+
+    int num_length = std::to_string(node->_data.key).length()
+        + std::to_string(node->_data.value).length();
+    for (int j = 0; j < num_length; j++) {
+        std::cout << "  ";
+    }
+    std::cout << std::endl;
 
     print_visual_rec(node->_left, level + 1);
 }

@@ -23,6 +23,7 @@ add_subdirectory(lib_uns_table_vec)
 add_subdirectory(lib_sort_table_vec)
 add_subdirectory(lib_lqueue)
 add_subdirectory(lib_tree)
+add_subdirectory(lib_uns_table_tree)
 add_subdirectory(main)                # подключаем дополнительный CMakeLists.txt из подкаталога с именем main
 
 option(BTEST "build test?" ON)        # указываем подключаем ли google-тесты (ON или YES) или нет (OFF или NO)
