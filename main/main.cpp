@@ -5,57 +5,30 @@
 
 #include <iostream>
 #include <iomanip>
-#include "polynom.h"
-#include "tree.h"
+#include <cstdlib>
+#include <ctime>
+#include "bstree.h"
+
+#define SIZE 10
 
 int main() {
-	//Polynom m("p", "x^2yz + 5x - 3z + 2x + 0");
-	//std::cout << m;
+	srand(static_cast<unsigned int>(time(0)));
+	BSTree<int, int> t;
+	int mass[SIZE];
 
-	Tree<int, int> t;
-	t.insert(1, 1);
-	t.insert(4, 4);
-	t.insert(1, 2);
-	t.insert(1, 3);
-	std::cout << (*t.find(1)) << " ";
+	for (int i = 0; i < SIZE; i++) {
+		int c = rand() % 100;
+		mass[i] = c;
+	}
+	
+	for (int i = 0; i < SIZE; i++) {
+		try {
+			t.insert(mass[i], mass[i]);
+		}
+		catch (...) {}
+	}
 
-	t.insert(2, 2);
-	t.insert(2, 3);
-	t.insert(2, 4);
-
-	std::cout << (*t.find(2)) << " ";
-
-	std::cout << (*t.find(1)) << " ";
-	std::cout << (*t.find(4)) << " ";
-	std::cout << t.find(5) << "\n";
-
-	t.print_clr();
 	t.print_lcr();
-	t.print_lrc();
-	t.print_w();
-
-	std::cout << t;
-
-	t.erase(4);
-	std::cout << t;
-
-	t.erase(1);
-	std::cout << t;
-
-	t.erase(2);
-	std::cout << t;
-
-	t.erase(2);
-	std::cout << t;
-
-	t.erase(2);
-	std::cout << t;
-
-	t.erase(1);
-	std::cout << t;
-
-	t.erase(1);
-	std::cout << t;
 }
 
 #endif  // EASY_EXAMPLE
