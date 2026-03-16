@@ -139,6 +139,9 @@ TreeNode<TKey, TValue>* Tree<TKey, TValue>::find(const TKey& key) const noexcept
 
 template <class TKey, class TValue>
 void Tree<TKey, TValue>::erase(const TKey& key) {
+    if (is_empty()) {
+        throw std::logic_error("The tree is empty");
+    }
     TreeNode<TKey, TValue>* node = find(key);
     if (node == nullptr) {
         throw std::logic_error("The key not found");

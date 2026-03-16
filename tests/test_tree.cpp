@@ -58,6 +58,11 @@ TEST(TestTreeLib, correct_insert_found_and_erase) {
 	EXPECT_TRUE(t.is_empty());
 }
 
+TEST(TestTreeLib, correct_erase_2) {
+	Tree<int, int> t;
+	EXPECT_THROW(t.erase(3), std::logic_error);
+}
+
 TEST(TestTreeLib, correct_clear) {
 	Tree<int, int> t;
 	t.insert(1, 1);
