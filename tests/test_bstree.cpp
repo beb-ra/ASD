@@ -79,36 +79,34 @@ TEST(TestBSTreeLib, correct_erase_node_with_multi_children) {
 }
 
 
-TEST(TestTreeLib, correct_erase_root) {
+TEST(TestBSTreeLib, correct_erase_root) {
 	BSTree<int, int> t;
 	EXPECT_THROW(t.erase(3), std::logic_error);
 
 	t.insert(3, 3);
 	t.insert(5, 5);
+	t.insert(2, 2);
 
 	t.erase(3);
-
-	std::cout << t;
+	EXPECT_EQ(t.find(5)->_data.value, 5);
+	EXPECT_EQ(t.find(5)->_left->_data.value, 2);
+	EXPECT_EQ(t.find(3), nullptr);
 }
 
-/*
-TEST(TestTreeLib, correct_clear) {
-	Tree<int, int> t;
-	t.insert(1, 1);
-	t.insert(4, 4);
-	t.insert(1, 2);
-	t.insert(1, 3);
+TEST(TestBSTreeLib, throw_uncorrect_insert) {
+	BSTree<int, int> t;
+	EXPECT_THROW(t.erase(3), std::logic_error);
 
+	t.insert(3, 3);
+	EXPECT_THROW(t.insert(3, 3), std::logic_error);
+	EXPECT_THROW(t.insert(3, 4), std::logic_error);
+	t.insert(5, 5);
 	t.insert(2, 2);
-	t.insert(2, 3);
-	t.insert(2, 4);
-
-	t.clear();
-	EXPECT_TRUE(t.is_empty());
+	EXPECT_THROW(t.insert(2, 2), std::logic_error);
 }
 
-TEST(TestTreeLib, beauty_print) {
-	Tree<int, int> t;
+TEST(TestBSTreeLib, beauty_print) {
+	BSTree<int, int> t;
 	t.insert(1000, 13);
 	t.insert(4, 4);
 	t.insert(10, 20000);
@@ -119,5 +117,8 @@ TEST(TestTreeLib, beauty_print) {
 	t.insert(20, 45);
 
 	std::cout << t;
+
+	t.print_clr();
+	t.print_lcr();
+	t.print_lrc();
 }
-*/

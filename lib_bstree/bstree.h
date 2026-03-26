@@ -26,10 +26,6 @@ struct TreeNode {
         os << node._data.key << " : " << node._data.value;
         return os;
     }
-
-    bool is_leaf() const noexcept {
-        return (_left || _right);
-    }
 };
 
 template <class TKey, class TValue>
@@ -45,6 +41,9 @@ public:
 
     bool is_empty() const noexcept;
     void print_lcr() const noexcept;
+    void print_lrc() const noexcept;
+    void print_clr() const noexcept;
+
     friend std::ostream& operator <<(std::ostream& os, const BSTree& tree) {
         tree.print_visual_rec(tree._root, 0);
         os << "\n\n";
@@ -52,11 +51,15 @@ public:
     }
 private:
     TreeNode<TKey, TValue>* find_parent(const TKey&) const noexcept;
-    void print_lcr_rec(TreeNode<TKey, TValue>*) const noexcept;
     TreeNode<TKey, TValue>* find_min_right_parent(TreeNode<TKey, TValue>*) const noexcept;
     void print_visual_rec(const TreeNode<TKey, TValue>* node, int level) const;
+    void print_lcr_rec(TreeNode<TKey, TValue>*) const noexcept;
+    void print_clr_rec(TreeNode<TKey, TValue>*) const noexcept;
+    void print_lrc_rec(TreeNode<TKey, TValue>*) const noexcept;
 
     void delete_node(TreeNode<TKey, TValue>*&, TreeNode<TKey, TValue>*&);
+    void replace_child(TreeNode<TKey, TValue>*&, TreeNode<TKey, TValue>*&,
+        TreeNode<TKey, TValue>*);
 };
 
 template <class TKey, class TValue>
@@ -108,9 +111,12 @@ TreeNode<TKey, TValue>* BSTree<TKey, TValue>::find(const TKey& key) const noexce
 template <class TKey, class TValue>
 void BSTree<TKey, TValue>::insert(const TKey& key, const TValue& value) {
     TreeNode<TKey, TValue>* parent = find_parent(key);
-    if (!parent) {
+    if (!parent && !_root) {
         _root = new TreeNode<TKey, TValue>(TreePair<TKey, TValue>(key, value));
         return;
+    }
+    if (!parent && _root) {
+        throw std::invalid_argument("This key already exists");
     }
     if (parent->_data.key < key && !parent->_right) {
         parent->_right = new TreeNode<TKey, TValue>(TreePair<TKey, TValue>(key, value));
@@ -129,7 +135,7 @@ TreeNode<TKey, TValue>* BSTree<TKey, TValue>::find_min_right_parent(TreeNode<TKe
     if (!node) return nullptr;
     if (node->_right) {
         TreeNode<TKey, TValue>* parent = node;
-        TreeNode<TKey, TValue>* tmp = node->_right; /////
+        TreeNode<TKey, TValue>* tmp = node->_right;
         while (tmp->_left) {
             parent = tmp;
             tmp = tmp->_left;
@@ -156,49 +162,21 @@ void BSTree<TKey, TValue>::erase(const TKey& key) {
         erase_node = parent->_left;
     }
 
-    if (!erase_node) {
-        throw std::logic_error("NODE IS WTF");
-    }
     delete_node(parent, erase_node);
 }
 
 template <class TKey, class TValue>
 void BSTree<TKey, TValue>::delete_node(TreeNode<TKey, TValue>*& parent, TreeNode<TKey, TValue>*& erase_node) {
-    if (!erase_node->_left && !erase_node->_right) {  // лист
-        if (!parent) {
-            _root = nullptr;
-        }
-        else if (parent->_data.key < erase_node->_data.key) {
-            parent->_right = nullptr;
-        }
-        else {
-            parent->_left = nullptr;
-        }
+    if (!erase_node->_left && !erase_node->_right) {
+        replace_child(parent, erase_node, nullptr);
         delete erase_node;
-        return;
     }
     else if (!erase_node->_right) {
-        if (!parent) {
-            _root = erase_node->_left;
-        }
-        else if (parent->_data.key < erase_node->_data.key) {
-            parent->_right = erase_node->_left;
-        }
-        else {
-            parent->_left = erase_node->_left;
-        }
+        replace_child(parent, erase_node, erase_node->_left);
         delete erase_node;
     }
     else if (!erase_node->_left) {
-        if (!parent) {
-            _root = erase_node->_right;
-        }
-        else if (parent->_data.key < erase_node->_data.key) {
-            parent->_right = erase_node->_right;
-        }
-        else {
-            parent->_left = erase_node->_right;
-        }
+        replace_child(parent, erase_node, erase_node->_right);
         delete erase_node;
     }
     else {
@@ -217,6 +195,20 @@ void BSTree<TKey, TValue>::delete_node(TreeNode<TKey, TValue>*& parent, TreeNode
         }
         erase_node->_data = replacement_data;
         delete found_node;
+    }
+}
+
+template <class TKey, class TValue>
+void BSTree<TKey, TValue>::replace_child(TreeNode<TKey, TValue>*& parent, TreeNode<TKey, TValue>*& erase_node,
+    TreeNode<TKey, TValue>* new_child) {
+    if (!parent) {
+        _root = new_child;
+    }
+    else if (parent->_data.key < erase_node->_data.key) {
+        parent->_right = new_child;
+    }
+    else {
+        parent->_left = new_child;
     }
 }
 
@@ -251,12 +243,42 @@ void BSTree<TKey, TValue>::print_lcr() const noexcept {
 }
 
 template <class TKey, class TValue>
+void BSTree<TKey, TValue>::print_lrc() const noexcept {
+    print_lrc_rec(_root);
+    std::cout << std::endl;
+}
+
+template <class TKey, class TValue>
+void BSTree<TKey, TValue>::print_clr() const noexcept {
+    print_clr_rec(_root);
+    std::cout << std::endl;
+}
+
+template <class TKey, class TValue>
 void BSTree<TKey, TValue>::print_lcr_rec(TreeNode<TKey, TValue>* node) const noexcept {
     if (node == nullptr) return;
 
     print_lcr_rec(node->_left);
     std::cout << node->_data.value << " ";
     print_lcr_rec(node->_right);
+}
+
+template <class TKey, class TValue>
+void BSTree<TKey, TValue>::print_lrc_rec(TreeNode<TKey, TValue>* node) const noexcept {
+    if (node == nullptr) return;
+
+    print_lrc_rec(node->_left);
+    print_lrc_rec(node->_right);
+    std::cout << node->_data.value << " ";
+}
+
+template <class TKey, class TValue>
+void BSTree<TKey, TValue>::print_clr_rec(TreeNode<TKey, TValue>* node) const noexcept {
+    if (node == nullptr) return;
+
+    std::cout << node->_data.value << " ";
+    print_clr_rec(node->_left);
+    print_clr_rec(node->_right);
 }
 
 template <class TKey, class TValue>
