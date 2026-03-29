@@ -16,7 +16,7 @@ public:
 
     bool is_empty() const noexcept override;
     void print() const noexcept;
-    BSTree<TKey, TValue> rows();
+    BSTree<TKey, TValue>& rows() noexcept;
 };
 
 template <class TKey, class TValue>
@@ -67,6 +67,6 @@ void SortedTableBST<TKey, TValue>::print() const noexcept {
 }
 
 template <class TKey, class TValue>
-BSTree<TKey, TValue> SortedTableBST<TKey, TValue>::rows() {
+BSTree<TKey, TValue>& SortedTableBST<TKey, TValue>::rows() noexcept {
     return _rows;
 }

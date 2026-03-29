@@ -10,9 +10,9 @@ TEST(TestSortTableBSTLib, correct_create) {
 
 TEST(TestSortTableBSTLib, correct_insert_found_and_erase) {
 	SortedTableBST<int, int> t;
+	t.insert(11, 11);
 	t.insert(1, 2);
 	t.insert(3, 4);
-	t.insert(11, 11);
 	EXPECT_THROW(t.insert(3, 111), std::logic_error);
 
 	std::cout << t;
