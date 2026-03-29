@@ -33,7 +33,10 @@ class Tree {
     TreeNode<TKey, TValue>* _root;
 public:
     Tree(TreeNode<TKey, TValue>* root = nullptr);
+    Tree(const Tree& other);
     ~Tree();
+
+    Tree& operator=(const Tree& other);
 
     void insert(const TKey&, const TValue&);
     TreeNode<TKey, TValue>* find(const TKey&) const noexcept;
@@ -57,6 +60,7 @@ private:
     void print_clr_rec(TreeNode<TKey, TValue>*) const noexcept;
     void print_lrc_rec(TreeNode<TKey, TValue>*) const noexcept;
     void clear_rec(TreeNode<TKey, TValue>* node);
+    TreeNode<TKey, TValue>* copy_rec(TreeNode<TKey, TValue>* node);
 
     TreeNode<TKey, TValue>* find_last_node_parent() const;
     void print_visual_rec(const TreeNode<TKey, TValue>* node, int level) const;
@@ -64,6 +68,35 @@ private:
 
 template <class TKey, class TValue>
 Tree<TKey, TValue>::Tree(TreeNode<TKey, TValue>* root) : _root(root) {}
+
+template <class TKey, class TValue>
+Tree<TKey, TValue>::Tree(const Tree& other) : _root(nullptr) {
+    if (other._root) {
+        _root = copy_rec(other._root);
+    }
+}
+
+template <class TKey, class TValue>
+TreeNode<TKey, TValue>* Tree<TKey, TValue>::copy_rec(TreeNode<TKey, TValue>* node) {
+    if (!node) return nullptr;
+
+    TreeNode<TKey, TValue>* new_node = new TreeNode<TKey, TValue>(node->_data);
+    new_node->_left = copy_rec(node->_left);
+    new_node->_right = copy_rec(node->_right);
+
+    return new_node;
+}
+
+template <class TKey, class TValue>
+Tree<TKey, TValue>& Tree<TKey, TValue>::operator=(const Tree& other) {
+    if (this != &other) {
+        clear();
+        if (other._root) {
+            _root = copy_rec(other._root);
+        }
+    }
+    return *this;
+}
 
 template <class TKey, class TValue>
 Tree<TKey, TValue>::~Tree() {
@@ -127,12 +160,14 @@ TreeNode<TKey, TValue>* Tree<TKey, TValue>::find(const TKey& key) const noexcept
     while (!q.is_empty()) {
         cur = q.head();
         q.pop();
-        if (cur != nullptr && cur->_data.key == key) {
-            return cur;
-        }
+        if (cur) {
+            if (cur->_data.key == key) {
+                return cur;
+            }
 
-        if (cur->_left) q.push(cur->_left);
-        if (cur->_right) q.push(cur->_right);
+            if (cur->_left) q.push(cur->_left);
+            if (cur->_right) q.push(cur->_right);
+        }
     }
     return nullptr;
 }

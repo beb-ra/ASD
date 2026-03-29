@@ -11,19 +11,22 @@ TEST(TestUnsTableTreeLib, correct_insert_found_and_erase) {
 	UnsortedTableTree<int, int> t;
 	t.insert(3, 4);
 	t.insert(1, 2);
-	t.insert(3, 111);
+	t.insert(11, 11);
+	EXPECT_THROW(t.insert(3, 333), std::logic_error);
 
 	std::cout << t;
 
 	EXPECT_EQ(*(t.found(1)), 2);
-	EXPECT_EQ(*(t.found(3)), 111);
+	EXPECT_EQ(*(t.found(3)), 4);
 
 	t.erase(1);
 	t.erase(3);
 
+	std::cout << t;
+
 	EXPECT_EQ(t.found(1), nullptr);
 	EXPECT_EQ(t.found(3), nullptr);
-	EXPECT_TRUE(t.rows().is_empty());
+	EXPECT_FALSE(t.rows().is_empty());
 
 	EXPECT_THROW(t.erase(3), std::logic_error);
 	EXPECT_THROW(t.erase(5), std::logic_error);

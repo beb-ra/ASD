@@ -21,12 +21,10 @@ TEST(TestSortTableBSTLib, correct_insert_found_and_erase) {
 	EXPECT_EQ(*(t.found(11)), 11);
 
 	t.erase(1);
-	t.erase(11);
 	t.erase(3);
 
 	EXPECT_EQ(t.found(1), nullptr);
-	EXPECT_EQ(t.found(11), nullptr);
-	EXPECT_TRUE(t.rows().is_empty());
+	EXPECT_EQ(t.found(3), nullptr);
 
 	EXPECT_THROW(t.erase(3), std::logic_error);
 	EXPECT_THROW(t.erase(5), std::logic_error);

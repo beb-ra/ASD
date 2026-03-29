@@ -31,7 +31,7 @@ void UnsortedTableTree<TKey, TValue>::insert(const TKey& key, const TValue& valu
     TValue* found_value = found(key);
 
     if (found_value) {
-        *found_value = value;
+        throw std::logic_error("This key already exists");
     }
     else {
         _rows.insert(key, value);
@@ -53,7 +53,7 @@ void UnsortedTableTree<TKey, TValue>::erase(const TKey& key) {
         _rows.erase(key);
     }
     catch (const std::exception& e) {
-        throw std::invalid_argument(e.what());
+        throw;
     }
 }
 

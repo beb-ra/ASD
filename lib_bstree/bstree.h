@@ -33,11 +33,15 @@ class BSTree {
     TreeNode<TKey, TValue>* _root;
 public:
     BSTree(TreeNode<TKey, TValue>* root = nullptr);
+    BSTree(const BSTree& other);
     ~BSTree();
+
+    BSTree& operator=(const BSTree& other);
 
     TreeNode<TKey, TValue>* find(const TKey&) const noexcept;
     void insert(const TKey&, const TValue&);
     void erase(const TKey&);
+    void clear() noexcept;
 
     bool is_empty() const noexcept;
     void print_lcr() const noexcept;
@@ -60,10 +64,42 @@ private:
     void delete_node(TreeNode<TKey, TValue>*&, TreeNode<TKey, TValue>*&);
     void replace_child(TreeNode<TKey, TValue>*&, TreeNode<TKey, TValue>*&,
         TreeNode<TKey, TValue>*);
+
+    TreeNode<TKey, TValue>* copy_rec(TreeNode<TKey, TValue>* node);
+    void clear_rec(TreeNode<TKey, TValue>* node);
 };
 
 template <class TKey, class TValue>
 BSTree<TKey, TValue>::BSTree(TreeNode<TKey, TValue>* root) : _root(root) {}
+
+template <class TKey, class TValue>
+BSTree<TKey, TValue>::BSTree(const BSTree& other) : _root(nullptr) {
+    if (other._root) {
+        _root = copy_rec(other._root);
+    }
+}
+
+template <class TKey, class TValue>
+TreeNode<TKey, TValue>* BSTree<TKey, TValue>::copy_rec(TreeNode<TKey, TValue>* node) {
+    if (!node) return nullptr;
+
+    TreeNode<TKey, TValue>* new_node = new TreeNode<TKey, TValue>(node->_data);
+    new_node->_left = copy_rec(node->_left);
+    new_node->_right = copy_rec(node->_right);
+
+    return new_node;
+}
+
+template <class TKey, class TValue>
+BSTree<TKey, TValue>& BSTree<TKey, TValue>::operator=(const BSTree& other) {
+    if (this != &other) {
+        clear();
+        if (other._root) {
+            _root = copy_rec(other._root);
+        }
+    }
+    return *this;
+}
 
 template <class TKey, class TValue>
 BSTree<TKey, TValue>::~BSTree() {
@@ -160,6 +196,10 @@ void BSTree<TKey, TValue>::erase(const TKey& key) {
     }
     else if (parent->_data.key > key && parent->_left) {
         erase_node = parent->_left;
+    }
+
+    if (erase_node == nullptr || erase_node->_data.key != key) {
+        throw std::logic_error("The key not found");
     }
 
     delete_node(parent, erase_node);
@@ -300,4 +340,20 @@ void BSTree<TKey, TValue>::print_visual_rec(const TreeNode<TKey, TValue>* node, 
     std::cout << std::endl;
 
     print_visual_rec(node->_left, level + 1);
+}
+
+template <class TKey, class TValue>
+void BSTree<TKey, TValue>::clear() noexcept {
+    clear_rec(_root);
+    _root = nullptr;
+}
+
+template <class TKey, class TValue>
+void BSTree<TKey, TValue>::clear_rec(TreeNode<TKey, TValue>* node) {
+    if (node == nullptr) return;
+
+    clear_rec(node->_left);
+    clear_rec(node->_right);
+
+    delete node;
 }
