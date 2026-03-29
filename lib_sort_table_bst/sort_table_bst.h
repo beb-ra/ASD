@@ -16,7 +16,12 @@ public:
 
     bool is_empty() const noexcept override;
     void print() const noexcept;
-    BSTree<TKey, TValue>& rows() noexcept;
+    const BSTree<TKey, TValue>& rows() const noexcept;
+
+    friend std::ostream& operator<<(std::ostream& os, const SortedTableBST& node) {
+        node.rows().print_lcr();
+        return os;
+    }
 };
 
 template <class TKey, class TValue>
@@ -63,10 +68,10 @@ bool SortedTableBST<TKey, TValue>::is_empty() const noexcept {
 template <class TKey, class TValue>
 void SortedTableBST<TKey, TValue>::print() const noexcept {
     std::cout << "TABLE:" << std::endl;
-    std::cout << _rows;
+    _rows.print_lcr();
 }
 
 template <class TKey, class TValue>
-BSTree<TKey, TValue>& SortedTableBST<TKey, TValue>::rows() noexcept {
+const BSTree<TKey, TValue>& SortedTableBST<TKey, TValue>::rows() const noexcept {
     return _rows;
 }

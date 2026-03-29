@@ -16,7 +16,7 @@ public:
 
 	bool is_empty() const noexcept override;
 	void print() const noexcept;
-	Tree<TKey, TValue>& rows() noexcept;
+	const Tree<TKey, TValue>& rows() const noexcept;
 };
 
 template <class TKey, class TValue>
@@ -69,6 +69,6 @@ void UnsortedTableTree<TKey, TValue>::print() const noexcept {
 }
 
 template <class TKey, class TValue>
-Tree<TKey, TValue>& UnsortedTableTree<TKey, TValue>::rows() noexcept {
+const Tree<TKey, TValue>& UnsortedTableTree<TKey, TValue>::rows() const noexcept {
     return _rows;
 }

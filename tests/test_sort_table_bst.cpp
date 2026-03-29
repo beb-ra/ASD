@@ -15,6 +15,7 @@ TEST(TestSortTableBSTLib, correct_insert_found_and_erase) {
 	t.insert(3, 4);
 	EXPECT_THROW(t.insert(3, 111), std::logic_error);
 
+	t.print();
 	std::cout << t;
 
 	EXPECT_EQ(*(t.found(1)), 2);

@@ -299,7 +299,7 @@ void BSTree<TKey, TValue>::print_lcr_rec(TreeNode<TKey, TValue>* node) const noe
     if (node == nullptr) return;
 
     print_lcr_rec(node->_left);
-    std::cout << node->_data.value << " ";
+    std::cout << node->_data.key << " : " << node->_data.value << " ";
     print_lcr_rec(node->_right);
 }
 
@@ -309,14 +309,14 @@ void BSTree<TKey, TValue>::print_lrc_rec(TreeNode<TKey, TValue>* node) const noe
 
     print_lrc_rec(node->_left);
     print_lrc_rec(node->_right);
-    std::cout << node->_data.value << " ";
+    std::cout << node->_data.key << " : " << node->_data.value << " ";
 }
 
 template <class TKey, class TValue>
 void BSTree<TKey, TValue>::print_clr_rec(TreeNode<TKey, TValue>* node) const noexcept {
     if (node == nullptr) return;
 
-    std::cout << node->_data.value << " ";
+    std::cout << node->_data.key << " : " << node->_data.value << " ";
     print_clr_rec(node->_left);
     print_clr_rec(node->_right);
 }
