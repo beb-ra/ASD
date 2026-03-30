@@ -11,7 +11,7 @@ public:
     void pop();
     void surfacing(int);
     void sinking(int);
-    T get_min();
+    T& get_min();
 
     int size();
     bool is_empty();
@@ -35,7 +35,7 @@ void Heap<T>::pop() {
 }
 
 template <class T>
-T Heap<T>::get_min() {
+T& Heap<T>::get_min() {
     return _data[0];
 }
 
@@ -43,7 +43,7 @@ template <class T>
 void Heap<T>::surfacing(int ind) {
     int parent_ind = (ind - 1) / 2;
     while (ind > 0 && _data[parent_ind] > _data[ind]) {
-        int temp = _data[ind];
+        T temp = _data[ind];
         _data[ind] = _data[parent_ind];
         _data[parent_ind] = temp;
 
@@ -68,7 +68,7 @@ void Heap<T>::sinking(int ind) {
         }
         if (small_ind == ind) break;
 
-        int temp = _data[ind];
+        T temp = _data[ind];
         _data[ind] = _data[small_ind];
         _data[small_ind] = temp;
 
