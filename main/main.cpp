@@ -6,11 +6,14 @@
 #include "heap.h"
 #include "pqueue.h"
 #include <string>
+#include "hash_table.h"
+#include "hashc_table.h"
 
 #define SIZE 10
 //#define TREE_SORT
 //#define HEAP_SORT
-#define PRIORITY_QUEUE
+//#define PRIORITY_QUEUE
+#define DICTIONARIES_MERGING
 
 int main() {
 	srand(static_cast<unsigned int>(time(0)));
@@ -94,6 +97,59 @@ int main() {
 		q.pop();
 	}
 #endif
+#ifdef DICTIONARIES_MERGING
+	/*
+	TVector<std::pair<std::string, int>> dict1;
+	TVector<std::pair<std::string, int>> dict2;
+
+	dict1.push_back(std::pair<std::string, int>("table", 1349));
+	dict1.push_back(std::pair<std::string, int>("hash", 1985));
+	dict1.push_back(std::pair<std::string, int>("list", 4372));
+
+	dict2.push_back(std::pair<std::string, int>("massive", 4312));
+	dict2.push_back(std::pair<std::string, int>("list", 5863));
+	dict2.push_back(std::pair<std::string, int>("hash", 4317));
+	dict2.push_back(std::pair<std::string, int>("vector", 2586));
+
+	HashTableOA<int> table;
+	for (int i = 0; i < 3; i++) {
+		table.insert(dict1[i].first, dict1[i].second);
+	}
+	for (int i = 0; i < 4; i++) {
+		try {
+			table.insert(dict2[i].first, dict2[i].second);
+		}
+		catch (...) {}
+	}
+
+	std::cout << table;
+	*/
+	TVector<std::pair<std::string, int>> dict1;
+	TVector<std::pair<std::string, int>> dict2;
+
+	dict1.push_back(std::pair<std::string, int>("table", 1349));
+	dict1.push_back(std::pair<std::string, int>("hash", 1985));
+	dict1.push_back(std::pair<std::string, int>("list", 4372));
+
+	dict2.push_back(std::pair<std::string, int>("massive", 4312));
+	dict2.push_back(std::pair<std::string, int>("list", 5863));
+	dict2.push_back(std::pair<std::string, int>("hash", 4317));
+	dict2.push_back(std::pair<std::string, int>("vector", 2586));
+
+	HashTableC<int> table;
+	for (int i = 0; i < 3; i++) {
+		table.insert(dict1[i].first, dict1[i].second);
+	}
+	for (int i = 0; i < 4; i++) {
+		try {
+			table.insert(dict2[i].first, dict2[i].second);
+		}
+		catch (...) {}
+	}
+
+	std::cout << table;
+#endif
+	return 0;
 }
 
 
