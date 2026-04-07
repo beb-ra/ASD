@@ -13,7 +13,7 @@ enum status {
     _deleted
 };
 
-bool is_prime(size_t, size_t);
+bool is_prime(size_t, size_t) noexcept;
 
 template <class TValue>
 struct HashData {
@@ -37,7 +37,8 @@ class HashTableOA : public Table<std::string, TValue> {
     size_t _count;
 
 public:
-    HashTableOA(size_t size = SIZE) : _rows(size), _size(size) {
+    HashTableOA(size_t size = SIZE) : _rows(size), _size(size), _count(0) {
+        _rows.shrink_to_fit();
         for (size_t i = std::max((size_t)2, size / 15); i < size; i++) {
             if (is_prime(i, size)) {
                 _shift = i;
@@ -103,23 +104,24 @@ void HashTableOA<TValue>::erase(const std::string& key) {
 
     while (true) {
         if (_rows[hash]._state == _empty)
-            break;  // значит мы прошли по всем элементам
+            break;
 
         if (_rows[hash]._state == _busy && _rows[hash]._key == key) {
             _rows[hash]._state = _deleted;
+            _count--;
             return;
         }
 
-        if (first_hash == hash)  // пошли по кругу
+        if (first_hash == hash)
             break;
 
         hash = hh(hash);
     }
 
-    throw std::logic_error("The key not found");  //
+    throw std::logic_error("The key not found");
 }
 
-bool is_prime(size_t first, size_t second) {
+bool is_prime(size_t first, size_t second) noexcept {
     if (second == 0) return first == 1;
     return is_prime(second, first % second);
 }
@@ -129,7 +131,7 @@ TValue* HashTableOA<TValue>::found(const std::string& key) {
     size_t hash = h(key);
     size_t first_hash = hash;
     while (true) {
-        if (_rows[hash]._key == key)
+        if (_rows[hash]._state == _busy && _rows[hash]._key == key)
             return &(_rows[hash]._value);
 
         if (first_hash == hash)
