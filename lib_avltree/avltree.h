@@ -60,7 +60,6 @@ private:
     int recalc_balance(AVLNode<TKey, TValue>*);
     void recover_balance(AVLNode<TKey, TValue>*);
     void recalc_height(AVLNode<TKey, TValue>*);
-    AVLNode<TKey, TValue>* find_last_node() const;
 
     void delete_node(AVLNode<TKey, TValue>*&);
     AVLNode<TKey, TValue>* find_min_right_parent(AVLNode<TKey, TValue>* node) const noexcept;
@@ -127,6 +126,9 @@ void AVLTree<TKey, TValue>::left_rotate(AVLNode<TKey, TValue>* node) {
     }
     P->_left = G;
     G->_parent = P;
+
+    recalc_height(G);
+    recalc_height(P);
 }
 
 template <class TKey, class TValue>
@@ -160,6 +162,9 @@ void AVLTree<TKey, TValue>::right_rotate(AVLNode<TKey, TValue>* node) {
     }
     P->_right = G;
     G->_parent = P;
+
+    recalc_height(G);
+    recalc_height(P);
 }
 
 template <class TKey, class TValue>
@@ -222,7 +227,7 @@ void AVLTree<TKey, TValue>::insert(const TKey& key, const TValue& value) {
         throw std::invalid_argument("This key already exists");
     }
     //
-    AVLNode<TKey, TValue>* P = node->_parent, * G = P->_parent;
+    AVLNode<TKey, TValue>* P = node->_parent, *G = P->_parent;
     recalc_height(P);
     if (!G)
         return;
@@ -233,14 +238,16 @@ void AVLTree<TKey, TValue>::insert(const TKey& key, const TValue& value) {
         return;
     }
 
-    // если баланс не нарушился, пересчитываем высоты
     AVLNode<TKey, TValue>* curr = G;
-    int prev_height;
-
     while (curr) {
-        prev_height = curr->_height;
+        int old_height = curr->_height;
         recalc_height(curr);
-        if (prev_height == curr->_height)
+
+        if (abs(recalc_balance(curr)) > 1) {
+            recover_balance(curr);
+            recalc_height(curr);
+        }
+        if (old_height == curr->_height)
             break;
 
         curr = curr->_parent;
@@ -309,43 +316,20 @@ void AVLTree<TKey, TValue>::erase(const TKey& key) {
     AVLNode<TKey, TValue>* parent = node->_parent;
     delete_node(node);
     //
-
+    if (!parent) parent = _root;
     while (parent) {
-        int balance = recalc_balance(parent);
-
-        if (abs(balance) > 1)
-            recover_balance(parent);
-
         int old_height = parent->_height;
         recalc_height(parent);
+
+        if (abs(recalc_balance(parent)) > 1) {
+            recover_balance(parent);
+            recalc_height(parent);
+        }
         if (old_height == parent->_height)
             break;
 
         parent = parent->_parent;
     }
-}
-
-template <class TKey, class TValue>
-AVLNode<TKey, TValue>* AVLTree<TKey, TValue>::find_last_node() const {
-    if (is_empty()) {
-        return nullptr;
-    }
-    LQueue<AVLNode<TKey, TValue>*> q;
-    q.push(_root);
-    AVLNode<TKey, TValue>* curr;
-
-    while (!q.is_empty()) {
-        curr = q.head();
-        q.pop();
-
-        if (curr->_left) {
-            q.push(curr->_left);
-        }
-        if (curr->_right) {
-            q.push(curr->_right);
-        }
-    }
-    return curr;
 }
 
 template <class TKey, class TValue>
@@ -421,36 +405,32 @@ void AVLTree<TKey, TValue>::replace_child(AVLNode<TKey, TValue>*& parent, AVLNod
 
 template <class TKey, class TValue>
 int AVLTree<TKey, TValue>::recalc_balance(AVLNode<TKey, TValue>* node) {
-    if (!node->_left && !node->_right) {
-        return 0;
-    }
-    else if (!node->_left) {
-        return node->_right->_height;
-    }
-    else if (!node->_right) {
-        return -node->_left->_height;
-    }
-    else {
-        return node->_right->_height - node->_left->_height;
-    }
+    if (!node) return 0;
+
+    int left_height = (node->_left) ? node->_left->_height : 0;
+    int right_height = (node->_right) ? node->_right->_height : 0;
+
+    return right_height - left_height;
 }
 
 template <class TKey, class TValue>
 void AVLTree<TKey, TValue>::recover_balance(AVLNode<TKey, TValue>* node) {
     int balance = recalc_balance(node);
     if (balance > 1) {
-        if (node->_right->_left) {
+        int right_balance = recalc_balance(node->_right);
+        if (right_balance < 0) {
             RL(node);
         }
-        else if (node->_right->_right) {
+        else {
             RR(node);
         }
     }
     else if (balance < -1) {
-        if (node->_left->_right) {
+        int left_balance = recalc_balance(node->_left);
+        if (left_balance > 0) {
             LR(node);
         }
-        else if (node->_left->_left) {
+        else {
             LL(node);
         }
     }
@@ -458,21 +438,12 @@ void AVLTree<TKey, TValue>::recover_balance(AVLNode<TKey, TValue>* node) {
 
 template <class TKey, class TValue>
 void AVLTree<TKey, TValue>::recalc_height(AVLNode<TKey, TValue>* node) {
-    if (!node->_left && !node->_right) {
-        node->_height = 1;
-        return;
-    }
-    else if (!node->_left) {
-        node->_height = node->_right->_height + 1;
-        return;
-    }
-    else if (!node->_right) {
-        node->_height = node->_left->_height + 1;
-    }
-    else {
-        node->_height = (node->_left->_height > node->_right->_height) 
-            ? node->_left->_height + 1 : node->_right->_height + 1;
-    }
+    if (!node) return;
+
+    int left_height = (node->_left) ? node->_left->_height : 0;
+    int right_height = (node->_right) ? node->_right->_height : 0;
+
+    node->_height = (left_height > right_height ? left_height : right_height) + 1;
 }
 
 template <class TKey, class TValue>
