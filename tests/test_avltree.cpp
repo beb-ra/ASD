@@ -2,6 +2,21 @@
 #include <iostream>
 #include "../lib_avltree/avltree.h"
 
+TEST(TestAVLTreeLib, correct_create) {
+	AVLTree<int, int> t;
+	t.insert(3, 3);
+	t.insert(1, 1);
+	t.insert(4, 4);
+	t.insert(2, 2);
+	
+	AVLTree<int, int> t2(t);
+
+	EXPECT_EQ(t.find(3)->_data.value, 3);
+	EXPECT_EQ(t.find(3)->_left->_data.value, 1);
+	EXPECT_EQ(t.find(3)->_left->_right->_data.value, 2);
+	EXPECT_EQ(t.find(3)->_right->_data.value, 4);
+}
+
 TEST(TestAVLTreeLib, correct_insert_found_and_erase_leaf) {
 	AVLTree<int, int> t;
 	t.insert(3, 3);
@@ -81,7 +96,6 @@ TEST(TestAVLTreeLib, correct_erase_node_with_multi_children) {
 	std::cout << t;
 }
 
-
 TEST(TestAVLTreeLib, correct_erase_root) {
 	AVLTree<int, int> t;
 	EXPECT_THROW(t.erase(3), std::logic_error);
@@ -96,7 +110,7 @@ TEST(TestAVLTreeLib, correct_erase_root) {
 	EXPECT_EQ(t.find(3), nullptr);
 }
 
-TEST(TestAVLTreeLib, throw_uncorrect_insert) {
+TEST(TestAVLTreeLib, throw_uncorrect_insert_and_erase) {
 	AVLTree<int, int> t;
 	EXPECT_THROW(t.erase(3), std::logic_error);
 
@@ -106,6 +120,8 @@ TEST(TestAVLTreeLib, throw_uncorrect_insert) {
 	t.insert(5, 5);
 	t.insert(2, 2);
 	EXPECT_THROW(t.insert(2, 2), std::logic_error);
+
+	EXPECT_THROW(t.erase(10), std::logic_error);
 }
 
 TEST(TestAVLTreeLib, correct_insert_turns) {

@@ -93,7 +93,7 @@ TEST(TestBSTreeLib, correct_erase_root) {
 	EXPECT_EQ(t.find(3), nullptr);
 }
 
-TEST(TestBSTreeLib, throw_uncorrect_insert) {
+TEST(TestBSTreeLib, throw_uncorrect_insert_and_erase) {
 	BSTree<int, int> t;
 	EXPECT_THROW(t.erase(3), std::logic_error);
 
@@ -103,6 +103,8 @@ TEST(TestBSTreeLib, throw_uncorrect_insert) {
 	t.insert(5, 5);
 	t.insert(2, 2);
 	EXPECT_THROW(t.insert(2, 2), std::logic_error);
+
+	EXPECT_THROW(t.erase(10), std::logic_error);
 }
 
 TEST(TestBSTreeLib, beauty_print) {
