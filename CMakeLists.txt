@@ -17,6 +17,7 @@ add_subdirectory(lib_tvector)
 add_subdirectory(lib_list)
 add_subdirectory(lib_matrix)
 add_subdirectory(lib_graph_on_matrix)
+add_subdirectory(lib_graph_on_list_adj)
 add_subdirectory(main)                # подключаем дополнительный CMakeLists.txt из подкаталога с именем main
 
 option(BTEST "build test?" ON)        # указываем подключаем ли google-тесты (ON или YES) или нет (OFF или NO)
