@@ -82,6 +82,9 @@ public:
 			return *this;
 		}
 
+		Node* current() noexcept {
+			return _current;
+		}
 		const Node* current() const noexcept {
 			return _current;
 		}

@@ -1,6 +1,7 @@
 #include <vector>
 #include "../lib_matrix/matrix.h"
 
+/*
 template <class T>
 class MGraph {
 	struct Vertex {
@@ -39,3 +40,4 @@ MGraph<T>::MGraph(std::vector<std::pair<T, T>> data, bool is_oriented, bool is_w
 
 	}
 }
+*/

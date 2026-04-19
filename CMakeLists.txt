@@ -15,6 +15,7 @@ include(cmake/function.cmake)         # подхватываем функции,
 
 add_subdirectory(lib_tvector)
 add_subdirectory(lib_list)
+add_subdirectory(lib_mvector)
 add_subdirectory(lib_matrix)
 add_subdirectory(lib_graph_on_matrix)
 add_subdirectory(lib_graph_on_list_adj)
