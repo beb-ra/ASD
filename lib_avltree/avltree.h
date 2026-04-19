@@ -154,7 +154,7 @@ void AVLTree<TKey, TValue>::right_rotate(AVLNode<TKey, TValue>* node) {
 }
 
 template <class TKey, class TValue>
-void AVLTree<TKey, TValue>::RR(AVLNode<TKey, TValue>* node) {  // передаётся дед (он сломал баланс)
+void AVLTree<TKey, TValue>::RR(AVLNode<TKey, TValue>* node) {  // передается дед
     left_rotate(node);
 }
 
@@ -210,7 +210,7 @@ void AVLTree<TKey, TValue>::insert(const TKey& key, const TValue& value) {
 
     int balance = recalc_balance(G);
     if (abs(balance) > 1) {
-        recover_balance(G);  // внутри пересчитываем высоты
+        recover_balance(G);
         return;
     }
 
@@ -237,15 +237,12 @@ AVLNode<TKey, TValue>* AVLTree<TKey, TValue>::find(const TKey& key) const {
 
 template <class TKey, class TValue>
 void AVLTree<TKey, TValue>::erase(const TKey& key) {
-    // удалить, как из BSTree
-
     // начиная с фактически удалённого элемента:
     // 1) пересчитываем высоты
     // 2) пересчитываем баланс
     // 2.1) восстанавливаем баланс, если он был нарушен
     // 2.2) если что-то изменилось-> 1)
 
-    // мб перед удалением в ноде отвязывать родителя?
     AVLNode<TKey, TValue>* parent = BSTree::erase_and_return_node(key);
 
     if (!parent) parent = _root;
