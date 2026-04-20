@@ -175,6 +175,30 @@ TEST(TestAVLTreeLib, correct_erase_turns) {
 	std::cout << t;
 }
 
+TEST(TestAVLTreeLib, correct_erase_turns_2) {
+	AVLTree<float, float> t;
+
+	t.insert(5, 5);
+	t.insert(3, 3);
+	t.insert(7, 7);
+	t.insert(1, 1);
+	t.insert(6, 6);
+	t.insert(4, 4);
+	t.insert(8, 8);
+	t.insert(0.5, 0.5);
+	t.insert(5.5, 5.5);
+	t.insert(7.5, 7.5);
+	t.insert(6.5, 6.5);
+	t.insert(9, 9);
+	t.insert(8.5, 8.5);
+
+	std::cout << t;
+
+	t.erase(4);
+
+	std::cout << t;
+}
+
 TEST(TestAVLTreeLib, check_heights_after_all_rotations) {
     AVLTree<int, int> t;
 
