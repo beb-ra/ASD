@@ -195,6 +195,15 @@ TEST(TestAVLTreeLib, correct_erase_turns_2) {
 	std::cout << t;
 
 	t.erase(4);
+	EXPECT_EQ(t.find(7)->_right->_right->_data.value, 9);
+	EXPECT_EQ(t.find(7)->_right->_right->_left->_data.value, 8.5);
+	EXPECT_EQ(t.find(7)->_right->_left->_data.value, 7.5);
+	EXPECT_EQ(t.find(7)->_left->_left->_left->_data.value, 0.5);
+	EXPECT_EQ(t.find(7)->_left->_left->_right->_data.value, 3);
+	EXPECT_EQ(t.find(7)->_left->_left->_data.value, 1);
+	EXPECT_EQ(t.find(7)->_left->_right->_right->_data.value, 6.5);
+	EXPECT_EQ(t.find(7)->_left->_right->_left->_data.value, 5.5);
+	EXPECT_EQ(t.find(7)->_left->_right->_data.value, 6);
 
 	std::cout << t;
 }

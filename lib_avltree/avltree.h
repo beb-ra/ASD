@@ -48,7 +48,7 @@ private:
     void RL(AVLNode<TKey, TValue>*);
     void LR(AVLNode<TKey, TValue>*);
     int recalc_balance(AVLNode<TKey, TValue>*);
-    void recover_balance(AVLNode<TKey, TValue>*);
+    AVLNode<TKey, TValue>* recover_balance(AVLNode<TKey, TValue>*);
     void recalc_height(AVLNode<TKey, TValue>*);
 };
 
@@ -250,14 +250,20 @@ void AVLTree<TKey, TValue>::erase(const TKey& key) {
         int old_height = parent->_height;
         recalc_height(parent);
 
+        AVLNode<TKey, TValue>* new_parent = nullptr;
         if (abs(recalc_balance(parent)) > 1) {
-            recover_balance(parent);
+            new_parent = recover_balance(parent);
             recalc_height(parent);
         }
         if (old_height == parent->_height)
             break;
 
-        parent = parent->_parent;
+        if (new_parent) {
+            parent = new_parent->_parent;
+        }
+        else {
+            parent = parent->_parent;
+        }
     }
 }
 
@@ -272,7 +278,7 @@ int AVLTree<TKey, TValue>::recalc_balance(AVLNode<TKey, TValue>* node) {
 }
 
 template <class TKey, class TValue>
-void AVLTree<TKey, TValue>::recover_balance(AVLNode<TKey, TValue>* node) {
+AVLNode<TKey, TValue>* AVLTree<TKey, TValue>::recover_balance(AVLNode<TKey, TValue>* node) { // возвращает новый корень поддерева
     int balance = recalc_balance(node);
     if (balance > 1) {
         int right_balance = recalc_balance(node->_right);
@@ -292,6 +298,7 @@ void AVLTree<TKey, TValue>::recover_balance(AVLNode<TKey, TValue>* node) {
             LL(node);
         }
     }
+    return node->_parent;
 }
 
 template <class TKey, class TValue>
