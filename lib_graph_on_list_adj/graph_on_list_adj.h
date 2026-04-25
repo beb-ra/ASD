@@ -3,6 +3,7 @@
 #include <map>
 #include "../lib_list/list.h"
 #include "../lib_matrix/matrix.h"
+#include "../lib_priority_queue/pqueue.h"
 
 template <class T>
 class LGraph {
@@ -32,6 +33,7 @@ public:
 	const std::vector<Vertex*> data() const noexcept {
 		return _graph;
 	}
+	List<T> find_min_way(const T& first_vertex, const T& second_vertex); 
 private:
 	int find_vertex_index(const T&) const;
 };
@@ -78,8 +80,6 @@ LGraph<T>::LGraph(std::vector<std::pair<std::pair<T, T>, int>> data, bool is_ori
 			to_vertex->_edges.push_back({ from_vertex, weight });
 		}
 	}
-
-	std::cout << "";
 }
 
 template <class T>
@@ -109,8 +109,6 @@ void LGraph<T>::delete_vertex(const T& value) {
 			}
 		}
 	}
-
-	std::cout << "";
 }
 
 template <class T>
@@ -142,8 +140,6 @@ void LGraph<T>::add_edge(const T& first_value, const T& second_value, int weight
 	if (!_is_oriented) {
 		_graph[second_index]->_edges.push_back({ _graph[first_index], weight });
 	}
-
-	std::cout << "";
 }
 
 template <class T>
@@ -167,6 +163,65 @@ void LGraph<T>::delete_edge(const T& first_value, const T& second_value) {
 		}
 	}
 	throw std::logic_error("The edge not found");
+}
+
+template <class T>
+List<T> LGraph<T>::find_min_way(const T& first_vertex, const T& second_vertex) { // для невзвешенных ребро 1
+	int first_index = find_vertex_index(first_vertex);
+	int second_index = find_vertex_index(second_vertex);
+
+	std::vector<int> vertex_distance(_graph.size());
+	std::set<int> viewed_vertex;
+	std::vector<int> previous_vertex(_graph.size());
+
+	PQueue<int> queue;
+
+	for (int i = 0; i < _graph.size(); i++) {
+		vertex_distance[i] = INT_MAX;
+	}
+	int count = 0;
+	queue.insert(Pair<int>(0, first_index, count++));
+
+	while (!queue.is_empty()) {
+		int vertex_height = 0;
+
+		for (auto it = _graph[queue.top().value]->_edges.begin(); it != _graph[queue.top().value]->_edges.end(); it++) {
+			if (queue.top().value != first_index) { // узнаем расстояние от начальной вершины до выбранной
+				vertex_height = vertex_distance[queue.top().value];
+			}
+
+			if (vertex_distance[(*it).first->_index] == INT_MAX) {
+				vertex_distance[(*it).first->_index] = vertex_height + (*it).second;
+				previous_vertex[(*it).first->_index] = queue.top().value;
+
+				if (viewed_vertex.find((*it).first->_index) == viewed_vertex.end()) { // нет в просмотренных вершинах
+					queue.insert(Pair<int>(vertex_height + (*it).second, (*it).first->_index, count++));
+				}
+			}
+			else {
+				if (vertex_distance[(*it).first->_index] > vertex_height + (*it).second) {
+					vertex_distance[(*it).first->_index] = vertex_height + (*it).second;
+					previous_vertex[(*it).first->_index] = queue.top().value;
+				}
+				if (viewed_vertex.find((*it).first->_index) == viewed_vertex.end()) { // нет в просмотренных вершинах
+					queue.insert(Pair<int>(vertex_height + (*it).second, (*it).first->_index, count++));
+				}
+			}
+
+		}
+		viewed_vertex.insert(queue.top().value);
+		queue.pop();
+	}
+
+	List<T> answer;
+	int i = second_index;
+	while (i != first_index) {
+		answer.push_front(_graph[i]->_value);
+		i = previous_vertex[i];
+	}
+	answer.push_front(_graph[i]->_value);
+
+	return answer;
 }
 
 /*

@@ -20,9 +20,10 @@ int main() {
 
     graph.add_edge(7, 2, 5);
 
-    //graph.add_edge(7, 2, 15);
+    graph.add_edge(1, 5, 5);
+    graph.add_edge(5, 8, 1);
 
-    graph.delete_edge(7, 2);
+    List<int> list = graph.find_min_way(1, 8);
 }
 
 #endif  // EASY_EXAMPLE
