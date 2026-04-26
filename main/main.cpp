@@ -16,14 +16,17 @@ int main() {
 
 	LGraph<int> graph(data, true, true);
 
-    graph.delete_vertex(1);
-
-    graph.add_edge(7, 2, 5);
+    graph.add_edge(2, 7, 5);
 
     graph.add_edge(1, 5, 5);
     graph.add_edge(5, 8, 1);
 
+    graph.add_edge(1, 8, 8);
+
     List<int> list = graph.find_min_way(1, 8);
+    for (auto it = list.begin(); it != list.end(); it++) {
+        std::cout << *it << " ";
+    }
 }
 
 #endif  // EASY_EXAMPLE
