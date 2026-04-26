@@ -1,6 +1,8 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <unordered_map>
+#include <unordered_set>
 #include "../lib_list/list.h"
 #include "../lib_matrix/matrix.h"
 #include "../lib_priority_queue/pqueue.h"
@@ -17,6 +19,15 @@ class LGraph {
 			_index(index), _value(value), _edges() {
 			_edges.push_back(pair);
 		}
+
+		friend std::ostream& operator<<(std::ostream& os, const Vertex& vertex) {
+			os << vertex._value << ": ";
+			for (auto it = vertex._edges.begin(); it != vertex._edges.end(); it++) {
+				os << (*it).first->_value << " ";
+			}
+			os << "\n";
+			return os;
+		}
 	};
 
 	bool _is_oriented;
@@ -24,38 +35,49 @@ class LGraph {
 	std::vector<Vertex*> _graph;
 
 public:
-	LGraph(std::vector<std::pair<T, T>>, bool, bool);
-	LGraph(std::vector<std::pair<std::pair<T, T>, int>>, bool, bool);
+	LGraph(std::vector<std::pair<T, T>>, bool is_oriented);
+	LGraph(std::vector<std::pair<std::pair<T, T>, int>>, 
+		bool is_oriented, bool is_weighted);
+	~LGraph();
+	LGraph(const LGraph&) = delete;
+	LGraph& operator=(const LGraph&) = delete;
+
 	void delete_vertex(const T&);
 	void add_edge(const T&, const T&, int weight = 0);
+	void add_vertex(const T&);
 	void delete_edge(const T&, const T&);
 
 	const std::vector<Vertex*> data() const noexcept {
 		return _graph;
 	}
-	List<T> find_min_way(const T& first_vertex, const T& second_vertex); 
+	List<T> find_min_way(const T& first_vertex, const T& second_vertex);
+
+	friend std::ostream& operator<<(std::ostream& os, const LGraph& graph) {
+		for (auto it = graph._graph.begin(); it != graph._graph.end(); it++) {
+			os << *(*it);
+		}
+		return os;
+	}
 private:
 	int find_vertex_index(const T&) const;
 };
 
 template <class T>
-LGraph<T>::LGraph(std::vector<std::pair<std::pair<T, T>, int>> data, bool is_oriented, bool is_weighted) :
-	_is_oriented(is_oriented), _is_weighted(is_weighted) { // если вершина сама с собой че будет
-	std::set<T> set_vertex;
-	std::map<T, Vertex*> temp_index;
+LGraph<T>::LGraph(std::vector<std::pair<std::pair<T, T>, int>> data, bool is_oriented, 
+	bool is_weighted) : _is_oriented(is_oriented), _is_weighted(is_weighted) {
+	std::unordered_set<T> set_vertex;
+	std::unordered_map<T, Vertex*> temp_index;
 	int index = 0;
 	for (int i = 0; i < data.size(); i++) {
 		if (set_vertex.find(data[i].first.first) == set_vertex.end()) {
 			set_vertex.insert(data[i].first.first);
-			Vertex* new_vertex = new Vertex(index, data[i].first.first);
+			Vertex* new_vertex = new Vertex(index++, data[i].first.first);
 			temp_index.insert({ data[i].first.first, new_vertex });
-			index++;
 		}
 		if (set_vertex.find(data[i].first.second) == set_vertex.end()) {
 			set_vertex.insert(data[i].first.second);
-			Vertex* new_vertex = new Vertex(index, data[i].first.second);
+			Vertex* new_vertex = new Vertex(index++, data[i].first.second);
 			temp_index.insert({ data[i].first.second, new_vertex });
-			index++;
 		}
 	}
 
@@ -78,6 +100,53 @@ LGraph<T>::LGraph(std::vector<std::pair<std::pair<T, T>, int>> data, bool is_ori
 			to_vertex->_edges.push_back({ from_vertex, weight });
 		}
 	}
+}
+
+template<class T>
+LGraph<T>::LGraph(std::vector<std::pair<T, T>> data, bool is_oriented) : _is_oriented(is_oriented), _is_weighted(false) {
+	std::unordered_set<T> set_vertex;
+	std::unordered_map<T, Vertex*> temp_index;
+	int index = 0;
+	for (int i = 0; i < data.size(); i++) {
+		if (set_vertex.find(data[i].first) == set_vertex.end()) {
+			set_vertex.insert(data[i].first);
+			Vertex* new_vertex = new Vertex(index++, data[i].first);
+			temp_index.insert({ data[i].first, new_vertex });
+		}
+		if (set_vertex.find(data[i].second) == set_vertex.end()) {
+			set_vertex.insert(data[i].second);
+			Vertex* new_vertex = new Vertex(index++, data[i].second);
+			temp_index.insert({ data[i].second, new_vertex });
+		}
+	}
+
+	_graph.resize(set_vertex.size());
+
+	for (auto it = temp_index.begin(); it != temp_index.end(); it++) {
+		_graph[(*it).second->_index] = (*it).second;
+	}
+
+	for (int i = 0; i < data.size(); i++) {
+		if (data[i].first == data[i].second) {
+			throw std::logic_error("The edge must connect two different vertices");
+		}
+		Vertex* from_vertex = temp_index[data[i].first];
+		Vertex* to_vertex = temp_index[data[i].second];
+
+		from_vertex->_edges.push_back({ to_vertex, 1 });
+		if (!_is_oriented) {
+			to_vertex->_edges.push_back({ from_vertex, 1 });
+		}
+	}
+}
+
+template<class T>
+LGraph<T>::~LGraph() {
+	for (auto it = _graph.begin(); it != _graph.end(); it++) {
+		delete (*it);
+		*it = nullptr;
+	}
+	_graph.clear();
 }
 
 template <class T>
@@ -142,6 +211,18 @@ void LGraph<T>::add_edge(const T& first_value, const T& second_value, int weight
 }
 
 template <class T>
+void LGraph<T>::add_vertex(const T& new_vertex_value) {
+	// была ли такая вершина до этого
+	for (auto it = _graph.begin(); it != _graph.end(); it++) {
+		if ((*it)->_value == new_vertex_value) {
+			throw std::logic_error("The vertex is already exist");
+		}
+	}
+	Vertex* new_vertex = new Vertex(_graph.size(), new_vertex_value);
+	_graph.push_back(new_vertex);
+}
+
+template <class T>
 void LGraph<T>::delete_edge(const T& first_value, const T& second_value) {
 	int first_index = find_vertex_index(first_value);
 	int second_index = find_vertex_index(second_value);
@@ -170,7 +251,7 @@ List<T> LGraph<T>::find_min_way(const T& first_vertex, const T& second_vertex) {
 	int second_index = find_vertex_index(second_vertex);
 
 	std::vector<int> vertex_distance(_graph.size(), INT_MAX);
-	std::set<int> viewed_vertex;
+	std::unordered_set<int> viewed_vertex;
 	std::vector<int> previous_vertex(_graph.size(), -1);
 
 	PQueue<int> queue;
