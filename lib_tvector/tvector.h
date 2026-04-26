@@ -1,5 +1,3 @@
-//  Copyright 2025 Guseva Olga
-
 #pragma once
 
 #include <iostream>
@@ -52,6 +50,7 @@ public:
     const T& at(size_t index) const;
 
     inline bool is_empty() const noexcept;
+    inline bool is_full() const noexcept;
 
     inline const T* data() const noexcept;
     inline const size_t size() const noexcept;
@@ -63,6 +62,64 @@ public:
     inline const T& back() const;
     inline const T* begin() const noexcept;
     inline const T* end() const noexcept;
+
+    inline T* begin() noexcept;
+    inline T* end() noexcept;
+
+    class Iterator {
+        T* _current;
+    public:
+        Iterator() : _current(nullptr) {}
+        Iterator(T* elem) : _current(elem) {}
+
+        bool operator == (const Iterator& other) const noexcept {
+            return this->_current == other._current;
+        }
+        bool operator != (const Iterator& other) const noexcept {
+            return !((*this) == other);
+        }
+
+        T& operator*() const {
+            return *_current;  //?
+        }
+
+        Iterator& operator=(const Iterator& other) {
+            if (this == &other) {
+                return *this;
+            }
+            this->_current = other._current;
+            return *this;
+        }
+        Iterator& operator++() {
+            _current++;
+            return *this;
+        }
+        Iterator operator++(int) {
+            Iterator temp = *this;
+            ++(*this);
+            return temp;
+        }
+        Iterator& operator--() {
+            _current--;
+            return *this;
+        }
+        Iterator operator--(int) {
+            Iterator temp = *this;
+            --(*this);
+            return temp;
+        }
+
+        const T* current() noexcept {
+            return _current;
+        }
+
+    };
+    Iterator iter_begin() {
+        return Iterator(begin());
+    }
+    Iterator iter_end() {
+        return Iterator(end());
+    }
 
     void shrink_to_fit() noexcept;
     void resize(size_t new_size) noexcept;
@@ -102,6 +159,7 @@ public:
 private:
     /* ... */
     inline bool is_full() const noexcept;
+private:
     void make_space_for_insert(size_t index, size_t count);
     int calculate_real_index(size_t index) const noexcept;
     T* calculate_real_address(size_t index) const noexcept;
@@ -276,26 +334,12 @@ template <class T>
 inline bool TVector<T>::is_empty() const noexcept {
     if (_size - _deleted == 0) return true;
     return false;
-    /*
-    for (size_t i = 0; i < _capacity; i++) {
-        if (_states[i] == State::busy)
-            return false;
-    }
-    return true;
-    */
 }
 
 template <class T>
 inline bool TVector<T>::is_full() const noexcept {
     if (_deleted == 0 && _size == _capacity) return true;
     return false;
-    /*
-    for (size_t i = 0; i < _capacity; i++) {
-        if (_states[i] == State::empty || _states[i] == State::deleted)
-            return false;
-    }
-    return true;
-    */
 }
 
 template <class T>
@@ -360,6 +404,20 @@ template <class T>
 inline const T* TVector<T>::end() const noexcept {
     if (is_empty()) return nullptr;
     T* new_address = calculate_real_address(_size - 1) + 1;
+    return new_address;
+}
+
+template <class T>
+inline T* TVector<T>::begin() noexcept {
+    if (is_empty()) return nullptr;
+    T* new_address = calculate_real_address(0);
+    return new_address;
+}
+
+template <class T>
+inline T* TVector<T>::end() noexcept {
+    if (is_empty()) return nullptr;
+    T* new_address = calculate_real_address(_size - 1);
     return new_address;
 }
 
