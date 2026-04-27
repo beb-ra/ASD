@@ -158,7 +158,7 @@ public:
     /* ... */
 private:
     /* ... */
-    inline bool is_full() const noexcept;
+    //inline bool is_full() const noexcept;
 private:
     void make_space_for_insert(size_t index, size_t count);
     int calculate_real_index(size_t index) const noexcept;

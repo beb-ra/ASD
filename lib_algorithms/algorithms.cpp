@@ -262,3 +262,35 @@ void print_lab(Matrix<bool> walls, int n, int m, int ent, int exit) {
     }
     std::cout << "\n";
 }
+
+List<int> find_shortest_path_in_lab(Matrix<bool>& matrix_walls, int n, int m, int start, int end) {
+    std::vector<std::pair<int, int>> edges;
+
+    //std::cout << matrix_walls;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (matrix_walls[i][j] == false) {
+                int cell1 = i * m + j;
+                int cell2 = i * m + j + 1;
+                edges.push_back({ cell1, cell2 });
+            }
+
+        }
+    }
+    for (int i = n; i < 2 * n - 1; i++) {
+        for (int j = 0; j < m; j++) {
+            if (matrix_walls[i][j] == false) {
+                int cell1 = (i - n) * m + j;
+                int cell2 = (i - n + 1) * m + j;
+                edges.push_back({ cell1, cell2 });
+            }
+        }
+    }
+
+
+    LGraph<int> graph(edges, true);
+    //std::cout << graph;
+
+    return graph.find_min_way(start, end);
+}

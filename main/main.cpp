@@ -5,9 +5,10 @@
 #include <cstdlib>
 #include <clocale>
 #include "algorithms.h"
-#include "graph_on_list_adj.h"
+//#include "graph_on_list_adj.h"
 
-#define LABYRINTH
+//#define LABYRINTH
+#define MIN_WAY_IN_LAB
 
 int main() {
 #ifdef LABYRINTH
@@ -32,6 +33,16 @@ int main() {
 			std::cout << "Некорректный ввод, ошибка: " << e.what() << "\nПопробуйте еще раз\n";
 		}
 	}
+#endif
+#ifdef MIN_WAY_IN_LAB
+	Matrix<bool> matrix = generate(0, 15, 4, 4);
+	print_lab(matrix, 4, 4, 0, 15);
+	List<int> path = find_shortest_path_in_lab(matrix, 4, 4, 0, 15);
+
+	for (auto it = path.begin(); it != path.end(); it++) {
+		std::cout << (*it) << " ";
+	}
+
 #endif
 	/*
 	std::vector<std::pair<std::pair<int, int>, int>> data = {
