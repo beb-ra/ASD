@@ -185,6 +185,25 @@ TEST(TestLGraphLib, correct_add_vertex) {
     std::cout << graph;
 }
 
+TEST(TestLGraphLib, correct_throw_add_and_delete_edge_in_unoriented_graph) {
+    std::vector<std::pair<int, int>> data = {
+        {1, 2},
+        {4, 5},
+        {7, 8}
+    };
+
+    LGraph<int> graph(data, false);
+
+    graph.add_edge(5, 7);
+    EXPECT_THROW(graph.add_edge(7, 5), std::logic_error);
+    graph.delete_edge(7, 5);
+    EXPECT_NO_THROW(graph.add_edge(5, 7));
+    graph.delete_edge(5, 7);
+    EXPECT_NO_THROW(graph.add_edge(7, 5));
+
+    std::cout << graph;
+}
+
 TEST(TestLGraphLib, correct_add_edge_and_delete_edge) {
     std::vector<std::pair<int, int>> data = {
         {1, 2},
@@ -251,4 +270,154 @@ TEST(TestLGraphLib, correct_delete_vertex) {
     std::cout << graph;
 }
 
+TEST(TestLGraphLib, dijkstra_test_weighted_oriented_graph) {
+    std::vector<std::pair<std::pair<int, int>, int>> data = {
+        {{1, 2}, 3},
+        {{4, 5}, 6},
+        {{7, 8}, 9}
+    };
 
+    LGraph<int> graph(data, true, true);
+
+    graph.add_edge(2, 7, 5); // 1 -> 2 -> 7 -> 8 | 3 + 5 + 9 (17)
+
+    graph.add_edge(1, 5, 5);
+    graph.add_edge(5, 8, 1); // 1 -> 5 -> 8 | 5 + 1 (6)
+
+    graph.add_edge(1, 8, 8); // 1 -> 8 | (8)
+
+    List<int> result = graph.find_min_way(1, 8);
+    List<int> expected({ 1, 5, 8 });
+    EXPECT_EQ(result, expected);
+
+    graph.delete_edge(1, 5);
+    result = graph.find_min_way(1, 8);
+    List<int> expected2({ 1, 8 });
+    EXPECT_EQ(result, expected2);
+
+    graph.delete_edge(1, 8);
+    result = graph.find_min_way(1, 8);
+    List<int> expected3({ 1, 2, 7, 8 });
+    EXPECT_EQ(result, expected3);
+
+    graph.add_edge(8, 1);
+    result = graph.find_min_way(1, 8);
+    List<int> expected4({ 1, 2, 7, 8 });
+    EXPECT_EQ(result, expected4);
+
+    graph.delete_edge(1, 2);
+    EXPECT_THROW(graph.find_min_way(1, 8), std::logic_error);
+}
+
+TEST(TestLGraphLib, dijkstra_test_weighted_unoriented_graph) {
+    std::vector<std::pair<std::pair<int, int>, int>> data = {
+        {{1, 2}, 3},
+        {{4, 5}, 6},
+        {{7, 8}, 9}
+    };
+
+    LGraph<int> graph(data, false, true);
+
+    graph.add_edge(2, 7, 5); // 1 -> 2 -> 7 -> 8 | 3 + 5 + 9 (17)
+
+    graph.add_edge(1, 5, 5);
+    graph.add_edge(5, 8, 1); // 1 -> 5 -> 8 | 5 + 1 (6)
+
+    graph.add_edge(1, 8, 8); // 1 -> 8 | (8)
+
+    List<int> result = graph.find_min_way(1, 8);
+    List<int> expected({ 1, 5, 8 });
+    EXPECT_EQ(result, expected);
+
+    graph.delete_edge(1, 5);
+    result = graph.find_min_way(1, 8);
+    List<int> expected2({ 1, 8 });
+    EXPECT_EQ(result, expected2);
+
+    graph.delete_edge(1, 8);
+    result = graph.find_min_way(1, 8);
+    List<int> expected3({ 1, 2, 7, 8 });
+    EXPECT_EQ(result, expected3);
+
+    graph.delete_edge(1, 2);
+    EXPECT_THROW(graph.find_min_way(1, 8), std::logic_error);
+}
+
+TEST(TestLGraphLib, dijkstra_test_unweighted_oriented_graph) {
+    std::vector<std::pair<std::pair<int, int>, int>> data = {
+        {{1, 2}, 3},
+        {{4, 5}, 6},
+        {{7, 8}, 9}
+    };
+
+    LGraph<int> graph(data, true, false);
+
+    graph.add_edge(2, 7, 5); // 1 -> 2 -> 7 -> 8
+
+    graph.add_edge(1, 5, 5);
+    graph.add_edge(5, 8, 1); // 1 -> 5 -> 8
+
+    graph.add_edge(1, 8, 8); // 1 -> 8
+
+    List<int> result = graph.find_min_way(1, 8);
+    List<int> expected1({ 1, 8 });
+    EXPECT_EQ(result, expected1);
+
+    graph.delete_edge(1, 8);
+    result = graph.find_min_way(1, 8);
+    List<int> expected2({ 1, 5, 8 });
+    EXPECT_EQ(result, expected2);
+
+    graph.delete_edge(5, 8);
+    result = graph.find_min_way(1, 8);
+    List<int> expected3({ 1, 2, 7, 8 });
+    EXPECT_EQ(result, expected3);
+
+    graph.add_edge(8, 1);
+    result = graph.find_min_way(1, 8);
+    List<int> expected4({ 1, 2, 7, 8 });
+    EXPECT_EQ(result, expected4);
+
+    graph.delete_edge(1, 2);
+    EXPECT_THROW(graph.find_min_way(1, 8), std::logic_error);
+}
+
+TEST(TestLGraphLib, dijkstra_test_unweighted_unoriented_graph) {
+    std::vector<std::pair<std::pair<int, int>, int>> data = {
+        {{1, 2}, 3},
+        {{4, 5}, 6},
+        {{7, 8}, 9}
+    };
+
+    LGraph<int> graph(data, false, false);
+
+    graph.add_edge(2, 7, 5); // 1 -> 2 -> 7 -> 8
+
+    graph.add_edge(1, 5, 5);
+    graph.add_edge(5, 8, 1); // 1 -> 5 -> 8
+
+    graph.add_edge(1, 8, 8); // 1 -> 8
+
+    List<int> result = graph.find_min_way(1, 8);
+    List<int> expected1({ 1, 8 });
+    EXPECT_EQ(result, expected1);
+
+    graph.delete_edge(1, 8);
+    result = graph.find_min_way(1, 8);
+    List<int> expected2({ 1, 5, 8 });
+    EXPECT_EQ(result, expected2);
+
+    graph.delete_edge(5, 8);
+    result = graph.find_min_way(1, 8);
+    List<int> expected3({ 1, 2, 7, 8 });
+    EXPECT_EQ(result, expected3);
+
+    graph.add_edge(8, 1);
+    result = graph.find_min_way(1, 8);
+    List<int> expected4({ 1, 8 });
+    EXPECT_EQ(result, expected4);
+
+    graph.delete_edge(1, 2);
+    graph.delete_edge(1, 8);
+    EXPECT_THROW(graph.find_min_way(1, 8), std::logic_error);
+}

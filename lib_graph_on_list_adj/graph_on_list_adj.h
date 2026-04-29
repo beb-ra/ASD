@@ -43,7 +43,7 @@ public:
 	LGraph& operator=(const LGraph&) = delete;
 
 	void delete_vertex(const T&);
-	void add_edge(const T&, const T&, int weight = 0);
+	void add_edge(const T&, const T&, int weight = 1);
 	void add_vertex(const T&);
 	void delete_edge(const T&, const T&);
 
@@ -60,6 +60,7 @@ public:
 	}
 private:
 	int find_vertex_index(const T&) const;
+	void delete_singe_edge(int, int);
 };
 
 template <class T>
@@ -227,6 +228,14 @@ void LGraph<T>::delete_edge(const T& first_value, const T& second_value) {
 	int first_index = find_vertex_index(first_value);
 	int second_index = find_vertex_index(second_value);
 
+	delete_singe_edge(first_index, second_index);
+	if (!_is_oriented) {
+		delete_singe_edge(second_index, first_index);
+	}
+}
+
+template <class T>
+void LGraph<T>::delete_singe_edge(int first_index, int second_index) {
 	auto it1 = _graph[first_index]->_edges.begin();
 	if ((*it1).first == _graph[second_index]) {
 		_graph[first_index]->_edges.pop_front();
