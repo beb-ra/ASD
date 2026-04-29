@@ -216,6 +216,8 @@ TEST(TestLGraphLib, correct_add_edge_and_delete_edge) {
     graph.delete_edge(4, 11);
     EXPECT_TRUE(graph.data()[2]->_edges.is_empty());
 
+    EXPECT_THROW(graph.delete_edge(2, 1), std::logic_error);
+
     std::cout << graph;
 }
 
