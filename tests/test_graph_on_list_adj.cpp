@@ -25,6 +25,26 @@ TEST(TestLGraphLib, correct_create_oriented_weighted_graph) {
     EXPECT_EQ(graph.data()[4]->_edges.head()->value.second, 9);
 }
 
+TEST(TestLGraphLib, correct_create_with_repeat_edges) {
+    std::vector<std::pair<std::pair<int, int>, int>> data = {
+        {{1, 2}, 3},
+        {{1, 2}, 6},
+        {{4, 5}, 6},
+        {{4, 5}, 6},
+        {{7, 8}, 9},
+        {{7, 8}, 12}
+    };
+
+    LGraph<int> graph(data, false, true);
+
+    EXPECT_EQ(graph.data()[0]->_edges.head()->value.second, 6);
+    EXPECT_EQ(graph.data()[0]->_edges.size(), 1);
+    EXPECT_EQ(graph.data()[2]->_edges.head()->value.second, 6);
+    EXPECT_EQ(graph.data()[2]->_edges.size(), 1);
+    EXPECT_EQ(graph.data()[4]->_edges.head()->value.second, 12);
+    EXPECT_EQ(graph.data()[4]->_edges.size(), 1);
+}
+
 TEST(TestLGraphLib, correct_create_oriented_unweighted_graph_first_constructor) {
     std::vector<std::pair<std::pair<int, int>, int>> data = {
         {{1, 2}, 3},

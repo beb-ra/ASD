@@ -61,6 +61,7 @@ public:
 private:
 	int find_vertex_index(const T&) const;
 	void delete_singe_edge(int, int);
+	void add_edge_by_pointer(Vertex*, Vertex*, int weight);
 };
 
 template <class T>
@@ -96,10 +97,7 @@ LGraph<T>::LGraph(std::vector<std::pair<std::pair<T, T>, int>> data, bool is_ori
 		Vertex* to_vertex = temp_index[data[i].first.second];
 
 		int weight = (is_weighted) ? data[i].second : 1;
-		from_vertex->_edges.push_back({ to_vertex, weight });
-		if (!_is_oriented) {
-			to_vertex->_edges.push_back({ from_vertex, weight });
-		}
+		add_edge_by_pointer(from_vertex, to_vertex, weight);
 	}
 }
 
@@ -134,9 +132,35 @@ LGraph<T>::LGraph(std::vector<std::pair<T, T>> data, bool is_oriented) : _is_ori
 		Vertex* from_vertex = temp_index[data[i].first];
 		Vertex* to_vertex = temp_index[data[i].second];
 
-		from_vertex->_edges.push_back({ to_vertex, 1 });
+		bool found = false;
+		add_edge_by_pointer(from_vertex, to_vertex, 1);
+	}
+}
+
+template<class T>
+void LGraph<T>::add_edge_by_pointer(Vertex* from_vertex, Vertex* to_vertex, int weight) {
+	bool found = false;
+	bool same_weights = false;
+	for (auto it = from_vertex->_edges.begin(); it != from_vertex->_edges.end(); it++) {
+		if ((*it).first == to_vertex) {
+			same_weights = ((*it).second == weight);
+			(*it).second = weight;
+			found = true;
+			break;
+		}
+	}
+	if (found && !_is_oriented && !same_weights) {
+		for (auto it = to_vertex->_edges.begin(); it != to_vertex->_edges.end(); it++) {
+			if ((*it).first == from_vertex) {
+				(*it).second = weight;
+				break;
+			}
+		}
+	}
+	if (!found) {
+		from_vertex->_edges.push_back({ to_vertex, weight });
 		if (!_is_oriented) {
-			to_vertex->_edges.push_back({ from_vertex, 1 });
+			to_vertex->_edges.push_back({ from_vertex, weight });
 		}
 	}
 }
