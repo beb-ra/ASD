@@ -43,7 +43,7 @@ void SortedTableBST<TKey, TValue>::insert(const TKey& key, const TValue& value) 
 
 template <class TKey, class TValue>
 TValue* SortedTableBST<TKey, TValue>::found(const TKey& key) {
-    TreeNode<TKey, TValue>* node = _rows.find(key);
+    BSTNode<TKey, TValue>* node = _rows.find(key);
     if (node && node->_data.key == key) {
         return &node->_data.value;
     }

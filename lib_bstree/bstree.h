@@ -12,23 +12,23 @@ struct TreePair {
 };
 
 template <class TKey, class TValue>
-struct TreeNode {
+struct BSTNode {
     TreePair<TKey, TValue> _data;
-    TreeNode<TKey, TValue>* _left;
-    TreeNode<TKey, TValue>* _right;
+    BSTNode<TKey, TValue>* _left;
+    BSTNode<TKey, TValue>* _right;
 
-    TreeNode(TreePair<TKey, TValue> data, TreeNode<TKey, TValue>* left = nullptr,
-        TreeNode<TKey, TValue>* right = nullptr) : _data(data), _left(left), _right(right) {}
+    BSTNode(TreePair<TKey, TValue> data, BSTNode<TKey, TValue>* left = nullptr,
+        BSTNode<TKey, TValue>* right = nullptr) : _data(data), _left(left), _right(right) {}
 
-    ~TreeNode() {}
+    ~BSTNode() {}
 
-    friend std::ostream& operator<<(std::ostream& os, const TreeNode& node) {
+    friend std::ostream& operator<<(std::ostream& os, const BSTNode& node) {
         os << node._data.key << " : " << node._data.value;
         return os;
     }
 };
 
-template <class TKey, class TValue, typename Node = TreeNode<TKey, TValue>>
+template <class TKey, class TValue, typename Node = BSTNode<TKey, TValue>>
 class BSTree {
 protected:
     Node* _root;
@@ -312,7 +312,8 @@ void BSTree<TKey, TValue, Node>::print_visual_rec(const Node* node, int level) c
     for (int i = 0; i < level; i++) {
         std::cout << "          ";
     }
-    std::cout << node->_data.key << " : " << node->_data.value;
+    //std::cout << node->_data.key << " : " << node->_data.value;
+    std::cout << *node;
 
     int num_length = std::to_string(node->_data.key).length()
         + std::to_string(node->_data.value).length();

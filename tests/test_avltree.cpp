@@ -15,6 +15,8 @@ TEST(TestAVLTreeLib, correct_create) {
 	EXPECT_EQ(t.find(3)->_left->_data.value, 1);
 	EXPECT_EQ(t.find(3)->_left->_right->_data.value, 2);
 	EXPECT_EQ(t.find(3)->_right->_data.value, 4);
+
+	std::cout << t2;
 }
 
 TEST(TestAVLTreeLib, correct_insert_found_and_erase_leaf) {

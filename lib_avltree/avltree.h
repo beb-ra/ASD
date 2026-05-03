@@ -47,16 +47,22 @@ private:
     void LL(AVLNode<TKey, TValue>*);
     void RL(AVLNode<TKey, TValue>*);
     void LR(AVLNode<TKey, TValue>*);
-    int recalc_balance(AVLNode<TKey, TValue>*);
+    int recalc_balance(AVLNode<TKey, TValue>*) const;
     AVLNode<TKey, TValue>* recover_balance(AVLNode<TKey, TValue>*);
     void recalc_height(AVLNode<TKey, TValue>*);
+
+    AVLNode<TKey, TValue>* copy_rec(AVLNode<TKey, TValue>* node);
 };
 
 template <class TKey, class TValue>
 AVLTree<TKey, TValue>::AVLTree(AVLNode<TKey, TValue>* root) : BSTree<TKey, TValue, AVLNode<TKey, TValue>>(root) {}
 
 template <class TKey, class TValue>
-AVLTree<TKey, TValue>::AVLTree(const AVLTree& other) : BSTree<TKey, TValue, AVLNode<TKey, TValue>>(other) {}
+AVLTree<TKey, TValue>::AVLTree(const AVLTree& other) {
+    if (other._root) {
+        _root = copy_rec(other._root);
+    }
+}
 
 template <class TKey, class TValue>
 AVLTree<TKey, TValue>::~AVLTree() {
@@ -268,7 +274,7 @@ void AVLTree<TKey, TValue>::erase(const TKey& key) {
 }
 
 template <class TKey, class TValue>
-int AVLTree<TKey, TValue>::recalc_balance(AVLNode<TKey, TValue>* node) {
+int AVLTree<TKey, TValue>::recalc_balance(AVLNode<TKey, TValue>* node) const {
     if (!node) return 0;
 
     int left_height = (node->_left) ? node->_left->_height : 0;
@@ -314,4 +320,16 @@ void AVLTree<TKey, TValue>::recalc_height(AVLNode<TKey, TValue>* node) {
 template <class TKey, class TValue>
 bool AVLTree<TKey, TValue>::is_empty() const noexcept {
     return BSTree<TKey, TValue, AVLNode<TKey, TValue>>::is_empty();
+}
+
+template <class TKey, class TValue>
+AVLNode<TKey, TValue>* AVLTree<TKey, TValue>::copy_rec(AVLNode<TKey, TValue>* node) {
+    if (!node) return nullptr;
+
+    AVLNode<TKey, TValue>* new_node = new AVLNode<TKey, TValue>(node->_data, 
+        node->_left, node->_right, node->_parent);
+    new_node->_left = copy_rec(node->_left);
+    new_node->_right = copy_rec(node->_right);
+
+    return new_node;
 }
