@@ -266,8 +266,6 @@ void print_lab(Matrix<bool> walls, int n, int m, int ent, int exit) {
 List<int> find_shortest_path_in_lab(Matrix<bool>& matrix_walls, int n, int m, int start, int end) {
     std::vector<std::pair<int, int>> edges;
 
-    //std::cout << matrix_walls;
-
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             if (matrix_walls[i][j] == false) {
@@ -290,7 +288,120 @@ List<int> find_shortest_path_in_lab(Matrix<bool>& matrix_walls, int n, int m, in
 
 
     LGraph<int> graph(edges, true);
-    //std::cout << graph;
 
     return graph.find_min_way(start, end);
+}
+
+void print_lab_with_shortest_path(Matrix<bool> walls, int n, int m, int ent, int exit) {
+    List<int> path = find_shortest_path_in_lab(walls, n, m, ent, exit);
+    auto it1 = path.begin();
+    auto it2 = path.begin();
+    it2++;
+
+    bool is_ent = false;
+    bool is_exit = false;
+    std::cout << "+";
+    for (int j = 0; j < m; j++) {
+        if (ent == j && ent / m == 0) {
+            std::cout << "   +";
+            is_ent = true;
+        }
+        else if (exit == j && exit / m == 0) {
+            std::cout << "   +";
+            is_exit = true;
+        }
+        else {
+            std::cout << "---+";
+        }
+    }
+    std::cout << "\n";
+
+    if (exit / m == n - 1) {
+        is_exit = true;
+    }
+    if (ent / m == n - 1) {
+        is_ent = true;
+    }
+
+    for (int i = 0; i < n; i++) {
+        // лево
+        if (ent == i * m && ent % m == 0 && ent / m != 0 && !is_ent ||
+            exit == i * m && exit % m == 0 && exit / m != 0 && !is_exit) {
+            std::cout << " ";
+        }
+        else {
+            std::cout << "|";
+        }
+
+        for (int j = 0; j < m; j++) {
+            if (i * m + j < 10) std::cout << " ";
+            std::cout << i * m + j << " ";
+
+            if (j < m - 1) {
+                if (walls[i][j]) std::cout << "|";
+                else if ((*it1) == i * m + j && (*it2) == i * m + j + 1) {
+                    std::cout << "#";
+                    it1++;
+                    it2++;
+                }
+                else
+                    std::cout << " ";
+            }
+            else {
+                // право
+                if (exit == i * m + j && exit % m == m - 1 && exit / m != n - 1 && !is_exit
+                    || ent == i * m + j && ent % m == m - 1 && ent / m != n - 1 && !is_ent) {
+                    std::cout << " ";
+                }
+                else {
+                    std::cout << "|";
+                }
+            }
+        }
+        std::cout << "\n";
+
+        // снизу
+        if (i < n - 1) {
+            std::cout << "+";
+            for (int j = 0; j < m; j++) {
+                if (exit == i * m + j + m && exit / m == i + 1 && !is_exit ||
+                    ent == i * m + j + m && ent / m == i + 1 && !is_ent) {
+                    std::cout << "   +";
+                }
+                else {
+                    if (walls[n + i][j])
+                        std::cout << "---+";
+                    else {
+                        if ((*it1) == i * m + j && (*it2) == i * m + j + m) {
+                            std::cout << " # +";
+                            it1++;
+                            it2++;
+                        }
+                        else {
+                            std::cout << "   +";
+                        }
+                    }
+                }
+            }
+            std::cout << "\n";
+        }
+    }
+
+    std::cout << "+";
+    for (int j = 0; j < m; j++) {
+        if (exit == (n - 1) * m + j && exit / m == n - 1 ||
+            ent == (n - 1) * m + j && ent / m == n - 1) {
+            std::cout << "   +";
+        }
+        else {
+            std::cout << "---+";
+        }
+    }
+    std::cout << "\n";
+
+#ifdef DEBUG
+    for (auto it = path.begin(); it != path.end(); it++) {
+        std::cout << (*it) << " ";
+    }
+#endif
 }

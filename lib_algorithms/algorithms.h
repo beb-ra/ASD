@@ -18,3 +18,5 @@ void remove_extra_walls(int count_extra_walls, int& walls_removed, int n, int m,
 void create_path(int& walls_removed, int x, int y, int n, int m, DSU& labyrinth, Matrix<bool>& walls);
 
 List<int> find_shortest_path_in_lab(Matrix<bool>& matrix_walls, int n, int m, int start, int end);
+
+void print_lab_with_shortest_path(Matrix<bool> walls, int n, int m, int ent, int exit);
