@@ -59,6 +59,7 @@ private:
     void left_rotate(RBNode<TKey, TValue>*);
     void right_rotate(RBNode<TKey, TValue>*);
     void swap_colors(RBNode<TKey, TValue>*, RBNode<TKey, TValue>*);
+    void recover_balance(RBNode<TKey, TValue>*);
     RBNode<TKey, TValue>* copy_rec(RBNode<TKey, TValue>*);
 };
 
@@ -96,71 +97,77 @@ RBTree<TKey, TValue>::~RBTree() {
 
 template <class TKey, class TValue>
 void RBTree<TKey, TValue>::insert(const TKey& key, const TValue& value) {
-    RBNode<TKey, TValue>* P = BSTree::insert_and_return_node(key, value);
-    if (P == nullptr) {
+    RBNode<TKey, TValue>* parent = BSTree::insert_and_return_node(key, value);
+    if (parent == nullptr) {
         _root->_color = black;
         return;
     }
 
-    RBNode<TKey, TValue>* C;
-    if (P->_left && P->_left->_data.key == key) {
-        P->_left->_parent = P;
-        C = P->_left;
+    RBNode<TKey, TValue>* node;
+    if (parent->_left && parent->_left->_data.key == key) {
+        parent->_left->_parent = parent;
+        node = parent->_left;
     }
-    else if (P->_right && P->_right->_data.key == key) {
-        P->_right->_parent = P;
-        C = P->_right;
+    else if (parent->_right && parent->_right->_data.key == key) {
+        parent->_right->_parent = parent;
+        node = parent->_right;
     }
 
-    if (P == _root) return;
+    if (parent == _root) return;
 
-    if (P->_color == red) { // вынести в отдельную функцию
-        RBNode<TKey, TValue>* G = P->_parent;
-        RBNode<TKey, TValue>* U = nullptr;
-        if (G->_left && G->_left == P) {
-            U = G->_right;
-        }
-        else {
-            U = G->_left;
-        }
+    if (parent->_color == red) { // вынести в отдельную функцию
+        recover_balance(node);
+    }
+}
 
-        if (U && U->_color == red && !U->_left && !U->_right) {
-            while (U->_color == red && P->_color == red) {
-                U->_color = black;
-                P->_color = black;
-                if (_root == G) break;
-                G->_color = red;
-                C = G;
-                P = C->_parent;
-                G = P->_parent;
-                if (G && G->_left && G->_left == P) {
-                    U = G->_right;
-                }
-                else if (G) {
-                    U = G->_left;
-                }
+template <class TKey, class TValue>
+void RBTree<TKey, TValue>::recover_balance(RBNode<TKey, TValue>* C) {
+    RBNode<TKey, TValue>* P = C->_parent;
+    RBNode<TKey, TValue>* G = P->_parent;
+    RBNode<TKey, TValue>* U = nullptr;
+    if (G->_left && G->_left == P) {
+        U = G->_right;
+    }
+    else {
+        U = G->_left;
+    }
+
+    if (U && U->_color == red && !U->_left && !U->_right) {
+        while (U->_color == red && P->_color == red) {
+            U->_color = black;
+            P->_color = black;
+            if (_root == G) break;
+            G->_color = red;
+            C = G;
+            P = C->_parent;
+            G = P->_parent;
+            if (G && G->_left && G->_left == P) {
+                U = G->_right;
+            }
+            else if (G) {
+                U = G->_left;
             }
         }
-        if (P->_color == black) return;
-        // U is black
-        if (G->_right && G->_right == P && P->_right && P->_right == C) {
-            left_rotate(G);
-            swap_colors(G, P);
-        }
-        else if (G->_left && G->_left == P && P->_left && P->_left == C) {
-            right_rotate(G);
-            swap_colors(G, P);
-        }
-        else if (G->_right && G->_right == P && P->_left && P->_left == C) {
-            right_rotate(P);
-            left_rotate(G);
-            swap_colors(G, C);
-        }
-        else if (G->_left && G->_left == P && P->_right && P->_right == C) {
-            left_rotate(P);
-            right_rotate(G);
-            swap_colors(G, C);
-        }
+    }
+    if (P->_color == black) return;
+    // U is black
+    if (G->_right && G->_right == P && P->_right && P->_right == C) {
+        left_rotate(G);
+        swap_colors(G, P);
+    }
+    else if (G->_left && G->_left == P && P->_left && P->_left == C) {
+        right_rotate(G);
+        swap_colors(G, P);
+    }
+    else if (G->_right && G->_right == P && P->_left && P->_left == C) {
+        right_rotate(P);
+        left_rotate(G);
+        swap_colors(G, C);
+    }
+    else if (G->_left && G->_left == P && P->_right && P->_right == C) {
+        left_rotate(P);
+        right_rotate(G);
+        swap_colors(G, C);
     }
 }
 
