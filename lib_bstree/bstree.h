@@ -65,7 +65,7 @@ private:
     void print_clr_rec(Node* node) const noexcept;
     void print_lrc_rec(Node* node) const noexcept;
 
-    void delete_node(Node*& parent, Node*& erase_node);
+    Node* delete_node(Node*& parent, Node*& erase_node);
     void replace_child(Node*& parent, Node*& erase_node, Node* new_child);
 
     Node* copy_rec(Node* node);
@@ -259,7 +259,7 @@ Node* BSTree<TKey, TValue, Node>::erase_and_return_node(const TKey& key) {
         throw std::logic_error("The key not found");
     }
 
-    delete_node(parent, erase_node);
+    parent = delete_node(parent, erase_node);
 
     return parent;
 }
@@ -353,7 +353,8 @@ void BSTree<TKey, TValue, Node>::print_lrc_rec(Node* node) const noexcept {
 }
 
 template <class TKey, class TValue, class Node>
-void BSTree<TKey, TValue, Node>::delete_node(Node*& parent, Node*& erase_node) {
+Node* BSTree<TKey, TValue, Node>::delete_node(Node*& parent, Node*& erase_node) {
+    Node* found_parent_node = parent;
     if (!erase_node->_left && !erase_node->_right) {
         replace_child(parent, erase_node, nullptr);
         delete erase_node;
@@ -367,7 +368,7 @@ void BSTree<TKey, TValue, Node>::delete_node(Node*& parent, Node*& erase_node) {
         delete erase_node;
     }
     else {
-        Node* found_parent_node = find_min_right_parent(erase_node);
+        found_parent_node = find_min_right_parent(erase_node);
         Node* found_node;
         TreePair<TKey, TValue> replacement_data;
         if (found_parent_node == erase_node) {
@@ -383,6 +384,8 @@ void BSTree<TKey, TValue, Node>::delete_node(Node*& parent, Node*& erase_node) {
         erase_node->_data = replacement_data;
         delete found_node;
     }
+
+    return found_parent_node;
 }
 
 template <class TKey, class TValue, class Node>

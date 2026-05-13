@@ -3,6 +3,7 @@
 #include "../lib_lqueue/lqueue.h"
 #include "../lib_bstree/bstree.h"
 
+
 enum Color {
     red,        // ()
     black,      // []
@@ -61,6 +62,9 @@ private:
     void swap_colors(RBNode<TKey, TValue>*, RBNode<TKey, TValue>*);
     void recover_balance(RBNode<TKey, TValue>*);
     RBNode<TKey, TValue>* copy_rec(RBNode<TKey, TValue>*);
+
+    RBNode<TKey, TValue>* minimum(RBNode<TKey, TValue>*);
+    void delete_fixup(RBNode<TKey, TValue>*, RBNode<TKey, TValue>*, bool);
 };
 
 template <class TKey, class TValue>
@@ -115,7 +119,7 @@ void RBTree<TKey, TValue>::insert(const TKey& key, const TValue& value) {
 
     if (parent == _root) return;
 
-    if (parent->_color == red) { // вынести в отдельную функцию
+    if (parent->_color == red) {
         recover_balance(node);
     }
 }
@@ -245,8 +249,119 @@ RBNode<TKey, TValue>* RBTree<TKey, TValue>::find(const TKey& key) const {
 
 template <class TKey, class TValue>
 void RBTree<TKey, TValue>::erase(const TKey& key) {
-    RBNode<TKey, TValue>* parent = BSTree::erase_and_return_node(key);
-    //...
+    RBNode<TKey, TValue>* replaceable = find(key);
+    if (!replaceable) {
+        throw std::logic_error("The key not found");
+    }
+    RBNode<TKey, TValue>* deleted, * child_of_deleted, * parent;  // родитель узла, который переместится на место удаленного
+    bool was_left = false;   
+    Color deleted_color = black; 
+
+    if (replaceable->_left == nullptr || replaceable->_right == nullptr) { // у r нет одного из детей
+        deleted = replaceable;
+        child_of_deleted = (deleted->_left != nullptr) ? deleted->_left : deleted->_right;
+        if (deleted->_parent) {
+            was_left = (deleted == deleted->_parent->_left);
+        }
+        else {
+            was_left = false;
+        }
+    }
+    else {
+        RBNode<TKey, TValue>* min_right = minimum(replaceable->_right);
+        deleted = min_right;
+        child_of_deleted = deleted->_right;
+        was_left = (deleted == deleted->_parent->_left);
+    }
+    parent = deleted->_parent;
+    deleted_color = deleted->_color;
+
+    BSTree<TKey, TValue, RBNode<TKey, TValue>>::erase(key);
+    if (deleted_color == red) {
+        return;
+    }
+    if (child_of_deleted && child_of_deleted->_color == red) {
+        child_of_deleted->_color = black;
+        return;
+    }
+    delete_fixup(child_of_deleted, parent, was_left);
+}
+
+template <class TKey, class TValue>
+void RBTree<TKey, TValue>::delete_fixup(RBNode<TKey, TValue>* fix_node,
+    RBNode<TKey, TValue>* parent, bool fix_node_was_left) {
+    // цикл продолжается пока нода не корень и она черная (или nullptr)
+    while (fix_node != _root && (fix_node == nullptr || fix_node->_color == black)) {
+        if (parent == nullptr) break;
+
+        RBNode<TKey, TValue>* sibling = fix_node_was_left ? parent->_right : parent->_left;
+        // s красный
+        if (sibling && sibling->_color == red) {
+            sibling->_color = black;
+            parent->_color = red;
+            if (fix_node_was_left)
+                left_rotate(parent);
+            else
+                right_rotate(parent);
+            sibling = fix_node_was_left ? parent->_right : parent->_left;
+        }
+
+        // s черный с двумя черными детьми или без детей (или s nullptr)
+        if ((sibling == nullptr) ||
+            ((sibling->_left == nullptr || sibling->_left->_color == black) &&
+                (sibling->_right == nullptr || sibling->_right->_color == black))) {
+            if (sibling) sibling->_color = red;
+            if (parent->_color == red) {
+                parent->_color = black;
+                if (fix_node) fix_node->_color = black;
+                return;
+            }
+            fix_node = parent;
+            parent = fix_node->_parent;
+            if (parent) {
+                fix_node_was_left = (fix_node == parent->_left);
+            }
+            continue;
+        }
+
+        // s черный с красным ребенком
+        if (fix_node_was_left) {
+            // s справа, красный ребенок s->_left
+            if (sibling->_right == nullptr || sibling->_right->_color == black) {
+                if (sibling->_left) sibling->_left->_color = black;
+                sibling->_color = red;
+                right_rotate(sibling);
+                sibling = parent->_right;
+            }
+            // s справа, красный ребенок s->_right
+            sibling->_color = parent->_color;
+            parent->_color = black;
+            if (sibling->_right) sibling->_right->_color = black;
+            left_rotate(parent);
+        }
+        else {
+            // s слева
+            if (sibling->_left == nullptr || sibling->_left->_color == black) {
+                if (sibling->_right) sibling->_right->_color = black;
+                sibling->_color = red;
+                left_rotate(sibling);
+                sibling = parent->_left;
+            }
+            sibling->_color = parent->_color;
+            parent->_color = black;
+            if (sibling->_left) sibling->_left->_color = black;
+            right_rotate(parent);
+        }
+        fix_node = _root;
+        break;
+    }
+    if (fix_node) fix_node->_color = black;
+}
+
+template <class TKey, class TValue>
+RBNode<TKey, TValue>* RBTree<TKey, TValue>::minimum(RBNode<TKey, TValue>* node) {
+    while (node->_left) node = node->_left;
+    return node;
 }
 
 template <class TKey, class TValue>

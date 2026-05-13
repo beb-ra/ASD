@@ -250,3 +250,712 @@ TEST(TestRBTreeLib, throw_uncorrect_insert) {
 	t.insert(4, 4);
 	EXPECT_THROW(t.insert(4, 111), std::logic_error);
 }
+
+TEST(TestRBTreeLib, correct_erase_r_and_d_same_and_red) {
+	RBTree<int, int> t;
+	t.insert(55, 55);
+	t.insert(33, 33);
+	t.insert(75, 75);
+	t.insert(10, 10);
+	t.insert(61, 61);
+	t.insert(44, 44);
+	t.insert(83, 83);
+	t.insert(5, 5);
+	t.insert(56, 56);
+	t.insert(79, 79);
+	t.insert(65, 65);
+	t.insert(90, 90);
+	t.insert(85, 85);
+
+	t.erase(5);
+	t.erase(85);
+
+	/*
+		   [55]
+		  /     \
+		[33]    [75]
+		/ \      /   \
+	 [10] [44] [61]   (83)
+	  /        / \     /  \
+   X(5)X    (56) (65) [79] [90]
+							/
+						  X(85)X
+	*/
+
+	EXPECT_EQ(t.find(55)->_data.key, 55);
+	EXPECT_EQ(t.find(55)->_left->_data.key, 33);
+	EXPECT_EQ(t.find(55)->_left->_left->_data.key, 10);
+	EXPECT_EQ(t.find(55)->_left->_right->_data.key, 44);
+	EXPECT_EQ(t.find(55)->_right->_data.key, 75);
+	EXPECT_EQ(t.find(55)->_right->_right->_data.key, 83);
+	EXPECT_EQ(t.find(55)->_right->_right->_left->_data.key, 79);
+	EXPECT_EQ(t.find(55)->_right->_right->_right->_data.key, 90);
+	EXPECT_EQ(t.find(55)->_right->_left->_data.key, 61);
+	EXPECT_EQ(t.find(55)->_right->_left->_left->_data.key, 56);
+	EXPECT_EQ(t.find(55)->_right->_left->_right->_data.key, 65);
+
+	EXPECT_EQ(t.find(55)->_color, black);
+	EXPECT_EQ(t.find(33)->_color, black);
+	EXPECT_EQ(t.find(10)->_color, black);
+	EXPECT_EQ(t.find(44)->_color, black);
+	EXPECT_EQ(t.find(75)->_color, black);
+	EXPECT_EQ(t.find(83)->_color, red);
+	EXPECT_EQ(t.find(79)->_color, black);
+	EXPECT_EQ(t.find(90)->_color, black);
+	EXPECT_EQ(t.find(61)->_color, black);
+	EXPECT_EQ(t.find(56)->_color, red);
+	EXPECT_EQ(t.find(65)->_color, red);
+
+	EXPECT_EQ(t.find(85), nullptr);
+	EXPECT_EQ(t.find(5), nullptr);
+
+	std::cout << t;
+}
+
+TEST(TestRBTreeLib, correct_erase_r_and_d_are_red) {
+	RBTree<int, int> t;
+	t.insert(55, 55);
+	t.insert(33, 33);
+	t.insert(75, 75);
+	t.insert(10, 10);
+	t.insert(61, 61);
+	t.insert(44, 44);
+	t.insert(83, 83);
+	t.insert(5, 5);
+	t.insert(56, 56);
+	t.insert(79, 79);
+	t.insert(65, 65);
+	t.insert(90, 90);
+	t.insert(85, 85);
+
+	t.erase(83);
+
+	/*
+		   [55]
+		  /     \
+		[33]    [75]
+		/ \      /   \
+	 [10] [44] [61]   (83) r
+	  /        / \     /  \
+   (5)    (56) (65) [79] [90]
+							/
+						  X(85)X d
+	*/
+
+	EXPECT_EQ(t.find(55)->_data.key, 55);
+	EXPECT_EQ(t.find(55)->_left->_data.key, 33);
+	EXPECT_EQ(t.find(55)->_left->_left->_data.key, 10);
+	EXPECT_EQ(t.find(55)->_left->_left->_left->_data.key, 5);
+	EXPECT_EQ(t.find(55)->_left->_right->_data.key, 44);
+	EXPECT_EQ(t.find(55)->_right->_data.key, 75);
+	EXPECT_EQ(t.find(55)->_right->_right->_data.key, 85);
+	EXPECT_EQ(t.find(55)->_right->_right->_left->_data.key, 79);
+	EXPECT_EQ(t.find(55)->_right->_right->_right->_data.key, 90);
+	EXPECT_EQ(t.find(55)->_right->_left->_data.key, 61);
+	EXPECT_EQ(t.find(55)->_right->_left->_left->_data.key, 56);
+	EXPECT_EQ(t.find(55)->_right->_left->_right->_data.key, 65);
+
+	EXPECT_EQ(t.find(55)->_color, black);
+	EXPECT_EQ(t.find(33)->_color, black);
+	EXPECT_EQ(t.find(10)->_color, black);
+	EXPECT_EQ(t.find(5)->_color, red);
+	EXPECT_EQ(t.find(44)->_color, black);
+	EXPECT_EQ(t.find(75)->_color, black);
+	EXPECT_EQ(t.find(85)->_color, red);
+	EXPECT_EQ(t.find(79)->_color, black);
+	EXPECT_EQ(t.find(90)->_color, black);
+	EXPECT_EQ(t.find(61)->_color, black);
+	EXPECT_EQ(t.find(56)->_color, red);
+	EXPECT_EQ(t.find(65)->_color, red);
+
+	EXPECT_EQ(t.find(83), nullptr);
+
+	std::cout << t;
+}
+
+TEST(TestRBTreeLib, correct_erase_black_root_with_red_childs) {
+	RBTree<int, int> t;
+	t.insert(55, 55);
+	t.insert(33, 33);
+	t.insert(75, 75);
+
+	t.erase(55);
+
+	/*
+		   [55] r
+		  /     \
+		(33)    (75) d
+	*/
+
+	EXPECT_EQ(t.find(75)->_data.key, 75);
+	EXPECT_EQ(t.find(75)->_left->_data.key, 33);
+	EXPECT_EQ(t.find(75)->_color, black);
+	EXPECT_EQ(t.find(33)->_color, red);
+
+	EXPECT_EQ(t.find(55), nullptr);
+	std::cout << t;
+
+	t.erase(75);
+	EXPECT_EQ(t.find(33)->_data.key, 33);
+	EXPECT_EQ(t.find(75), nullptr);
+
+	std::cout << t;
+	t.erase(33);
+	EXPECT_EQ(t.find(33), nullptr);
+	EXPECT_TRUE(t.is_empty());
+}
+
+TEST(TestRBTreeLib, correct_erase_r_black_with_red_child_d) {
+	RBTree<int, int> t;
+	t.insert(55, 55);
+	t.insert(33, 33);
+	t.insert(75, 75);
+	t.insert(10, 10);
+	t.insert(61, 61);
+	t.insert(44, 44);
+	t.insert(83, 83);
+	t.insert(5, 5);
+	t.insert(56, 56);
+	t.insert(79, 79);
+	t.insert(65, 65);
+	t.insert(90, 90);
+	t.insert(85, 85);
+
+	t.erase(90);
+
+	/*
+		   [55]
+		  /     \
+		[33]    [75]
+		/ \      /   \
+	 [10] [44] [61]   (83) 
+	  /        / \     /  \
+   (5)    (56) (65) [79] [90] r
+							/
+						  (85) d
+	*/
+
+	EXPECT_EQ(t.find(55)->_data.key, 55);
+	EXPECT_EQ(t.find(55)->_left->_data.key, 33);
+	EXPECT_EQ(t.find(55)->_left->_left->_data.key, 10);
+	EXPECT_EQ(t.find(55)->_left->_left->_left->_data.key, 5);
+	EXPECT_EQ(t.find(55)->_left->_right->_data.key, 44);
+	EXPECT_EQ(t.find(55)->_right->_data.key, 75);
+	EXPECT_EQ(t.find(55)->_right->_right->_data.key, 83);
+	EXPECT_EQ(t.find(55)->_right->_right->_left->_data.key, 79);
+	EXPECT_EQ(t.find(55)->_right->_left->_data.key, 61);
+	EXPECT_EQ(t.find(55)->_right->_left->_left->_data.key, 56);
+	EXPECT_EQ(t.find(55)->_right->_left->_right->_data.key, 65);
+
+	EXPECT_EQ(t.find(55)->_color, black);
+	EXPECT_EQ(t.find(33)->_color, black);
+	EXPECT_EQ(t.find(10)->_color, black);
+	EXPECT_EQ(t.find(5)->_color, red);
+	EXPECT_EQ(t.find(44)->_color, black);
+	EXPECT_EQ(t.find(75)->_color, black);
+	EXPECT_EQ(t.find(85)->_color, black);
+	EXPECT_EQ(t.find(79)->_color, black);
+	EXPECT_EQ(t.find(61)->_color, black);
+	EXPECT_EQ(t.find(56)->_color, red);
+	EXPECT_EQ(t.find(65)->_color, red);
+
+	EXPECT_EQ(t.find(90), nullptr);
+
+	std::cout << t;
+}
+
+TEST(TestRBTreeLib, correct_erase_r_and_d_black_with_red_child) {
+	RBTree<int, int> t;
+	t.insert(55, 55);
+	t.insert(33, 33);
+	t.insert(75, 75);
+	t.insert(10, 10);
+	t.insert(61, 61);
+	t.insert(44, 44);
+	t.insert(83, 83);
+	t.insert(5, 5);
+	t.insert(90, 90);
+	t.insert(70, 70);
+
+	std::cout << t;
+
+	t.erase(55);
+
+	EXPECT_EQ(t.find(61)->_data.key, 61);
+	EXPECT_EQ(t.find(61)->_left->_data.key, 33);
+	EXPECT_EQ(t.find(61)->_left->_left->_data.key, 10);
+	EXPECT_EQ(t.find(61)->_left->_left->_left->_data.key, 5);
+	EXPECT_EQ(t.find(61)->_left->_right->_data.key, 44);
+	EXPECT_EQ(t.find(61)->_right->_data.key, 75);
+	EXPECT_EQ(t.find(61)->_right->_right->_data.key, 83);
+	EXPECT_EQ(t.find(61)->_right->_right->_right->_data.key, 90);
+	EXPECT_EQ(t.find(61)->_right->_left->_data.key, 70);
+
+	EXPECT_EQ(t.find(33)->_color, red);
+	EXPECT_EQ(t.find(10)->_color, black);
+	EXPECT_EQ(t.find(5)->_color, red);
+	EXPECT_EQ(t.find(44)->_color, black);
+	EXPECT_EQ(t.find(75)->_color, red);
+	EXPECT_EQ(t.find(83)->_color, black);
+	EXPECT_EQ(t.find(90)->_color, red);
+	EXPECT_EQ(t.find(61)->_color, black);
+	EXPECT_EQ(t.find(70)->_color, black);
+
+	EXPECT_EQ(t.find(55), nullptr);
+
+	/*
+		   [55] r                          [61]
+		  /      \                       /      \
+		(33)      (75)                 (33)      (75)
+		/ \      /     \        =>     / \       /   \
+	 [10] [44] [61] d  [83] s       [10] [44] [70]   [83]
+	  /           \        \         /                 \
+	(5)           X(70)X   (90)     (5)                (90)
+	*/
+
+	std::cout << t;
+}
+
+TEST(TestRBTreeLib, correct_erase_r_and_d_black_without_children_s_black_with_right_red_child) {
+	RBTree<int, int> t;
+	t.insert(55, 55);
+	t.insert(33, 33);
+	t.insert(75, 75);
+	t.insert(10, 10);
+	t.insert(61, 61);
+	t.insert(44, 44);
+	t.insert(83, 83);
+	t.insert(5, 5);
+	t.insert(90, 90);
+
+	std::cout << t;
+
+	t.erase(55);
+
+	EXPECT_EQ(t.find(61)->_data.key, 61);
+	EXPECT_EQ(t.find(61)->_left->_data.key, 33);
+	EXPECT_EQ(t.find(61)->_left->_left->_data.key, 10);
+	EXPECT_EQ(t.find(61)->_left->_left->_left->_data.key, 5);
+	EXPECT_EQ(t.find(61)->_left->_right->_data.key, 44);
+	EXPECT_EQ(t.find(61)->_right->_data.key, 83);
+	EXPECT_EQ(t.find(61)->_right->_right->_data.key, 90);
+	EXPECT_EQ(t.find(61)->_right->_left->_data.key, 75);
+
+	EXPECT_EQ(t.find(33)->_color, red);
+	EXPECT_EQ(t.find(10)->_color, black);
+	EXPECT_EQ(t.find(5)->_color, red);
+	EXPECT_EQ(t.find(44)->_color, black);
+	EXPECT_EQ(t.find(75)->_color, black);
+	EXPECT_EQ(t.find(83)->_color, red);
+	EXPECT_EQ(t.find(90)->_color, black);
+	EXPECT_EQ(t.find(61)->_color, black);
+
+	EXPECT_EQ(t.find(55), nullptr);
+
+	/*
+		   [55] r                          [61]
+		  /      \                       /      \
+		(33)      (75)                 (33)      (83)
+		/ \      /     \        =>     / \       /   \
+	 [10] [44] X[61] d  [83] s       [10] [44] [75]   [90]
+	  /                   \           /
+	(5)                   (90)       (5)
+	*/
+
+	std::cout << t;
+}
+
+TEST(TestRBTreeLib, correct_erase_r_and_d_black_without_children_s_black_with_left_red_child) {
+	RBTree<int, int> t;
+	t.insert(55, 55);
+	t.insert(33, 33);
+	t.insert(75, 75);
+	t.insert(10, 10);
+	t.insert(61, 61);
+	t.insert(44, 44);
+	t.insert(83, 83);
+	t.insert(5, 5);
+	t.insert(80, 80);
+
+	std::cout << t;
+
+	t.erase(55);
+
+	EXPECT_EQ(t.find(61)->_data.key, 61);
+	EXPECT_EQ(t.find(61)->_left->_data.key, 33);
+	EXPECT_EQ(t.find(61)->_left->_left->_data.key, 10);
+	EXPECT_EQ(t.find(61)->_left->_left->_left->_data.key, 5);
+	EXPECT_EQ(t.find(61)->_left->_right->_data.key, 44);
+	EXPECT_EQ(t.find(61)->_right->_data.key, 80);
+	EXPECT_EQ(t.find(61)->_right->_right->_data.key, 83);
+	EXPECT_EQ(t.find(61)->_right->_left->_data.key, 75);
+
+	EXPECT_EQ(t.find(33)->_color, red);
+	EXPECT_EQ(t.find(10)->_color, black);
+	EXPECT_EQ(t.find(5)->_color, red);
+	EXPECT_EQ(t.find(44)->_color, black);
+	EXPECT_EQ(t.find(75)->_color, black);
+	EXPECT_EQ(t.find(83)->_color, black);
+	EXPECT_EQ(t.find(80)->_color, red);
+	EXPECT_EQ(t.find(61)->_color, black);
+
+	EXPECT_EQ(t.find(55), nullptr);
+
+	/*
+		   [55] r                          [61]
+		  /      \                       /      \
+		(33)      (75)                 (33)      (80)
+		/ \      /     \        =>     / \       /   \
+	 [10] [44] X[61] d  [83] s       [10] [44] [75]   [83]
+	  /                  /            /
+	(5)                (80)         (5)
+	*/
+
+	std::cout << t;
+}
+
+TEST(TestRBTreeLib, correct_erase_r_and_d_black_without_children_s_black_with_two_red_children) {
+	RBTree<int, int> t;
+	t.insert(55, 55);
+	t.insert(33, 33);
+	t.insert(75, 75);
+	t.insert(10, 10);
+	t.insert(61, 61);
+	t.insert(44, 44);
+	t.insert(83, 83);
+	t.insert(5, 5);
+	t.insert(80, 80);
+	t.insert(90, 90);
+
+	std::cout << t;
+
+	t.erase(55);
+
+	EXPECT_EQ(t.find(61)->_data.key, 61);
+	EXPECT_EQ(t.find(61)->_left->_data.key, 33);
+	EXPECT_EQ(t.find(61)->_left->_left->_data.key, 10);
+	EXPECT_EQ(t.find(61)->_left->_left->_left->_data.key, 5);
+	EXPECT_EQ(t.find(61)->_left->_right->_data.key, 44);
+	EXPECT_EQ(t.find(61)->_right->_data.key, 83);
+	EXPECT_EQ(t.find(61)->_right->_right->_data.key, 90);
+	EXPECT_EQ(t.find(61)->_right->_left->_data.key, 75);
+	EXPECT_EQ(t.find(61)->_right->_left->_right->_data.key, 80);
+
+	EXPECT_EQ(t.find(33)->_color, red);
+	EXPECT_EQ(t.find(10)->_color, black);
+	EXPECT_EQ(t.find(5)->_color, red);
+	EXPECT_EQ(t.find(44)->_color, black);
+	EXPECT_EQ(t.find(75)->_color, black);
+	EXPECT_EQ(t.find(83)->_color, red);
+	EXPECT_EQ(t.find(80)->_color, red);
+	EXPECT_EQ(t.find(61)->_color, black);
+	EXPECT_EQ(t.find(90)->_color, black);
+
+	EXPECT_EQ(t.find(55), nullptr);
+
+	/*
+		   [55] r                          [61]
+		  /      \                       /      \
+		(33)      (75)                 (33)      (83)
+		/ \      /     \        =>     / \       /   \
+	 [10] [44] X[61] d  [83] s       [10] [44] [75]   [90]
+	  /                  / \           /         \  
+	(5)               (80) (90)      (5)         (80)
+	*/
+
+	std::cout << t;
+}
+
+TEST(TestRBTreeLib, correct_erase_r_and_d_black_without_children_s_black_without_children) {
+	RBTree<int, int> t;
+	t.insert(55, 55);
+	t.insert(33, 33);
+	t.insert(75, 75);
+	t.insert(10, 10);
+	t.insert(61, 61);
+	t.insert(44, 44);
+	t.insert(83, 83);
+	t.insert(5, 5);
+	t.insert(90, 90);
+	t.erase(90);
+	std::cout << t;
+
+	t.erase(55);
+
+	EXPECT_EQ(t.find(61)->_data.key, 61);
+	EXPECT_EQ(t.find(61)->_left->_data.key, 33);
+	EXPECT_EQ(t.find(61)->_left->_left->_data.key, 10);
+	EXPECT_EQ(t.find(61)->_left->_left->_left->_data.key, 5);
+	EXPECT_EQ(t.find(61)->_left->_right->_data.key, 44);
+	EXPECT_EQ(t.find(61)->_right->_data.key, 75);
+	EXPECT_EQ(t.find(61)->_right->_right->_data.key, 83);
+
+	EXPECT_EQ(t.find(33)->_color, red);
+	EXPECT_EQ(t.find(10)->_color, black);
+	EXPECT_EQ(t.find(5)->_color, red);
+	EXPECT_EQ(t.find(44)->_color, black);
+	EXPECT_EQ(t.find(75)->_color, black);
+	EXPECT_EQ(t.find(83)->_color, red);
+	EXPECT_EQ(t.find(61)->_color, black);
+
+	EXPECT_EQ(t.find(55), nullptr);
+
+	/*
+		   [55] r                          [61]
+		  /      \                       /      \
+		(33)      (75)                 (33)      [75]
+		/ \      /     \        =>     / \          \
+	 [10] [44] X[61] d  [83] s       [10] [44]      (83)
+	  /                               /
+	(5)                             (5)
+	*/
+
+	std::cout << t;
+}
+
+TEST(TestRBTreeLib, correct_erase_r_and_d_black_without_children_s_black_with_red_child_mirror_test) {
+	RBTree<int, int> t;
+	t.insert(55, 55);
+	t.insert(33, 33);
+	t.insert(75, 75);
+	t.insert(10, 10);
+	t.insert(61, 61);
+	t.insert(44, 44);
+	t.insert(83, 83);
+	t.insert(5, 5);
+	t.insert(90, 90);
+	t.erase(90);
+	std::cout << t;
+
+	t.erase(44);
+
+	EXPECT_EQ(t.find(55)->_data.key, 55);
+	EXPECT_EQ(t.find(55)->_left->_data.key, 10);
+	EXPECT_EQ(t.find(55)->_left->_left->_data.key, 5);
+	EXPECT_EQ(t.find(55)->_left->_right->_data.key, 33);
+	EXPECT_EQ(t.find(55)->_right->_data.key, 75);
+	EXPECT_EQ(t.find(55)->_right->_right->_data.key, 83);
+
+	EXPECT_EQ(t.find(33)->_color, black);
+	EXPECT_EQ(t.find(10)->_color, red);
+	EXPECT_EQ(t.find(5)->_color, black);
+	EXPECT_EQ(t.find(75)->_color, red);
+	EXPECT_EQ(t.find(83)->_color, black);
+	EXPECT_EQ(t.find(61)->_color, black);
+	EXPECT_EQ(t.find(55)->_color, black);
+
+	EXPECT_EQ(t.find(44), nullptr);
+
+	/*
+		    [55]                            [55]
+		  /      \                        /      \
+		(33)        (75)                (10)       (75)
+		/ \        /     \        =>    / \        /   \  
+	s [10] X[44]X [61]  [83]          [5] [33]   [61]  [83]
+	  /                               
+	(5)                             
+	*/
+
+	std::cout << t;
+}
+
+TEST(TestRBTreeLib, correct_erase_r_and_d_black_without_children_s_black_with_red_child_mirror_test_2) {
+	RBTree<int, int> t;
+	t.insert(55, 55);
+	t.insert(33, 33);
+	t.insert(75, 75);
+	t.insert(10, 10);
+	t.insert(61, 61);
+	t.insert(44, 44);
+	t.insert(83, 83);
+	t.insert(15, 15);
+	t.insert(90, 90);
+	t.erase(90);
+	std::cout << t;
+
+	t.erase(44);
+
+	EXPECT_EQ(t.find(55)->_data.key, 55);
+	EXPECT_EQ(t.find(55)->_left->_data.key, 15);
+	EXPECT_EQ(t.find(55)->_left->_left->_data.key, 10);
+	EXPECT_EQ(t.find(55)->_left->_right->_data.key, 33);
+	EXPECT_EQ(t.find(55)->_right->_data.key, 75);
+	EXPECT_EQ(t.find(55)->_right->_right->_data.key, 83);
+
+	EXPECT_EQ(t.find(33)->_color, black);
+	EXPECT_EQ(t.find(15)->_color, red);
+	EXPECT_EQ(t.find(10)->_color, black);
+	EXPECT_EQ(t.find(75)->_color, red);
+	EXPECT_EQ(t.find(83)->_color, black);
+	EXPECT_EQ(t.find(61)->_color, black);
+	EXPECT_EQ(t.find(55)->_color, black);
+
+	EXPECT_EQ(t.find(44), nullptr);
+
+	/*
+			[55]                            [55]
+		  /      \                        /      \
+		(33)        (75)                (15)       (75)
+		/ \        /     \        =>    / \        /   \
+	s [10] X[44]X [61]  [83]          [10] [33]   [61]  [83]
+	    \
+	    (15)
+	*/
+
+	std::cout << t;
+}
+
+TEST(TestRBTreeLib, correct_erase_with_s_red_with_child_d_black_without_children) {
+	RBTree<int, int> t;
+	t.insert(10, 10);
+	t.insert(5, 5);
+	t.insert(20, 20);
+	t.insert(3, 3);
+	t.insert(8, 8);
+	t.insert(4, 4);
+
+	std::cout << t;
+	
+	t.erase(10);
+
+	EXPECT_EQ(t.find(5)->_data.key, 5);
+	EXPECT_EQ(t.find(5)->_left->_data.key, 3);
+	EXPECT_EQ(t.find(5)->_left->_right->_data.key, 4);
+	EXPECT_EQ(t.find(5)->_right->_data.key, 20);
+	EXPECT_EQ(t.find(5)->_right->_left->_data.key, 8);
+
+	EXPECT_EQ(t.find(5)->_color, black);
+	EXPECT_EQ(t.find(3)->_color, black);
+	EXPECT_EQ(t.find(4)->_color, red);
+	EXPECT_EQ(t.find(8)->_color, red);
+	EXPECT_EQ(t.find(20)->_color, black);
+
+	EXPECT_EQ(t.find(10), nullptr);
+
+	/*
+		   [10] r                [5]
+		  /     \               /   \
+	   s (5)     X[20]X d =>   [3]    [20]
+		/ \                     \    /
+	 [3] [8]                    (4) (8)
+	  \                        
+	  (4)                        
+
+	*/
+	std::cout << t;
+}
+
+TEST(TestRBTreeLib, correct_erase_with_s_red_d_black_without_children_2) {
+	RBTree<int, int> t;
+	t.insert(55, 55);
+	t.insert(33, 33);
+	t.insert(75, 75);
+	t.insert(10, 10);
+	t.insert(61, 61);
+	t.insert(44, 44);
+	t.insert(83, 83);
+	t.insert(5, 5);
+	t.insert(79, 79);
+	t.insert(90, 90);
+	t.insert(85, 85);
+	t.erase(85);
+
+	std::cout << t;
+
+	t.erase(55);
+
+	EXPECT_EQ(t.find(61)->_data.key, 61);
+	EXPECT_EQ(t.find(61)->_left->_data.key, 33);
+	EXPECT_EQ(t.find(61)->_left->_left->_data.key, 10);
+	EXPECT_EQ(t.find(61)->_left->_left->_left->_data.key, 5);
+	EXPECT_EQ(t.find(61)->_left->_right->_data.key, 44);
+	EXPECT_EQ(t.find(61)->_right->_data.key, 83);
+	EXPECT_EQ(t.find(61)->_right->_right->_data.key, 90);
+	EXPECT_EQ(t.find(61)->_right->_left->_data.key, 75);
+	EXPECT_EQ(t.find(61)->_right->_left->_right->_data.key, 79);
+
+	EXPECT_EQ(t.find(33)->_color, black);
+	EXPECT_EQ(t.find(10)->_color, black);
+	EXPECT_EQ(t.find(5)->_color, red);
+	EXPECT_EQ(t.find(44)->_color, black);
+	EXPECT_EQ(t.find(75)->_color, black);
+	EXPECT_EQ(t.find(83)->_color, black);
+	EXPECT_EQ(t.find(90)->_color, black);
+	EXPECT_EQ(t.find(61)->_color, black);
+	EXPECT_EQ(t.find(79)->_color, red);
+
+	EXPECT_EQ(t.find(55), nullptr);
+
+	/*
+		   [55] r                                [61]
+		  /     \                               /     \
+		[33]       [75]           =>         [33]     [83]
+		/ \      /      \                   / \       /  \
+	 [10] [44] X[61]X d  (83) s          [10] [44]  [75]  [90]
+	  /                  /  \             /            \
+	(5)               [79] [90]          (5)           (79)
+
+	*/
+
+	std::cout << t;
+}
+
+TEST(TestRBTreeLib, correct_erase_r_and_d_black_s_black_without_children_upward_in_cycle) {
+	RBTree<int, int> t;
+	t.insert(55, 55);
+	t.insert(33, 33);
+	t.insert(75, 75);
+	t.insert(10, 10);
+	t.insert(61, 61);
+	t.insert(44, 44);
+	t.insert(83, 83);
+	t.insert(5, 5);
+	t.insert(56, 56);
+	t.insert(79, 79);
+	t.insert(65, 65);
+	t.insert(90, 90);
+	t.insert(85, 85);
+	t.erase(5);
+
+	t.erase(44);
+	EXPECT_EQ(t.find(75)->_data.key, 75);
+	EXPECT_EQ(t.find(75)->_left->_data.key, 55);
+	EXPECT_EQ(t.find(75)->_left->_left->_data.key, 33);
+	EXPECT_EQ(t.find(75)->_left->_left->_left->_data.key, 10);
+	EXPECT_EQ(t.find(75)->_left->_right->_data.key, 61);
+	EXPECT_EQ(t.find(75)->_left->_right->_left->_data.key, 56);
+	EXPECT_EQ(t.find(75)->_left->_right->_right->_data.key, 65);
+	EXPECT_EQ(t.find(75)->_right->_data.key, 83);
+	EXPECT_EQ(t.find(75)->_right->_left->_data.key, 79);
+	EXPECT_EQ(t.find(75)->_right->_right->_data.key, 90);
+	EXPECT_EQ(t.find(75)->_right->_right->_left->_data.key, 85);
+
+	EXPECT_EQ(t.find(75)->_color, black);
+	EXPECT_EQ(t.find(55)->_color, black);
+	EXPECT_EQ(t.find(83)->_color, black);
+	EXPECT_EQ(t.find(33)->_color, black);
+	EXPECT_EQ(t.find(61)->_color, black);
+	EXPECT_EQ(t.find(10)->_color, red);
+	EXPECT_EQ(t.find(56)->_color, red);
+	EXPECT_EQ(t.find(65)->_color, red);
+	EXPECT_EQ(t.find(79)->_color, black);
+	EXPECT_EQ(t.find(90)->_color, black);
+	EXPECT_EQ(t.find(85)->_color, red);
+
+	EXPECT_EQ(t.find(44), nullptr);
+
+	/*
+		    [55]                             [75]
+		  /       \                       /        \
+		[33]       [75]      =>         [55]        [83]
+		/ \        /   \                /   \        /   \
+	 [10] X[44]X [61]   (83)          [33]  [61]    [79] [90]
+	             / \     /  \          /     / \           /
+              (56) (65) [79] [90]   (10)  (56) (65)      (85)
+				   		      /
+						    (85)
+	*/
+
+	std::cout << t;
+}
+
