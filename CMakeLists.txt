@@ -33,6 +33,7 @@ add_subdirectory(lib_sort_table_avl)
 add_subdirectory(lib_hash_table)
 add_subdirectory(lib_hashc_table)
 add_subdirectory(lib_rbtree)
+add_subdirectory(lib_sort_table_rbt)
 add_subdirectory(main)                # подключаем дополнительный CMakeLists.txt из подкаталога с именем main
 
 option(BTEST "build test?" ON)        # указываем подключаем ли google-тесты (ON или YES) или нет (OFF или NO)

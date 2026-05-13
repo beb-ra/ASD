@@ -1,0 +1,54 @@
+#include <gtest/gtest.h>
+#include <iostream>
+#include "../lib_sort_table_rbt/sort_table_rbt.h"
+
+TEST(TestSortTableRBTreeLib, correct_create) {
+	SortedTableRBT<int, int> t;
+
+	EXPECT_TRUE(t.rows().is_empty());
+}
+
+TEST(TestSortTableRBTreeLib, correct_insert_found_and_erase) {
+	SortedTableRBT<int, int> t;
+	t.insert(11, 11);
+	t.insert(1, 2);
+	t.insert(3, 4);
+	EXPECT_THROW(t.insert(3, 111), std::logic_error);
+
+	t.print();
+	std::cout << t;
+
+	EXPECT_EQ(*(t.found(1)), 2);
+	EXPECT_EQ(*(t.found(11)), 11);
+
+	t.erase(1);
+	t.erase(3);
+
+	EXPECT_EQ(t.found(1), nullptr);
+	EXPECT_EQ(t.found(3), nullptr);
+
+	EXPECT_THROW(t.erase(3), std::logic_error);
+	EXPECT_THROW(t.erase(5), std::logic_error);
+}
+
+TEST(TestSortTableRBTreeLib, correct_erase) {
+	SortedTableRBT<int, int> t;
+	SortedTableRBT<int, int> expected;
+
+	for (int i = 0; i < 5; i++) {
+		t.insert(i + 1, i + 1);
+	}
+	expected.insert(2, 2);
+	expected.insert(4, 4);
+
+	t.erase(1);
+	t.erase(3);
+	t.erase(5);
+
+	std::cout << t;
+
+	t.erase(2);
+	t.erase(4);
+
+	EXPECT_TRUE(t.rows().is_empty());
+}
