@@ -1,22 +1,23 @@
 #include <gtest/gtest.h>
-#include "../lib_uns_table_list/uns_table_list.h"
+#include "../lib_table/table.h"
+#include "../lib_list_container/list_container.h"
 
 TEST(TestUnsTableListLib, correct_create) {
-	UnsortedTableList<int, int> t;
+	Table<ListContainer, int, int> t;
 
 	EXPECT_TRUE(t.rows().is_empty());
 }
 
 TEST(TestUnsTableListLib, correct_insert_found_and_erase) {
-	UnsortedTableList<int, int> t;
-	t.insert(3, 4);
-	t.insert(1, 2);
-	t.insert(3, 111);
+	Table<ListContainer, int, int> t;
+	t.insert(3, 3);
+	t.insert(1, 1);
+	EXPECT_THROW(t.insert(3, 111), std::logic_error);
 
 	std::cout << t;
 
-	EXPECT_EQ(*(t.found(1)), 2);
-	EXPECT_EQ(*(t.found(3)), 111);
+	EXPECT_EQ(*(t.found(1)), 1);
+	EXPECT_EQ(*(t.found(3)), 3);
 
 	t.erase(1);
 	t.erase(3);
@@ -30,15 +31,11 @@ TEST(TestUnsTableListLib, correct_insert_found_and_erase) {
 }
 
 TEST(TestUnsTableListLib, correct_erase) {
-	UnsortedTableList<int, int> t;
-	UnsortedTableList<int, int> expected;
+	Table<ListContainer, int, int> t;
 	
 	for (int i = 0; i < 5; i++) {
 		t.insert(i + 1, i + 1);
 	}
-	expected.insert(2, 2);
-	expected.insert(4, 4);
-
 	t.erase(1);
 	t.erase(3);
 	t.erase(5);

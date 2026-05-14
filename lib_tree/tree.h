@@ -12,17 +12,17 @@ struct TreePair {
 };
 
 template <class TKey, class TValue>
-struct BSTNode {
+struct TNode {
     TreePair<TKey, TValue> _data;
-    BSTNode<TKey, TValue>* _left;
-    BSTNode<TKey, TValue>* _right;
+    TNode<TKey, TValue>* _left;
+    TNode<TKey, TValue>* _right;
 
-    BSTNode(TreePair<TKey, TValue> data, BSTNode<TKey, TValue>* left = nullptr,
-        BSTNode<TKey, TValue>* right = nullptr) : _data(data), _left(left), _right(right) {}
+    TNode(TreePair<TKey, TValue> data, TNode<TKey, TValue>* left = nullptr,
+        TNode<TKey, TValue>* right = nullptr) : _data(data), _left(left), _right(right) {}
 
-    ~BSTNode() {}
+    ~TNode() {}
 
-    friend std::ostream& operator<<(std::ostream& os, const BSTNode& node) {
+    friend std::ostream& operator<<(std::ostream& os, const TNode& node) {
         os << node._data.key << " : " << node._data.value;
         return os;
     }
@@ -30,16 +30,16 @@ struct BSTNode {
 
 template <class TKey, class TValue>
 class Tree {
-    BSTNode<TKey, TValue>* _root;
+    TNode<TKey, TValue>* _root;
 public:
-    Tree(BSTNode<TKey, TValue>* root = nullptr);
+    Tree(TNode<TKey, TValue>* root = nullptr);
     Tree(const Tree& other);
     ~Tree();
 
     Tree& operator=(const Tree& other);
 
     void insert(const TKey&, const TValue&);
-    BSTNode<TKey, TValue>* find(const TKey&) const noexcept;
+    TNode<TKey, TValue>* find(const TKey&) const noexcept;
     void erase(const TKey&);
     bool is_empty() const noexcept;
     void clear() noexcept;
@@ -54,20 +54,22 @@ public:
         os << "\n\n";
         return os;
     }
-
+    void print() const noexcept {
+        print_lcr();
+    }
 private:
-    void print_lcr_rec(BSTNode<TKey, TValue>*) const noexcept; 
-    void print_clr_rec(BSTNode<TKey, TValue>*) const noexcept;
-    void print_lrc_rec(BSTNode<TKey, TValue>*) const noexcept;
-    void clear_rec(BSTNode<TKey, TValue>* node);
-    BSTNode<TKey, TValue>* copy_rec(BSTNode<TKey, TValue>* node);
+    void print_lcr_rec(TNode<TKey, TValue>*) const noexcept;
+    void print_clr_rec(TNode<TKey, TValue>*) const noexcept;
+    void print_lrc_rec(TNode<TKey, TValue>*) const noexcept;
+    void clear_rec(TNode<TKey, TValue>* node);
+    TNode<TKey, TValue>* copy_rec(TNode<TKey, TValue>* node);
 
-    BSTNode<TKey, TValue>* find_last_node_parent() const;
-    void print_visual_rec(const BSTNode<TKey, TValue>* node, int level) const;
+    TNode<TKey, TValue>* find_last_node_parent() const;
+    void print_visual_rec(const TNode<TKey, TValue>* node, int level) const;
 };
 
 template <class TKey, class TValue>
-Tree<TKey, TValue>::Tree(BSTNode<TKey, TValue>* root) : _root(root) {}
+Tree<TKey, TValue>::Tree(TNode<TKey, TValue>* root) : _root(root) {}
 
 template <class TKey, class TValue>
 Tree<TKey, TValue>::Tree(const Tree& other) : _root(nullptr) {
@@ -77,10 +79,10 @@ Tree<TKey, TValue>::Tree(const Tree& other) : _root(nullptr) {
 }
 
 template <class TKey, class TValue>
-BSTNode<TKey, TValue>* Tree<TKey, TValue>::copy_rec(BSTNode<TKey, TValue>* node) {
+TNode<TKey, TValue>* Tree<TKey, TValue>::copy_rec(TNode<TKey, TValue>* node) {
     if (!node) return nullptr;
 
-    BSTNode<TKey, TValue>* new_node = new BSTNode<TKey, TValue>(node->_data);
+    TNode<TKey, TValue>* new_node = new TNode<TKey, TValue>(node->_data);
     new_node->_left = copy_rec(node->_left);
     new_node->_right = copy_rec(node->_right);
 
@@ -102,8 +104,8 @@ template <class TKey, class TValue>
 Tree<TKey, TValue>::~Tree() {
     if (!_root) return;
 
-    LQueue<BSTNode<TKey, TValue>*> q;
-    BSTNode<TKey, TValue>* current = nullptr;
+    LQueue<TNode<TKey, TValue>*> q;
+    TNode<TKey, TValue>* current = nullptr;
     q.push(_root);
 
     while (!q.is_empty()) {
@@ -122,15 +124,19 @@ Tree<TKey, TValue>::~Tree() {
 
 template <class TKey, class TValue>
 void Tree<TKey, TValue>::insert(const TKey& key, const TValue& value) {
+    TNode<TKey, TValue>* is_find = find(key);
+    if (is_find) {
+        throw std::logic_error("The key already exist");
+    }
     TreePair<TKey, TValue> pair = TreePair<TKey, TValue>(key, value);
-    BSTNode<TKey, TValue>* node = new BSTNode<TKey, TValue>(pair);
+    TNode<TKey, TValue>* node = new TNode<TKey, TValue>(pair);
     if (is_empty()) {
         _root = node;
         return;
     }
 
-    BSTNode<TKey, TValue>* cur = nullptr;
-    LQueue<BSTNode<TKey, TValue>*> q;
+    TNode<TKey, TValue>* cur = nullptr;
+    LQueue<TNode<TKey, TValue>*> q;
     q.push(_root);
     while (true) {
         cur = q.head();
@@ -150,12 +156,12 @@ void Tree<TKey, TValue>::insert(const TKey& key, const TValue& value) {
 }
 
 template <class TKey, class TValue>
-BSTNode<TKey, TValue>* Tree<TKey, TValue>::find(const TKey& key) const noexcept {
+TNode<TKey, TValue>* Tree<TKey, TValue>::find(const TKey& key) const noexcept {
     if (is_empty()) {
         return nullptr;
     }
-    BSTNode<TKey, TValue>* cur = nullptr;
-    LQueue<BSTNode<TKey, TValue>*> q;
+    TNode<TKey, TValue>* cur = nullptr;
+    LQueue<TNode<TKey, TValue>*> q;
     q.push(_root);
     while (!q.is_empty()) {
         cur = q.head();
@@ -177,12 +183,12 @@ void Tree<TKey, TValue>::erase(const TKey& key) {
     if (is_empty()) {
         throw std::logic_error("The tree is empty");
     }
-    BSTNode<TKey, TValue>* node = find(key);
+    TNode<TKey, TValue>* node = find(key);
     if (node == nullptr) {
         throw std::logic_error("The key not found");
     }
-    BSTNode<TKey, TValue>* last_parent = find_last_node_parent();
-    BSTNode<TKey, TValue>* last = nullptr;
+    TNode<TKey, TValue>* last_parent = find_last_node_parent();
+    TNode<TKey, TValue>* last = nullptr;
     
     if (last_parent != nullptr) {
         if (last_parent->_right) {
@@ -207,17 +213,17 @@ void Tree<TKey, TValue>::erase(const TKey& key) {
 }
 
 template <class TKey, class TValue>
-BSTNode<TKey, TValue>* Tree<TKey, TValue>::find_last_node_parent() const {
+TNode<TKey, TValue>* Tree<TKey, TValue>::find_last_node_parent() const {
     if (is_empty()) {
         return nullptr;
     }
 
-    LQueue<BSTNode<TKey, TValue>*> q;
+    LQueue<TNode<TKey, TValue>*> q;
     q.push(_root);
-    BSTNode<TKey, TValue>* parent = nullptr;
+    TNode<TKey, TValue>* parent = nullptr;
 
     while (!q.is_empty()) {
-        BSTNode<TKey, TValue>* cur = q.head();
+        TNode<TKey, TValue>* cur = q.head();
         q.pop();
 
         if (cur->_left) {
@@ -239,7 +245,7 @@ void Tree<TKey, TValue>::clear() noexcept {
 }
 
 template <class TKey, class TValue>
-void Tree<TKey, TValue>::clear_rec(BSTNode<TKey, TValue>* node) {
+void Tree<TKey, TValue>::clear_rec(TNode<TKey, TValue>* node) {
     if (node == nullptr) return;
 
     clear_rec(node->_left);
@@ -259,8 +265,8 @@ void Tree<TKey, TValue>::print_w() const noexcept {
         std::cout << "\n";
         return;
     }
-    BSTNode<TKey, TValue>* cur = nullptr;
-    LQueue<BSTNode<TKey, TValue>*> q;
+    TNode<TKey, TValue>* cur = nullptr;
+    LQueue<TNode<TKey, TValue>*> q;
     q.push(_root);
 
     while (!q.is_empty()) {
@@ -294,7 +300,7 @@ void Tree<TKey, TValue>::print_clr() const noexcept {
 }
 
 template <class TKey, class TValue>
-void Tree<TKey, TValue>::print_clr_rec(BSTNode<TKey, TValue>* node) const noexcept {
+void Tree<TKey, TValue>::print_clr_rec(TNode<TKey, TValue>* node) const noexcept {
     if (node == nullptr) return;
 
     std::cout << node->_data.key << " : " << node->_data.value << " ";
@@ -303,7 +309,7 @@ void Tree<TKey, TValue>::print_clr_rec(BSTNode<TKey, TValue>* node) const noexce
 }
 
 template <class TKey, class TValue>
-void Tree<TKey, TValue>::print_lcr_rec(BSTNode<TKey, TValue>* node) const noexcept {
+void Tree<TKey, TValue>::print_lcr_rec(TNode<TKey, TValue>* node) const noexcept {
     if (node == nullptr) return;
 
     print_lcr_rec(node->_left);
@@ -312,7 +318,7 @@ void Tree<TKey, TValue>::print_lcr_rec(BSTNode<TKey, TValue>* node) const noexce
 }
 
 template <class TKey, class TValue>
-void Tree<TKey, TValue>::print_lrc_rec(BSTNode<TKey, TValue>* node) const noexcept {
+void Tree<TKey, TValue>::print_lrc_rec(TNode<TKey, TValue>* node) const noexcept {
     if (node == nullptr) return;
 
     print_lrc_rec(node->_left);
@@ -321,7 +327,7 @@ void Tree<TKey, TValue>::print_lrc_rec(BSTNode<TKey, TValue>* node) const noexce
 }
 
 template <class TKey, class TValue>
-void Tree<TKey, TValue>::print_visual_rec(const BSTNode<TKey, TValue>* node, int level) const {
+void Tree<TKey, TValue>::print_visual_rec(const TNode<TKey, TValue>* node, int level) const {
     if (!node) return;
 
     print_visual_rec(node->_right, level + 1);

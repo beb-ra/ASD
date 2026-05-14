@@ -1,14 +1,15 @@
 #include <gtest/gtest.h>
-#include "../lib_hash_table/hash_table.h"
+#include "../lib_hash_table_container/hash_table_container.h"
+#include "../lib_table/table.h"
 
 TEST(TestHashTableAOLib, correct_create) {
-	HashTableOA<int> t;
+	Table<HashTableContainerOA, std::string, int> t;
 
 	EXPECT_TRUE(t.is_empty());
 }
 
 TEST(TestHashTableAOLib, correct_insert_found_and_erase) {
-	HashTableOA<int> t;
+	Table<HashTableContainerOA, std::string, int> t;
 	t.insert("3", 4);
 	t.insert("1", 2);
 	t.insert("11", 11);
@@ -34,7 +35,7 @@ TEST(TestHashTableAOLib, correct_insert_found_and_erase) {
 }
 
 TEST(TestHashTableAOLib, correct_erase) {
-	HashTableOA<int> t;
+	Table<HashTableContainerOA, std::string, int> t;
 
 	t.insert("100", 100);
 	t.insert("200", 200);

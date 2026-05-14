@@ -53,6 +53,9 @@ public:
         os << "\n\n";
         return os;
     }
+    void print() const noexcept {
+        print_lcr();
+    }
 protected:
     Node* insert_and_return_node(const TKey& key, const TValue& value);
     Node* erase_and_return_node(const TKey& key);

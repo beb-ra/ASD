@@ -176,7 +176,7 @@ public:
 	bool operator!=(const List<T>& other) const noexcept;
 
 //private:
-	void print() noexcept;
+	void print() const noexcept;
 };
 
 template <class T>
@@ -381,9 +381,8 @@ bool List<T>::operator!=(const List<T>& other) const noexcept {
 }
 
 template <class T>
-void List<T>::print() noexcept {
+void List<T>::print() const noexcept {
 	Node* node = _head;
-	std::cout << "values: ";
 	for (size_t i = 0; i < _count; i++) {
 		std::cout << node->value << " ";
 		node = node->next;

@@ -138,8 +138,8 @@ public:
     void assign(std::initializer_list<T> data) noexcept;
     void replace(const T& value, const T& new_value) noexcept;
 
-    void print() noexcept;
-    void print_all_info() noexcept;
+    void print() const noexcept;
+    void print_all_info() const noexcept;
 
     friend void hoara_sort_rec<T>(TVector<T>& data, size_t left, size_t right);
     friend void hoara_sort<T>(TVector<T>& data);
@@ -944,9 +944,7 @@ void TVector<T>::erase(size_t index) {
 }
 
 template <class T>
-void TVector<T>::print() noexcept {
-    std::cout << "Your vector: ";
-
+void TVector<T>::print() const noexcept {
     for (int i = 0; i < _size; i++) {
         if (_states[i] == State::busy) {
             std::cout << _data[i] << " ";
@@ -956,7 +954,7 @@ void TVector<T>::print() noexcept {
 }
 
 template <class T>
-void TVector<T>::print_all_info() noexcept {
+void TVector<T>::print_all_info() const noexcept {
     std::cout << "--------------------------------------------"
         << std::endl;
     std::cout << "CAPACITY: " << _capacity << std::endl;

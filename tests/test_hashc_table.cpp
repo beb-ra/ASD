@@ -1,14 +1,15 @@
 #include <gtest/gtest.h>
-#include "../lib_hashc_table/hashc_table.h"
+#include "../lib_hashc_table_container/hashc_table_container.h"
+#include "../lib_table/table.h"
 
 TEST(TestHashTableCLib, correct_create) {
-	HashTableC<int> t;
+	Table<HashTableContainerC, std::string, int> t;
 
 	EXPECT_TRUE(t.is_empty());
 }
 
 TEST(TestHashTableCLib, correct_insert_found_and_erase) {
-	HashTableC<int> t;
+	Table<HashTableContainerC, std::string, int> t;
 	t.insert("3", 4);
 	t.insert("1", 2);
 	t.insert("11", 11);
@@ -33,32 +34,38 @@ TEST(TestHashTableCLib, correct_insert_found_and_erase) {
 	EXPECT_THROW(t.erase("5"), std::logic_error);
 }
 
-TEST(TestHashTableCLib, correct_resize) {
-	HashTableC<int> t(3);
+TEST(TestHashTableCLib, correct_erase) {
+	Table<HashTableContainerC, std::string, int> t;
 
-	t.insert("1", 1);
-	t.insert("2", 2);
-	t.insert("3", 3);
-	t.insert("4", 4);
+	t.insert("100", 100);
+	t.insert("200", 200);
+	t.insert("300", 300);
+	t.insert("400", 400);
+	t.insert("500", 500);
 
-	EXPECT_EQ(t.rows().size(), 6);
+	EXPECT_EQ(*t.found("100"), 100);
+	EXPECT_EQ(*t.found("300"), 300);
+	EXPECT_EQ(*t.found("500"), 500);
 
-	EXPECT_EQ(*t.found("2"), 2);
-	EXPECT_EQ(*t.found("3"), 3);
+	std::cout << t;
 
-	t.erase("3");
-	t.erase("2");
+	t.erase("100");
+	t.erase("300");
+	t.erase("500");
 
-	EXPECT_EQ(t.found("3"), nullptr);
-	EXPECT_EQ(t.found("2"), nullptr);
-	EXPECT_EQ(*t.found("1"), 1);
-	EXPECT_EQ(*t.found("4"), 4);
+	EXPECT_EQ(t.found("100"), nullptr);
+	EXPECT_EQ(t.found("300"), nullptr);
+	EXPECT_EQ(t.found("500"), nullptr);
+	EXPECT_EQ(*t.found("200"), 200);
+	EXPECT_EQ(*t.found("400"), 400);
 
-	t.erase("1");
-	t.erase("4");
+	std::cout << t;
 
-	EXPECT_EQ(t.found("1"), nullptr);
-	EXPECT_EQ(t.found("4"), nullptr);
+	t.erase("200");
+	t.erase("400");
+
+	EXPECT_EQ(t.found("200"), nullptr);
+	EXPECT_EQ(t.found("400"), nullptr);
 
 	EXPECT_TRUE(t.is_empty());
 }

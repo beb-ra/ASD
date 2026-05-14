@@ -1,29 +1,32 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include "../lib_sort_table_vec/sort_table_vec.h"
+#include "../lib_sort_vec_container/sort_vec_container.h"
 
 TEST(TestSortTableVecLib, correct_create) {
-	SortedTableV<int, int> t;
+	Table<SortVecContainer, int, int> t;
 
 	EXPECT_TRUE(t.rows().is_empty());
 }
 
 TEST(TestSortTableVecLib, correct_insert_found_and_erase) {
-	SortedTableV<int, int> t;
-	t.insert(1, 2);
-	t.insert(3, 4);
-	t.insert(3, 111);
+	Table<SortVecContainer, int, int> t;
+	t.insert(3, 3);
+	t.insert(1, 1);
+	t.insert(2, 2);
+	EXPECT_THROW(t.insert(3, 111), std::logic_error);
 
 	std::cout << t;
 
-	EXPECT_EQ(*(t.found(1)), 2);
-	EXPECT_EQ(*(t.found(3)), 111);
+	EXPECT_EQ(*(t.found(1)), 1);
+	EXPECT_EQ(*(t.found(3)), 3);
 
 	t.erase(1);
 	t.erase(3);
 
 	EXPECT_EQ(t.found(1), nullptr);
 	EXPECT_EQ(t.found(3), nullptr);
+	
+	t.erase(2);
 	EXPECT_TRUE(t.rows().is_empty());
 
 	EXPECT_THROW(t.erase(3), std::logic_error);
@@ -31,8 +34,8 @@ TEST(TestSortTableVecLib, correct_insert_found_and_erase) {
 }
 
 TEST(TestSortTableVecLib, correct_erase) {
-	SortedTableV<int, int> t;
-	SortedTableV<int, int> expected;
+	Table<SortVecContainer, int, int> t;
+	Table<SortVecContainer, int, int> expected;
 
 	for (int i = 0; i < 5; i++) {
 		t.insert(i + 1, i + 1);
@@ -51,4 +54,3 @@ TEST(TestSortTableVecLib, correct_erase) {
 
 	EXPECT_TRUE(t.rows().is_empty());
 }
-

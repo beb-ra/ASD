@@ -1,15 +1,16 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include "../lib_sort_table_bst/sort_table_bst.h"
+#include "../lib_table/table.h"
+#include "../lib_bstree/bstree.h"
 
 TEST(TestSortTableBSTLib, correct_create) {
-	SortedTableBST<int, int> t;
+	Table<BSTree, int, int> t;
 
 	EXPECT_TRUE(t.rows().is_empty());
 }
 
 TEST(TestSortTableBSTLib, correct_insert_found_and_erase) {
-	SortedTableBST<int, int> t;
+	Table<BSTree, int, int> t;
 	t.insert(11, 11);
 	t.insert(1, 2);
 	t.insert(3, 4);
@@ -32,8 +33,8 @@ TEST(TestSortTableBSTLib, correct_insert_found_and_erase) {
 }
 
 TEST(TestSortTableBSTLib, correct_erase) {
-	SortedTableBST<int, int> t;
-	SortedTableBST<int, int> expected;
+	Table<BSTree, int, int> t;
+	Table<BSTree, int, int> expected;
 
 	for (int i = 0; i < 5; i++) {
 		t.insert(i + 1, i + 1);

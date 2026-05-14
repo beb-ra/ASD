@@ -1,14 +1,15 @@
 #include <gtest/gtest.h>
-#include "../lib_uns_table_tree/uns_table_tree.h"
+#include "../lib_table/table.h"
+#include "../lib_tree/tree.h"
 
 TEST(TestUnsTableTreeLib, correct_create) {
-	UnsortedTableTree<int, int> t;
+	Table<Tree, int, int> t;
 
 	EXPECT_TRUE(t.rows().is_empty());
 }
 
 TEST(TestUnsTableTreeLib, correct_insert_found_and_erase) {
-	UnsortedTableTree<int, int> t;
+	Table<Tree, int, int> t;
 	t.insert(3, 4);
 	t.insert(1, 2);
 	t.insert(11, 11);
@@ -33,8 +34,8 @@ TEST(TestUnsTableTreeLib, correct_insert_found_and_erase) {
 }
 
 TEST(TestUnsTableTreeLib, correct_erase) {
-	UnsortedTableTree<int, int> t;
-	UnsortedTableTree<int, int> expected;
+	Table<Tree, int, int> t;
+	Table<Tree, int, int> expected;
 
 	for (int i = 0; i < 5; i++) {
 		t.insert((i + 1) * 100, (i + 1) * 100);

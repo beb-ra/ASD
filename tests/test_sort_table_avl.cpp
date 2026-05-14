@@ -1,15 +1,16 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include "../lib_sort_table_avl/sort_table_avl.h"
+#include "../lib_table/table.h"
+#include "../lib_avltree/avltree.h"
 
 TEST(TestSortTableAVLTreeLib, correct_create) {
-	SortedTableAVL<int, int> t;
+	Table<AVLTree, int, int> t;
 
 	EXPECT_TRUE(t.rows().is_empty());
 }
 
 TEST(TestSortTableAVLTreeLib, correct_insert_found_and_erase) {
-	SortedTableAVL<int, int> t;
+	Table<AVLTree, int, int> t;
 	t.insert(11, 11);
 	t.insert(1, 2);
 	t.insert(3, 4);
@@ -32,8 +33,8 @@ TEST(TestSortTableAVLTreeLib, correct_insert_found_and_erase) {
 }
 
 TEST(TestSortTableAVLTreeLib, correct_erase) {
-	SortedTableAVL<int, int> t;
-	SortedTableAVL<int, int> expected;
+	Table<AVLTree, int, int> t;
+	Table<AVLTree, int, int> expected;
 
 	for (int i = 0; i < 5; i++) {
 		t.insert(i + 1, i + 1);

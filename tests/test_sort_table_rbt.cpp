@@ -1,15 +1,16 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include "../lib_sort_table_rbt/sort_table_rbt.h"
+#include "../lib_table/table.h"
+#include "../lib_rbtree/rbtree.h"
 
 TEST(TestSortTableRBTreeLib, correct_create) {
-	SortedTableRBT<int, int> t;
+	Table<RBTree, int, int> t;
 
 	EXPECT_TRUE(t.rows().is_empty());
 }
 
 TEST(TestSortTableRBTreeLib, correct_insert_found_and_erase) {
-	SortedTableRBT<int, int> t;
+	Table<RBTree, int, int> t;
 	t.insert(11, 11);
 	t.insert(1, 2);
 	t.insert(3, 4);
@@ -32,8 +33,8 @@ TEST(TestSortTableRBTreeLib, correct_insert_found_and_erase) {
 }
 
 TEST(TestSortTableRBTreeLib, correct_erase) {
-	SortedTableRBT<int, int> t;
-	SortedTableRBT<int, int> expected;
+	Table<RBTree, int, int> t;
+	Table<RBTree, int, int> expected;
 
 	for (int i = 0; i < 5; i++) {
 		t.insert(i + 1, i + 1);
