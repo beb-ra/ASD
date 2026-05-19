@@ -1,13 +1,13 @@
-//#include <iostream>
-//#include <iomanip>
-//#include <cstdlib>
-//#include <ctime>
-//#include "bstree.h"
-//#include "heap.h"
-//#include "pqueue.h"
-//#include <string>
-//#include "hash_table.h"
-//#include "hashc_table.h"
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+#include <ctime>
+#include "bstree.h"
+#include "heap.h"
+#include "pqueue.h"
+#include <string>
+#include "hash_table_container.h"
+#include "hashc_table_container.h"
 
 #include "table.h"
 #include "rbtree.h"
@@ -16,16 +16,11 @@
 //#define TREE_SORT
 //#define HEAP_SORT
 //#define PRIORITY_QUEUE
-//#define DICTIONARIES_MERGING
+#define DICTIONARIES_MERGING
 
 int main() {
 	srand(static_cast<unsigned int>(time(0)));
-
-	Table<RBTree, int, int> table;
 	
-	//table.insert(1, 1);
-	//std::cout << table;
-/*
 #ifdef TREE_SORT
 	BSTree<int, int> t;
 	int mass[SIZE];
@@ -85,7 +80,7 @@ int main() {
 		std::cout << "Приоритет: " << q.top().priority << " значение: " << q.top().value << std::endl;
 		q.pop();
 	}
-	/////
+	*/
 	setlocale(LC_ALL, "rus");
 	PQueue<std::string> q;
 	int k;
@@ -120,7 +115,8 @@ int main() {
 	dict2.push_back(std::pair<std::string, int>("hash", 4317));
 	dict2.push_back(std::pair<std::string, int>("vector", 2586));
 
-	HashTableOA<int> table;
+	Table<HashTableContainerOA, std::string, int> table;
+
 	for (int i = 0; i < 3; i++) {
 		table.insert(dict1[i].first, dict1[i].second);
 	}
@@ -132,7 +128,7 @@ int main() {
 	}
 
 	std::cout << table;
-	/////
+	*/
 	TVector<std::pair<std::string, int>> dict1;
 	TVector<std::pair<std::string, int>> dict2;
 
@@ -145,7 +141,8 @@ int main() {
 	dict2.push_back(std::pair<std::string, int>("hash", 4317));
 	dict2.push_back(std::pair<std::string, int>("vector", 2586));
 
-	HashTableC<int> table;
+	Table<HashTableContainerC, std::string, int> table;
+
 	for (int i = 0; i < 3; i++) {
 		table.insert(dict1[i].first, dict1[i].second);
 	}
@@ -158,7 +155,6 @@ int main() {
 
 	std::cout << table;
 #endif
-*/
 	return 0;
 }
 

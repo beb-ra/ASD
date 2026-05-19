@@ -4,19 +4,11 @@
 #include "../lib_table/table.h"
 #include "../lib_tvector/tvector.h"
 #include "../lib_list/list.h"
+#include "../lib_hash_pair/hash_pair.h"
 
 #define SIZE 100
 #define EXPANSION_COEFFICIENT 1
 #define RESIZE_COEFFICIENT 2
-
-template <class TValue>
-struct HashPair {
-    std::string key;
-    TValue value;
-
-    HashPair() : key("DEFAULT"), value() {}
-    HashPair(std::string k, TValue v) : key(k), value(v) {}
-};
 
 template <class TValue>
 struct HashCData {
