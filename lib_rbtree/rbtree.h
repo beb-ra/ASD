@@ -7,7 +7,7 @@
 enum Color {
     red,        // ()
     black,      // []
-    blackblack  // {}
+    //blackblack  // {}
 };
 
 template <class TKey, class TValue>
@@ -136,7 +136,7 @@ void RBTree<TKey, TValue>::recover_balance(RBNode<TKey, TValue>* C) {
         U = G->_left;
     }
 
-    if (U && U->_color == red && !U->_left && !U->_right) {
+    if (U && U->_color == red) {
         while (U->_color == red && P->_color == red) {
             U->_color = black;
             P->_color = black;
@@ -159,20 +159,48 @@ void RBTree<TKey, TValue>::recover_balance(RBNode<TKey, TValue>* C) {
         left_rotate(G);
         swap_colors(G, P);
     }
+    /*
+         [G]
+         /             [P]
+       (P)       =>   /   \
+       /            (C)   (G)
+     (C)
+    */
     else if (G->_left && G->_left == P && P->_left && P->_left == C) {
         right_rotate(G);
         swap_colors(G, P);
     }
+    /*
+     [G]
+       \               [P]
+       (P)       =>   /   \
+         \          (G)   (C)
+         (C)
+    */
     else if (G->_right && G->_right == P && P->_left && P->_left == C) {
         right_rotate(P);
         left_rotate(G);
         swap_colors(G, C);
     }
+    /*
+      [G]
+        \               [C]
+        (P)       =>   /   \
+        /            (G)   (P)
+      (C)
+    */
     else if (G->_left && G->_left == P && P->_right && P->_right == C) {
         left_rotate(P);
         right_rotate(G);
         swap_colors(G, C);
     }
+    /*
+        [G]
+        /              [C]
+       (P)       =>   /   \
+        \           (P)   (G)
+        (C)
+    */
 }
 
 template <class TKey, class TValue>
@@ -282,6 +310,7 @@ void RBTree<TKey, TValue>::erase(const TKey& key) {
     }
     if (child_of_deleted && child_of_deleted->_color == red) {
         child_of_deleted->_color = black;
+        child_of_deleted->_parent = parent;
         return;
     }
     delete_fixup(child_of_deleted, parent, was_left);
@@ -306,10 +335,9 @@ void RBTree<TKey, TValue>::delete_fixup(RBNode<TKey, TValue>* fix_node,
             sibling = fix_node_was_left ? parent->_right : parent->_left;
         }
 
-        // s черный с двумя черными детьми или без детей (или s nullptr)
-        if ((sibling == nullptr) ||
-            ((sibling->_left == nullptr || sibling->_left->_color == black) &&
-                (sibling->_right == nullptr || sibling->_right->_color == black))) {
+        // s черный с двумя черными детьми или без детей
+        if ((sibling->_left == nullptr || sibling->_left->_color == black) &&
+                (sibling->_right == nullptr || sibling->_right->_color == black)) {
             if (sibling) sibling->_color = red;
             if (parent->_color == red) {
                 parent->_color = black;
