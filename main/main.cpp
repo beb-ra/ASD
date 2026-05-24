@@ -2,6 +2,7 @@
 #ifdef POINT_CIRCLE
 
 #include <iostream>
+#include <iomanip>
 #include "../lib_point/point.h"
 #include "../lib_circle/circle.h"
 #include "../lib_algorithms/algorithms.h"
