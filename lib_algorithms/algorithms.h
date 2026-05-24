@@ -2,6 +2,7 @@
 #include <iostream>
 #include "../lib_stack/stack.h"
 #include "../lib_matrix/matrix.h"
+#include "../lib_list/list.h"
 
 enum LocationTypes { intersect, touch, inside, not_intersect };
 
@@ -54,4 +55,82 @@ int local_min(Matrix<T>& matrix, int i, int j) {
 		return local_min(matrix, i + 1, j);
 	}
 	else return start_elem;
+}
+#include "../lib_list/list.h"
+
+template <class T>
+bool is_looped_1(List<T>& list) {
+    if (list.is_empty()) return false;
+
+    List<T>::Node* slow = list.head();
+    List<T>::Node* fast = list.head();
+
+    while (fast != nullptr && fast->next != nullptr) {
+        slow = slow->next;
+        fast = fast->next->next;
+
+        if (slow == fast) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+template <class T>
+bool is_looped_2(List<T>& list) {
+    if (list.is_empty()) return false;
+
+    List<T>::Node* curr = list.head();
+    List<T>::Node* prev = nullptr;
+    bool is_looped = false;
+
+    while (curr != nullptr) {
+        if (curr->next == list.head()) {
+            is_looped = true;
+        }
+        List<T>::Node* tmp = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = tmp;
+    }
+
+    curr = prev;
+    prev = nullptr;
+    while (curr != nullptr) {
+        List<T>::Node* tmp = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = tmp;
+    }
+
+    return is_looped;
+}
+
+
+template <class T>
+typename List<T>::Node* find_loop(List<T>& list) {
+    if (list.is_empty()) return nullptr;
+
+    List<T>::Node* slow = list.head();
+    List<T>::Node* fast = list.head();
+
+    while (fast != nullptr && fast->next != nullptr) {
+        slow = slow->next;
+        fast = fast->next->next;
+
+        if (slow == fast) {
+            break;
+        }
+    }
+
+    if (fast == nullptr || fast->next == nullptr) return nullptr;
+
+    slow = list.head();
+    while (slow != fast) {
+        slow = slow->next;
+        fast = fast->next;
+    }
+
+    return slow;
 }
