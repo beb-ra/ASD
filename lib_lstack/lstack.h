@@ -39,7 +39,7 @@ void LStack<T>::push(const T& value) {
 
 template <class T>
 void LStack<T>::pop() {
-	if (is_empty()) 
+	if (is_empty())
 		throw std::logic_error("Stack is empty\n");
 	_list.pop_front();
 }

@@ -9,6 +9,11 @@ public:
 		Node* next;
 
 		Node(T val, Node* nxt = nullptr) : value(val), next(nxt) {}
+
+		friend std::ostream& operator<<(std::ostream& os, Node& node) {
+			os << node.value << " ";
+			return os;
+		}
 	};
 protected:
 	Node* _head;
@@ -17,8 +22,12 @@ protected:
 public:
 	List();
 	List(const List<T>&);
-	List(std::initializer_list<T> init);
+	List(std::initializer_list<T>);
 	~List();
+
+	List<T>& operator=(const List<T>&);
+	bool operator==(const List<T>& other) const noexcept;
+	bool operator!=(const List<T>& other) const noexcept;
 
 	inline bool is_empty() const noexcept;
 
@@ -96,6 +105,17 @@ public:
 	Iterator end() {
 		return Iterator(nullptr);
 	}
+	friend std::ostream& operator<<(std::ostream& os, List<T>& list) {
+		for (List<T>::Iterator it = list.begin(); it != list.end(); it++) {
+			os << *it << " ";
+		}
+		return os;
+
+		if (list.is_empty()) {
+			os << "Empty list";
+			return os;
+		}
+	}
 
 	class ConstIterator {
 		const Node* _current;
@@ -118,7 +138,7 @@ public:
 			return _current->value;
 		}
 
-		const T* operator->() const {
+		const T* operator->() const {  // Оператор стрелки для доступа к членам
 			if (_current == nullptr)
 				throw std::logic_error("Node was nullptr");
 			return &(_current->value);
@@ -170,11 +190,6 @@ public:
 	ConstIterator end() const {
 		return ConstIterator(nullptr);
 	}
-
-	List<T>& operator=(const List<T>& other);
-	bool operator==(const List<T>& other) const noexcept;
-	bool operator!=(const List<T>& other) const noexcept;
-
 //private:
 	void print() noexcept;
 };
@@ -188,18 +203,18 @@ template <class T>
 List<T>::List() : _head(nullptr), _tail(nullptr), _count(0) {}
 
 template <class T>
-List<T>::List(std::initializer_list<T> init) : _head(nullptr), _tail(nullptr), _count(0) {
-	for (auto it = init.begin(); it != init.end(); it++) {
-		push_back(*it);
-	}
-}
-
-template <class T>
 List<T>::List(const List<T>& other) : _head(nullptr), _tail(nullptr), _count(0) {
 	Node* node = other._head;
 	while (node != nullptr) {
 		push_back(node->value);
 		node = node->next;
+	}
+}
+
+template <class T>
+List<T>::List(std::initializer_list<T> init) : _head(nullptr), _tail(nullptr), _count(0) {
+	for (auto it = init.begin(); it != init.end(); it++) {
+		push_back(*it);
 	}
 }
 

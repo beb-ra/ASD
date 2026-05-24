@@ -33,14 +33,14 @@ TEST(TestListLib, correct_create) {
 	EXPECT_EQ(nullptr, l.tail());
 }
 
-TEST(TestListLib, correct_create_with_initialize) {
-	List<int> l = {1, 2, 3, 4, 5};
+TEST(TestListLib, correct_create_with_initialization) {
+	List<int> l = { 1, 2, 3, 4, 5 };
 	List<int> l2;
 	for (int i = 0; i < 5; i++) {
 		l2.push_back(i + 1);
 	}
-
 	EXPECT_EQ(5, l.size());
+	EXPECT_EQ(5, l2.size());
 	EXPECT_EQ(l, l2);
 }
 

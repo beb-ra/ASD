@@ -56,7 +56,6 @@ int local_min(Matrix<T>& matrix, int i, int j) {
 	}
 	else return start_elem;
 }
-#include "../lib_list/list.h"
 
 template <class T>
 bool is_looped_1(List<T>& list) {
@@ -107,7 +106,6 @@ bool is_looped_2(List<T>& list) {
     return is_looped;
 }
 
-
 template <class T>
 typename List<T>::Node* find_loop(List<T>& list) {
     if (list.is_empty()) return nullptr;
@@ -134,3 +132,10 @@ typename List<T>::Node* find_loop(List<T>& list) {
 
     return slow;
 }
+
+double my_sin(double);
+double my_cos(double);
+double my_tg(double);
+double my_abs(double);
+double convert_to_radians(double x);
+
