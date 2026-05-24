@@ -8,19 +8,104 @@
 #include <string>
 #include "hash_table_container.h"
 #include "hashc_table_container.h"
+#include "polynom.h"
+#include "avltree.h"
 
 #include "table.h"
 #include "rbtree.h"
+#include "list_container.h"
+
+#include <fstream>
+#include <sstream>
+#include <chrono>
 
 #define SIZE 10
 //#define TREE_SORT
 //#define HEAP_SORT
 //#define PRIORITY_QUEUE
-#define DICTIONARIES_MERGING
+//#define DICTIONARIES_MERGING
+
+#define COEFF_MAX 1000000
+#define POW_MAX 1000
+
+#define COUNT_NOT_EXIST_KEYS 5
 
 int main() {
 	srand(static_cast<unsigned int>(time(0)));
-	
+	for (int iii = 0; iii < 10; iii++) {
+		Table<RBTree, std::string, Polynom> table;
+
+		auto totalInsertTime = std::chrono::microseconds::zero();
+
+		std::vector<std::string> exist_keys;
+
+		std::ifstream in("polynoms.txt");
+		std::string line;
+		int polynoms_count = 0;
+		while (std::getline(in, line)) {
+			if (line.empty()) continue;
+			size_t sepPos = line.find(';');
+			if (sepPos == std::string::npos) continue;
+
+			std::string name = line.substr(0, sepPos);
+			Polynom p(name);
+
+			std::string rest = line.substr(sepPos + 1);
+			std::stringstream ss(rest);
+			std::string monomStr;
+
+			while (std::getline(ss, monomStr, ';')) {
+				std::stringstream monomSs(monomStr);
+				std::string numStr;
+				int coeff, pow1, pow2, pow3;
+
+				std::getline(monomSs, numStr, ','); coeff = std::stoi(numStr);
+				std::getline(monomSs, numStr, ','); pow1 = std::stoi(numStr);
+				std::getline(monomSs, numStr, ','); pow2 = std::stoi(numStr);
+				std::getline(monomSs, numStr, ','); pow3 = std::stoi(numStr);
+
+				Monom m(coeff, { pow1, pow2, pow3 });
+				p += m;
+			}
+			auto start_insert = std::chrono::high_resolution_clock::now();
+			table.insert(p.name(), p);
+			auto end_insert = std::chrono::high_resolution_clock::now();
+			totalInsertTime += std::chrono::duration_cast<std::chrono::microseconds>(end_insert - start_insert);
+			polynoms_count++;
+
+			exist_keys.push_back(p.name());
+
+			//if (polynoms_count == 10000) break;
+		}
+
+		std::cout << "Total insert time: " << totalInsertTime.count() / 1000000.0 << " sec" << std::endl; // микросекунды
+
+		std::random_shuffle(exist_keys.begin(), exist_keys.end());
+
+		auto start_find = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < exist_keys.size(); i++) {
+			if (i <= COUNT_NOT_EXIST_KEYS) {
+				table.found(exist_keys[i] + "pupupu");
+			}
+			else {
+				table.found(exist_keys[i]);
+			}
+		}
+		auto end_find = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> totalFindTime = end_find - start_find;
+
+		std::cout << "Total find time: " << totalFindTime.count() << " sec" << std::endl;
+
+		auto start_erase = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < exist_keys.size(); i++) {
+			table.erase(exist_keys[i]);
+		}
+		auto end_erase = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> totalEraseTime = end_erase - start_erase;
+
+		std::cout << "Total erase time: " << totalEraseTime.count() << " sec" << std::endl;
+	}
+	return 0;
 #ifdef TREE_SORT
 	BSTree<int, int> t;
 	int mass[SIZE];
@@ -155,7 +240,6 @@ int main() {
 
 	std::cout << table;
 #endif
-	return 0;
 }
 
 

@@ -105,6 +105,9 @@ void HashTableContainerOA<TKey, TValue>::erase(const std::string& key) {
     size_t hash = h(key);
     size_t first_hash = hash;
 
+    auto _state_ = _rows[hash]._state;
+    auto _key_ = _rows[hash]._data.key;
+
     while (true) {
         if (_rows[hash]._state == _empty)
             break;
@@ -115,10 +118,10 @@ void HashTableContainerOA<TKey, TValue>::erase(const std::string& key) {
             return;
         }
 
+        hash = hh(hash);
+
         if (first_hash == hash)
             break;
-
-        hash = hh(hash);
     }
 
     throw std::logic_error("The key not found");
